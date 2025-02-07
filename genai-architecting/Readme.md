@@ -1,6 +1,8 @@
 ## Functional Requirements
 University wants to create a portal that allows students and researchers to share AI projects.
 
+There should be an "AI Project Marketplace", which allows all members of the university to create, use, fork or publish various AI projects.
+
 Due to lack of existing IT infrastructure, variable budget and rapid development of AI-acceleration hardware, cloud-hosted solution has been proposed.
 
 The university has about 10K students and researchers, but only 1000 would require access to this system. A budget of $50/year per person has been allocated.
@@ -21,9 +23,16 @@ The university has about 10K students and researchers, but only 1000 would requi
 - Only university-approved models and applications will be available.
 - Access will be granted on needs-basis (e.g. students enrolled in a class that requires interacting with the AI system).
 ## Data Strategy
-
-## Safety & Security
-
+- No personal information should be collected by the portal itself.
+- Some research might be classified.
+    - Classified research will require advanced encryption - it should be enforced automatically when creating a classified project.
+    - Classified projects must not be publically visible in the AI Project Marketplace.
+## Security & Safety
+- Access to the portal will be handled through university SSO.
+    - Might need an upgrade to handle more access levels.
+- Since multiple will be hosted on the platform, the safety will be handled individually (depending on the project/application).
+    - All projects will need to adhere to University's Code of Conduct.
+        - Violations of Code of Conduct may result in temporary suspension of access to the system.
 ## Business Considerations
 ### "Power user" plan
 Some users might require disproportionately more resources. A microbiology researchers might want to use an application to analyze protein structures, while mechanical engineering students might want to run a fluid dynamics simulation.
