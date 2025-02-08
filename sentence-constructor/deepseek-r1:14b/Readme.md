@@ -28,3 +28,16 @@ Yes, I understand Markdown to some extent and can interpret basic Markdown synta
 - Provides examples in the sentence structure, even though it was not told to do so.
 - Thinks for 6 minutes!! (maybe I need to reduce the reasoning effort parameter in Ollama)
 - Worst of all, doesn't understand the concept of role playing. Seems like I need to use different approach.
+
+### Attempt \#2
+OK, this was tough. I might have spent 2 hours trying to produce a meaningful answer. Choosing a small locally hosted model was not a good idea.
+- Let's start with the positives:
+    - I managed to get a table with correct words, and a correct sentence structure. That's a win.
+    - After giving answer in Japanese, I managed to receive an answer where the model corrected me, although not perfectly.
+After that, everything went downhill:
+- Hardest part was to make the model to *not* put kanji in the hiragana column.
+- The model overthinks a lot. Generating an answer on my computer takes 5-10 minutes, because the model keeps getting lost in thoughs, even after reducing the reasoning effort parameter.
+    - Is the context too small?
+- It seems to be incapable of understanding `[After waking up]`, and refuses to make a structure out of it.
+- Afer answering correctly, it recommends adding 私は, even though it can be omitted.
+- When I tried second English sentence, the model completely forgot what it's supposed to do, and straight up translated the English sentence to Japanese. That's a fail.
