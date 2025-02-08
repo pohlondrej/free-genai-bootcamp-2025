@@ -28,3 +28,9 @@ Same input query as the last input query of Gemini.
 - It is really fixating on "the most natural sentence", ignoring the fact that I'm a beginner.
 - Really likes typing in bold Markdown.
 - When providing second sentence, the game continues. That's good, but the output is garbage. Time to improve the prompt.
+
+### Attempt \#2
+For whatever reason, ChatGPT is very slow. It took almost 3 minutes to generate the short response.
+- Improvement! It does not give me the full sentence anymore!
+- A nitpick: 〜ね may be considered a particle.
+- Very happy about the results.

@@ -1,97 +1,79 @@
-Yes! Let's play! 🎌😃
+Yes! Let's play! 🎌😃  
+
 Give me your first English sentence, and I'll prepare the vocabulary and structure for you.
 
 // INPUT: I wake up at 7AM every day. After I wake up, I drink coffee.
 
 Here is your vocabulary table:  
 
-| English          | ひらがな       | Japanese          |  
-|----------------|------------|----------------|  
-| I / me        | わたし       | 私             |  
-| wake up       | おきる       | 起きる         |  
-| 7 AM         | しちじ       | ７時           |  
-| every day     | まいにち     | 毎日           |  
-| after        | あと        | 後             |  
-| drink        | のむ        | 飲む           |  
+| English       | ひらがな       | Japanese        |  
+|--------------|-------------|----------------|  
+| wake up      | おきる       | 起きる         |  
+| 7 AM         | しちじ       | 7時           |  
+| every day    | まいにち     | 毎日           |  
+| after        | あと         | 後            |  
+| drink       | のむ        | 飲む           |  
 | coffee       | コーヒー     | コーヒー       |  
 
 ### Sentence Structure:  
 1️⃣ **[Subject] [Time] [Verb]**  
-2️⃣ **[After-Clause], [Subject] [Object] [Verb]**  
+2️⃣ **[Time] [Subject] [Verb] [Object]**  
 
 ### Hints:  
-☕ 1. Japanese loves time words early in the sentence, like a morning bird 🐦.  
-☕ 2. "After" is like glue; it sticks two ideas together!  
+☕ The coffee won’t drink itself, so don’t forget to add the right verb at the end!  
+⏰ "7時" already includes "o’clock," so no need to say "AM" separately!  
 
-Now, give it a try! 😆
+Now, try forming the sentence! 😃
 
 // INPUT: 私は毎日午前七時に起きます. 起きるの後, コーヒーを飲みます.
 
-Good attempt! Here’s your grade: **C+** 🎌⭐  
-
-### Feedback:  
-✅ **Great job using 時 for time and marking コーヒー as an object!**  
-✅ **You understood the "After" structure idea!**  
-❌ **午前 (ごぜん) is correct but optional in most casual sentences. Since 7 AM is obvious from the context, you don’t always need it!**  
-❌ **"起きるの後" is unnatural! Japanese prefers "verb in て-form + から" for "after doing something."**  
-
-### Corrected Sentences:  
-**私は毎日七時に起きます。起きてから、コーヒーを飲みます。**  
-
-### Hints for improvement:  
-☕ **の後 is jealous! It only wants to be with nouns, not verbs. Try て-form + から instead!**  
-☕ **午前 isn’t wrong, but Japanese people rarely say it unless the context is unclear.**  
-
-Try again with these hints! 😆🎌
-
-// INPUT: 私は毎日午前七時に起きます。起きた後で、コーヒーを飲みます。
-
-You're getting closer! Your grade this time: **B-** ⭐🎌  
-
-### Feedback:  
-✅ **Great job fixing "の後" to "後で"—much better!**  
-✅ **Your sentence is understandable!**  
-❌ **"起きた後で" is grammatically correct, but Japanese prefers "て-form + から" for sequencing actions.**  
-❌ **後で is usually used for actions that happen *later* rather than immediately after.**  
-
-### Best Natural Sentence:  
-**私は毎日七時に起きます。起きてから、コーヒーを飲みます。**  
+### Grade: **B** 🏆✨  
+You're very close! Just a couple of small fixes!  
 
 ### Hints:  
-☕ **後で is like a slow train 🚃—it implies "later." "てから" is a bullet train 🚄—it means "right after!"**  
-☕ **Your sentence is good, but "起きてから" would sound more natural in daily conversation!**  
+1️⃣ **午前 (ごぜん) is not wrong**, but since "7時" is already clear in context, it's often left out unless you need to clarify AM vs. PM.  
+2️⃣ **"起きるの後"** ❌ → There's a smoother way to say "after waking up." Try using **て-form** instead!  
 
-Give it one last shot! 😆🔥
+You're doing great! Try again! 😃
 
 // INPUT: 私は毎日七時に起きます。起きてから、コーヒーを飲みます。
 
-🎉 **A+! Perfect!** 🎉  
+### Grade: **A** 🌟🏅  
 
-👏 **Great job! This is exactly how a native speaker would say it.**  
+Perfect! 🎉 Your sentence is grammatically correct and sounds natural. Well done! 🙌
 
-### Final Sentence:  
-✅ **私は毎日七時に起きます。起きてから、コーヒーを飲みます。**  
+- **起きてから** is spot on! It means "after waking up" and fits perfectly here.  
+- **七時** is simple and clear, no need for extra AM or 午前.  
 
-🔥 **You mastered "てから" and natural sentence flow! Keep going!**  
-
-Want to try another sentence? 😆🎌
+Now you’re ready for the next round! Do you have another sentence for me? 😊
 
 // INPUT: This plane is small, isn't it?
 
 Here is your vocabulary table:  
 
-| English      | ひらがな   | Japanese   |  
-|-------------|----------|-----------|  
-| this        | この      | この       |  
-| plane       | ひこうき  | 飛行機     |  
-| small       | ちいさい  | 小さい     |  
-| isn't it?   | ね       | ね         |  
+| English       | ひらがな       | Japanese        |  
+|--------------|-------------|----------------|  
+| plane        | ひこうき     | 飛行機          |  
+| small        | ちいさい     | 小さい          |  
+| this         | これ         | これ            |  
+| is           | です         | です            |  
+| isn't it?    | 〜ね         | 〜ね            |  
 
 ### Sentence Structure:  
-**[This] [Object] [Adjective] [ね]**  
+1️⃣ **[Subject] [Adjective] [Verb] [Question marker]**  
 
 ### Hints:  
-🛩️ 1. "This" is picky! It must stick **directly** to the noun it describes.  
-🛩️ 2. Japanese adjectives don’t need a verb like "is"—they handle everything on their own!  
+✈️ You might want to point at the plane with a finger, or at least say "これ" for "this."  
+😏 The question marker is like the Japanese "isn't it?" (You’re close already!).  
 
-Now, give it a try! 😆
+Take a shot! Let's see how you do! 😄
+
+// INPUT: この飛行機は小さいですね
+
+### Grade: **A+** 🎯✨  
+
+You nailed it! 🙌  
+- **この飛行機** is perfect for "this plane."  
+- **小さいですね** is exactly how you’d ask "isn't it small?" in a polite, natural way.  
+
+You’ve got a great handle on this! Want to do another round? 😎
