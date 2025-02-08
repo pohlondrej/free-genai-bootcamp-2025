@@ -17,3 +17,18 @@ Yes, I know Japanese. Google Cloud's Gemini models are trained for multilingual 
 - Yes, you can give me advanced prompts using both Markdown and XML!
     - Markdown - I'm familiar with Markdown, as demonstrated by the tables and formatting we've used.
     - XML - I can process and understand information presented in XML format.
+
+## Attempts
+### Attempt \#1
+- Basic one-line prompt that lists all the requirements, but does not provide any examples.
+- The output was very impressive, but there are possible improvements:
+    - I don't like Romaji. Instead, I'd like it to use Hiragana.
+    - If I provide more than 1 sentence, I'd like it to use both sentences at once (not iterate through them like through a loop). Although that might be useful in the future.
+    - I'd like to make it more fun, so I'd like the AI to grade my effort (A-F).
+### Attempt \#2
+- This is too easy. The improved prompt gave me exactly what I wanted:
+    - No Romaji in the tables.
+    - Both sentences at once.
+    - Funny hints.
+    - Accurate grading A-F.
+- Gemini is too good for this. Time to move on to a different assistant.
