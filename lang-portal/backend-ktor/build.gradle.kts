@@ -37,3 +37,8 @@ dependencies {
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }
+
+tasks.named<JavaExec>("run") {
+    dependsOn("build")
+    jvmArgs = listOf("-Dio.ktor.development=true")
+}
