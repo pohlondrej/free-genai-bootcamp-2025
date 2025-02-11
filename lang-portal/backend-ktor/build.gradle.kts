@@ -19,6 +19,10 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    jvmToolchain(23)
+}
+
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.swagger)
