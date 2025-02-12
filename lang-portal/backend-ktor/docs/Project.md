@@ -345,3 +345,26 @@ There will be the following tables:
   "created_at": "2022-01-01T00:20:00Z"
 }
 ```
+### Tasks (scripts)
+#### Initialize Database
+This task will initialize the sqlite database called 'words.db' in the root of the project.
+
+#### Migrate Database
+This task will run a series of migrations on the sqlite database.
+
+Migrations live in the `migrations` folder.
+The migration files will be run in order of their file name.
+The file names should look like this:
+
+```sql
+0001_init.sql
+0002_update.sql
+```
+
+#### Seed data
+This task will import json files and transform them into target data for our database.
+
+All seed files live in the `seeds` folder.
+All seed files should be loaded.
+
+In our task we should have a DSL to specify each seed file and its expected group word name.
