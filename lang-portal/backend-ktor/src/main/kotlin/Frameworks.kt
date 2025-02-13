@@ -1,4 +1,4 @@
-package com.example
+package com.pohlondrej.langportal.backend
 
 import io.ktor.server.application.Application
 import io.ktor.server.application.install

@@ -1,4 +1,4 @@
-package com.example
+package com.pohlondrej.langportal.backend
 
 import io.ktor.client.request.get
 import io.ktor.http.HttpStatusCode
