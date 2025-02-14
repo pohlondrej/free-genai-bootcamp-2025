@@ -1,14 +1,16 @@
 package com.pohlondrej.langportal.backend
 
-import io.ktor.server.application.Application
+import com.pohlondrej.langportal.backend.database.DatabaseFactory
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
 
-fun main(args: Array<String>) {
-    io.ktor.server.netty.EngineMain.main(args)
-}
+fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
-    configureHTTP()
-    configureSerialization()
-    configureFrameworks()
+    DatabaseFactory.init()
     configureRouting()
+    configureSerialization()
+    configureHTTP()
+    configureFrameworks()
 }
