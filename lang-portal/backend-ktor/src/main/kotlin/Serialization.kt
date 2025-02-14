@@ -1,4 +1,4 @@
-package com.example
+package com.pohlondrej.langportal.backend
 
 import io.ktor.serialization.gson.gson
 import io.ktor.serialization.kotlinx.json.json
