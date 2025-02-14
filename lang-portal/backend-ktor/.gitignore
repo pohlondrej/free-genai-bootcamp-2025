@@ -37,3 +37,6 @@ out/
 
 ### Sessions ###
 .kotlin/
+
+### Build ###
+words.db

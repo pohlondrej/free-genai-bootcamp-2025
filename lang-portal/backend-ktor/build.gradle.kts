@@ -39,7 +39,34 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 }
 
+tasks.register("initializeDb") {
+    dependsOn("build")
+    doLast {
+        val dbFile = file("words.db")
+        val initSqlFile = file("migrations/0001_init.sql")
+
+        if (dbFile.exists()) {
+            dbFile.delete()
+        }
+
+        val process = ProcessBuilder("sqlite3", dbFile.absolutePath)
+            .redirectInput(initSqlFile)
+            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+            .redirectError(ProcessBuilder.Redirect.INHERIT)
+            .start()
+
+        process.waitFor()
+
+        if (process.exitValue() == 0) {
+            println("Database initialized successfully in: ${dbFile.absolutePath}")
+        } else {
+            println("Database initialization failed. Check error output.")
+        }
+    }
+}
+
 tasks.named<JavaExec>("run") {
     dependsOn("build")
+    dependsOn("initializeDb")
     jvmArgs = listOf("-Dio.ktor.development=true")
 }
