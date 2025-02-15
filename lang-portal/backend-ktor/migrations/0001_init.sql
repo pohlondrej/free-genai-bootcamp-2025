@@ -4,8 +4,7 @@ CREATE TABLE words (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     japanese TEXT NOT NULL,
     romaji TEXT NOT NULL,
-    english TEXT NOT NULL,
-    parts TEXT -- JSON string
+    english TEXT NOT NULL
 );
 
 CREATE TABLE word_groups (

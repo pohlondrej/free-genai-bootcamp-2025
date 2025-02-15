@@ -9,5 +9,4 @@ data class Word(
     val japanese: String,
     val romaji: String,
     val english: String,
-    val parts: JsonElement?,
 )

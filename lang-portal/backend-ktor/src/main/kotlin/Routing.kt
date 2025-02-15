@@ -1,10 +1,16 @@
 package com.pohlondrej.langportal.backend
 
+import com.pohlondrej.langportal.backend.data.Word
+import com.pohlondrej.langportal.backend.data.Words
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
+import io.ktor.util.reflect.TypeInfo
+import kotlin.reflect.typeOf
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureRouting() {
     routing {
@@ -13,7 +19,20 @@ fun Application.configureRouting() {
         }
 
         get("/api/words") {
-            // Handle fetching words with pagination (default 100 items per page)
+            val wordsList = transaction {
+                Words.selectAll().map { row ->
+                    Word(
+                        id = row[Words.id],
+                        japanese = row[Words.japanese],
+                        romaji = row[Words.romaji],
+                        english = row[Words.english],
+                    )
+                }
+            }
+            call.respond(
+                wordsList,
+                typeInfo = TypeInfo(wordsList.javaClass.kotlin, typeOf<List<Word>>())
+            )
         }
 
         get("/api/words/{id}") {

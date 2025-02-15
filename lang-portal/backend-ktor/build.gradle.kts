@@ -35,6 +35,11 @@ dependencies {
     implementation(libs.logback.classic)
     implementation(libs.ktor.server.config.yaml)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.java.time)
+    implementation(libs.sqlite.jdbc)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
 }
@@ -70,3 +75,7 @@ tasks.named<JavaExec>("run") {
     dependsOn("initializeDb")
     jvmArgs = listOf("-Dio.ktor.development=true")
 }
+
+//tasks.named("test") {
+//    dependsOn("initializeDb")
+//}
