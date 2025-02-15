@@ -269,18 +269,18 @@ fun getStudyActivity(id: Int): StudyActivity? = transaction {
 }
 
 fun getGroupStudySessions(groupId: Int, page: Int = 1, itemsPerPage: Int = 100): Pair<List<StudySessionInfo>, PaginationInfo> = transaction {
-    val totalItems = StudySessions.select { StudySessions.groupId eq groupId }.count()
+    val totalItems = StudySessions.selectAll().where { StudySessions.groupId eq groupId }.count()
     val totalPages = ceil(totalItems.toDouble() / itemsPerPage).toInt()
     val offset = (page - 1) * itemsPerPage
 
     val sessions = (StudySessions innerJoin Groups)
-        .slice(StudySessions.columns + Groups.name)
-        .select { StudySessions.groupId eq groupId }
+        .select(StudySessions.columns + Groups.name)
+        .where { StudySessions.groupId eq groupId }
         .orderBy(StudySessions.createdAt to SortOrder.DESC)
         .limit(itemsPerPage, offset.toLong())
         .map { row ->
             val reviewItemsCount = WordReviewItems
-                .select { WordReviewItems.studySessionId eq row[StudySessions.id] }
+                .selectAll().where { WordReviewItems.studySessionId eq row[StudySessions.id] }
                 .count()
 
             StudySessionInfo(

@@ -12,7 +12,10 @@ application {
     mainClass.set("io.ktor.server.netty.EngineMain")
 
     val isDevelopment: Boolean = project.ext.has("development")
-    applicationDefaultJvmArgs = listOf("-Dio.ktor.development=$isDevelopment")
+    applicationDefaultJvmArgs = listOf(
+        "-Dio.ktor.development=$isDevelopment",
+        "--add-opens=java.base/java.lang=ALL-UNNAMED",
+    )
 }
 
 repositories {
@@ -28,7 +31,6 @@ dependencies {
     implementation(libs.ktor.server.swagger)
     implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotiation)
-    implementation(libs.ktor.serialization.gson)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.koin.ktor)
     implementation(libs.koin.logger.slf4j)
@@ -62,7 +64,6 @@ fun runDbQuery(dbFile: File, queryFile: File) {
 }
 
 tasks.register("initializeDb") {
-    dependsOn("build")
     doLast {
         val dbFile = file("words.db")
         val initSqlFile = file("migrations/0001_init.sql")
@@ -80,5 +81,13 @@ tasks.register("initializeDb") {
 tasks.named<JavaExec>("run") {
     dependsOn("build")
     dependsOn("initializeDb")
-    jvmArgs = listOf("-Dio.ktor.development=true")
+    jvmArgs = listOf(
+        "-Dio.ktor.development=true",
+        "--add-opens=java.base/java.lang=ALL-UNNAMED"
+    )
+}
+
+tasks.named<Test>("test") {
+    dependsOn("initializeDb")
+    jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
 }

@@ -25,5 +25,4 @@ class ApplicationTest {
             assertEquals(HttpStatusCode.OK, status)
         }
     }
-
 }
