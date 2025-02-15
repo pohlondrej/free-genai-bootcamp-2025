@@ -1,16 +1,13 @@
 package com.pohlondrej.langportal.backend
 
-import com.pohlondrej.langportal.backend.data.Word
-import com.pohlondrej.langportal.backend.data.Words
+import com.pohlondrej.langportal.backend.data.getWords
+import com.pohlondrej.langportal.backend.data.responses.PaginatedResponse
 import io.ktor.server.application.Application
 import io.ktor.server.response.respondText
+import io.ktor.server.response.respond
 import io.ktor.server.routing.routing
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.util.reflect.TypeInfo
-import kotlin.reflect.typeOf
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureRouting() {
     routing {
@@ -19,20 +16,13 @@ fun Application.configureRouting() {
         }
 
         get("/api/words") {
-            val wordsList = transaction {
-                Words.selectAll().map { row ->
-                    Word(
-                        id = row[Words.id],
-                        japanese = row[Words.japanese],
-                        romaji = row[Words.romaji],
-                        english = row[Words.english],
-                    )
-                }
-            }
-            call.respond(
-                wordsList,
-                typeInfo = TypeInfo(wordsList.javaClass.kotlin, typeOf<List<Word>>())
-            )
+            val page = call.parameters["page"]?.toIntOrNull() ?: 1
+            val (words, pagination) = getWords(page)
+            val response = PaginatedResponse(words, pagination)
+
+            println("BANANA response: $response")
+
+            call.respond(response)
         }
 
         get("/api/words/{id}") {

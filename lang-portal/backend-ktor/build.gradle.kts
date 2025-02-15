@@ -26,6 +26,7 @@ kotlin {
 dependencies {
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.swagger)
+    implementation(libs.ktor.server.cors)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.gson)
     implementation(libs.ktor.serialization.kotlinx.json)
@@ -44,29 +45,35 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 }
 
+fun runDbQuery(dbFile: File, queryFile: File) {
+    val process = ProcessBuilder("sqlite3", dbFile.absolutePath)
+        .redirectInput(queryFile)
+        .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+        .redirectError(ProcessBuilder.Redirect.INHERIT)
+        .start()
+
+    process.waitFor()
+
+    if (process.exitValue() == 0) {
+        println("Database query ${queryFile.absolutePath} succeeded!")
+    } else {
+        println("Database initialization failed. Check error output.")
+    }
+}
+
 tasks.register("initializeDb") {
     dependsOn("build")
     doLast {
         val dbFile = file("words.db")
         val initSqlFile = file("migrations/0001_init.sql")
+        val dbTestEntries = file("migrations/0002_seed_data.sql")
 
         if (dbFile.exists()) {
             dbFile.delete()
         }
 
-        val process = ProcessBuilder("sqlite3", dbFile.absolutePath)
-            .redirectInput(initSqlFile)
-            .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-            .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start()
-
-        process.waitFor()
-
-        if (process.exitValue() == 0) {
-            println("Database initialized successfully in: ${dbFile.absolutePath}")
-        } else {
-            println("Database initialization failed. Check error output.")
-        }
+        runDbQuery(dbFile, initSqlFile)
+        runDbQuery(dbFile, dbTestEntries)
     }
 }
 
@@ -75,7 +82,3 @@ tasks.named<JavaExec>("run") {
     dependsOn("initializeDb")
     jvmArgs = listOf("-Dio.ktor.development=true")
 }
-
-//tasks.named("test") {
-//    dependsOn("initializeDb")
-//}
