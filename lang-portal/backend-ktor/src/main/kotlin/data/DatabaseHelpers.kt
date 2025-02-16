@@ -9,11 +9,11 @@ import com.pohlondrej.langportal.backend.data.responses.QuickStats
 import com.pohlondrej.langportal.backend.data.responses.Settings
 import com.pohlondrej.langportal.backend.data.responses.StudyActivityCreated
 import com.pohlondrej.langportal.backend.data.responses.StudyProgress
+import com.pohlondrej.langportal.backend.data.responses.StudySession
 import com.pohlondrej.langportal.backend.data.responses.StudySessionInfo
 import com.pohlondrej.langportal.backend.data.responses.SuccessResponse
 import com.pohlondrej.langportal.backend.data.responses.WordDetails
 import com.pohlondrej.langportal.backend.data.responses.WordReviewResponse
-import com.pohlondrej.langportal.backend.data.responses.WordStats
 import com.pohlondrej.langportal.backend.data.responses.WordWithStats
 import kotlin.math.ceil
 import kotlinx.datetime.Clock
@@ -25,10 +25,13 @@ import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
 import org.jetbrains.exposed.sql.alias
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.count
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.min
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -40,17 +43,19 @@ fun getWords(page: Int = 1, itemsPerPage: Int = 100): Pair<List<WordWithStats>, 
 
     val words = Words
         .leftJoin(WordReviewItems)
-        .slice(Words.columns + listOf(
-            WordReviewItems.wordId,
-            WordReviewItems.correct.count(),
-            Count(WordReviewItems.correct).alias("correct_count")
-        ))
-        .selectAll()
+        .select(
+            Words.columns + listOf(
+                WordReviewItems.wordId,
+                WordReviewItems.correct.count(),
+                Count(WordReviewItems.correct).alias("correct_count")
+            )
+        )
         .groupBy(Words.id)
         .orderBy(Words.id)
         .limit(itemsPerPage, offset.toLong())
         .map { row ->
             WordWithStats(
+                id = row[Words.id],
                 japanese = row[Words.japanese],
                 romaji = row[Words.romaji],
                 english = row[Words.english],
@@ -89,10 +94,8 @@ fun getWord(id: Int): WordDetails? = transaction {
         japanese = word[Words.japanese],
         romaji = word[Words.romaji],
         english = word[Words.english],
-        stats = WordStats(
-            correctCount = stats?.get(Count(WordReviewItems.correct))?.toInt() ?: 0,
-            wrongCount = (stats?.get(WordReviewItems.correct.count())?.toInt() ?: 0) - (stats?.get(Count(WordReviewItems.correct))?.toInt() ?: 0)
-        ),
+        correctCount = stats?.get(Count(WordReviewItems.correct))?.toInt() ?: 0,
+        wrongCount = (stats?.get(WordReviewItems.correct.count())?.toInt() ?: 0) - (stats?.get(Count(WordReviewItems.correct))?.toInt() ?: 0),
         groups = groups
     )
 }
@@ -125,7 +128,7 @@ fun getGroups(page: Int = 1, itemsPerPage: Int = 100): Pair<List<GroupWithCount>
     ))
 }
 
-fun getGroup(id: Int): GroupDetails? = transaction {
+fun getGroup(id: Int): GroupWithCount? = transaction {
     val group = Groups.select { Groups.id eq id }.singleOrNull() ?: return@transaction null
 
     val wordCount = WordGroups
@@ -133,12 +136,10 @@ fun getGroup(id: Int): GroupDetails? = transaction {
         .select { WordGroups.groupId eq id }
         .single()[WordGroups.id.count()]
 
-    GroupDetails(
+    GroupWithCount(
         id = group[Groups.id],
         name = group[Groups.name],
-        stats = GroupStats(
-            totalWordCount = wordCount.toInt()
-        )
+        wordCount = wordCount.toInt()
     )
 }
 
@@ -160,6 +161,7 @@ fun getGroupWords(groupId: Int, page: Int = 1, itemsPerPage: Int = 100): Pair<Li
         .limit(itemsPerPage, offset.toLong())
         .map { row ->
             WordWithStats(
+                id = row[Words.id],
                 japanese = row[Words.japanese],
                 romaji = row[Words.romaji],
                 english = row[Words.english],
@@ -178,15 +180,24 @@ fun getGroupWords(groupId: Int, page: Int = 1, itemsPerPage: Int = 100): Pair<Li
 
 fun getLastStudySession(): StudySession? = transaction {
     StudySessions
-        .select { StudySessions.id greater 0 }
+        .selectAll().where { StudySessions.id greater 0 }
         .orderBy(StudySessions.createdAt to SortOrder.DESC)
         .limit(1)
-        .map { row ->
+        .mapNotNull { row ->
+            val correctCount = WordReviewItems
+                .selectAll().where { WordReviewItems.studySessionId eq row[StudySessions.id] and (WordReviewItems.correct eq true) }
+                .count()
+            val wrongCount = WordReviewItems
+                .selectAll().where { WordReviewItems.studySessionId eq row[StudySessions.id] and (WordReviewItems.correct eq false) }
+                .count()
+
             StudySession(
                 id = row[StudySessions.id],
                 groupId = row[StudySessions.groupId],
+                activityName = "Vocabulary Quiz", // Hardcoded activity name as per other functions
                 createdAt = row[StudySessions.createdAt],
-                studyActivityId = row[StudySessions.studyActivityId]
+                correctCount = correctCount.toInt(),
+                wrongCount = wrongCount.toInt()
             )
         }
         .singleOrNull()
@@ -207,8 +218,29 @@ fun getStudyProgress(): StudyProgress = transaction {
 }
 
 fun getQuickStats(): QuickStats = transaction {
+    val totalWords = Words.selectAll().count()
+    val wordsStudied = (Words innerJoin WordReviewItems)
+        .select(Words.columns)
+        .withDistinct()
+        .map { row ->
+            Word(
+                id = row[Words.id],
+                japanese = row[Words.japanese],
+                romaji = row[Words.romaji],
+                english = row[Words.english],
+            )
+        }
+    val masteredWordsCount = (Words innerJoin WordReviewItems)
+        .select(Words.id)
+        .groupBy(Words.id)
+        .having { WordReviewItems.correct.min() eq true } // Ensure all reviews are correct
+        .withDistinct()
+        .count()
+
+    val totalWordsStudied = wordsStudied.count()
+
     val totalReviews = WordReviewItems.selectAll().count()
-    val correctReviews = WordReviewItems.select { WordReviewItems.correct eq true }.count()
+    val correctReviews = WordReviewItems.selectAll().where { WordReviewItems.correct eq true }.count()
     val successRate = if (totalReviews > 0) (correctReviews.toDouble() / totalReviews.toDouble() * 100) else 0.0
 
     val totalStudySessions = StudySessions.selectAll().count()
@@ -233,6 +265,9 @@ fun getQuickStats(): QuickStats = transaction {
     }
 
     QuickStats(
+        wordsTotal = totalWords.toInt(),
+        wordsStudiedTotal = totalWordsStudied,
+        wordsMastered = masteredWordsCount.toInt(),
         successRate = successRate,
         totalStudySessions = totalStudySessions.toInt(),
         totalActiveGroups = activeGroups.toInt(),
@@ -374,6 +409,7 @@ fun getStudySessionWords(sessionId: Int, page: Int = 1, itemsPerPage: Int = 100)
         .limit(itemsPerPage, offset.toLong())
         .map { row ->
             WordWithStats(
+                id = row[Words.id],
                 japanese = row[Words.japanese],
                 romaji = row[Words.romaji],
                 english = row[Words.english],

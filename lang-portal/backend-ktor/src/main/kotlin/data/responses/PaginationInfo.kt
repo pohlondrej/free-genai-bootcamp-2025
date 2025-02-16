@@ -1,11 +1,12 @@
 package com.pohlondrej.langportal.backend.data.responses
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class PaginationInfo(
-    val currentPage: Int,
-    val totalPages: Int,
-    val totalItems: Int,
-    val itemsPerPage: Int
+    @SerialName("current_page") val currentPage: Int,
+    @SerialName("total_pages") val totalPages: Int,
+    @SerialName("total_items") val totalItems: Int,
+    @SerialName("items_per_page") val itemsPerPage: Int
 )

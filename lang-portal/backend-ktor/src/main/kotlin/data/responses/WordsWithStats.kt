@@ -1,12 +1,14 @@
 package com.pohlondrej.langportal.backend.data.responses
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class WordWithStats(
-    val japanese: String,
+    val id: Int,
+    @SerialName("kanji") val japanese: String,
     val romaji: String,
     val english: String,
-    val correctCount: Int,
-    val wrongCount: Int
+    @SerialName("correct_count") val correctCount: Int,
+    @SerialName("wrong_count") val wrongCount: Int
 )
