@@ -1,12 +1,13 @@
-package com.pohlondrej.langportal.backend.data
+package com.pohlondrej.langportal.backend.data.responses
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
 
 @Serializable
-data class Word(
+data class WordDetails(
     val id: Int,
     val japanese: String,
     val romaji: String,
     val english: String,
+    val stats: WordStats,
+    val groups: List<GroupBasic>
 )

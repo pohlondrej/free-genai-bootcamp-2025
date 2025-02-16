@@ -1,6 +1,5 @@
 package com.pohlondrej.langportal.backend
 
-import io.ktor.serialization.gson.gson
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -11,17 +10,11 @@ import io.ktor.server.routing.get
 
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        gson {
-            }
-
         json()
     }
     routing {
-        get("/json/gson") {
-                call.respond(mapOf("hello" to "world"))
-            }
         get("/json/kotlinx-serialization") {
-                call.respond(mapOf("hello" to "world"))
-            }
+            call.respond(mapOf("hello" to "world"))
+        }
     }
 }

@@ -13,7 +13,6 @@ There will be the following tables:
     - japanese string
     - romaji string
     - english string
-    - parts json
 - word_groups - join table for words and groups, many-to-many
     - id integer
     - word_id integer
