@@ -20,7 +20,6 @@ export default function WordShow() {
         const wordData = await fetchWordDetails(parseInt(id, 10))
         setWord(wordData)
         setCurrentWord(wordData)
-        console.log(wordData)
       } catch (err) {
         setError('Failed to load word details')
         console.error(err)

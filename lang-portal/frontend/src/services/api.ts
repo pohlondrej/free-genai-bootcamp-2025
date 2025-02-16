@@ -122,7 +122,7 @@ export const fetchGroupWords = async (
   page: number = 1,
   sortBy: string = 'kanji',
   order: 'asc' | 'desc' = 'asc'
-): Promise<GroupWordsResponse> => {
+): Promise<WordsResponse> => {
   const response = await fetch(
     `${API_BASE_URL}/groups/${groupId}/words?page=${page}&sort_by=${sortBy}&order=${order}`
   );
@@ -216,7 +216,7 @@ export async function fetchStudySessions(
 }
 
 export interface StudySessionsResponse {
-  study_sessions: StudySession[];
+  items: StudySession[];
   total_pages: number;
   current_page: number;
 }

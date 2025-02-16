@@ -57,9 +57,9 @@ export default function GroupShow() {
           )
         ])
         
-        setWords(wordsData.words)
+        setWords(wordsData.items)
         setWordsTotalPages(wordsData.total_pages)
-        setStudySessions(sessionsData.study_sessions)
+        setStudySessions(sessionsData.items)
         setSessionsTotalPages(sessionsData.total_pages)
       } catch (err) {
         setError('Failed to load group details')
