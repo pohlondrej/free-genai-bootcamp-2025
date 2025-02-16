@@ -49,7 +49,7 @@ export default function StudyActivityShow() {
       setLoading(true)
       setError(null)
       try {
-        const response = await fetch(`http://localhost:5000/api/study-activities/${id}`)
+        const response = await fetch(`http://0.0.0.0:8080/api/study_activities/${id}`)
         if (!response.ok) {
           throw new Error('Failed to fetch study activity')
         }
@@ -59,7 +59,7 @@ export default function StudyActivityShow() {
         
         // Fetch sessions for the current page
         const sessionsResponse = await fetch(
-          `http://localhost:5000/api/study-activities/${id}/sessions?page=${currentPage}&per_page=${ITEMS_PER_PAGE}`
+          `http://0.0.0.0:8080/api/study_activities/${id}/sessions?page=${currentPage}&per_page=${ITEMS_PER_PAGE}`
         )
         if (!sessionsResponse.ok) {
           throw new Error('Failed to fetch sessions')
@@ -111,7 +111,7 @@ export default function StudyActivityShow() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-800 dark:text-white">{activity.title}</h1>
         <Link
-          to="/study-activities"
+          to="/study_activities"
           className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-md hover:bg-gray-200 dark:text-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600"
         >
           Back to Activities
@@ -131,7 +131,7 @@ export default function StudyActivityShow() {
           <div className="space-y-4">
             <div className="flex">
               <Link
-                to={`/study-activities/${id}/launch`}
+                to={`/study_activities/${id}/launch`}
                 className="px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md"
               >
                 Launch

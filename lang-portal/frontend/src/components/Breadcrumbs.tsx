@@ -15,7 +15,7 @@ import { useNavigation } from '@/context/NavigationContext'
 const routeMappings: { [key: string]: string } = {
   '': 'Dashboard',
   'dashboard': 'Dashboard',
-  'study-activities': 'Study Activities',
+  'study_activities': 'Study Activities',
   'words': 'Words',
   'groups': 'Word Groups',
   'sessions': 'Study Sessions',

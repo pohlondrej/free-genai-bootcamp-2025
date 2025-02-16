@@ -17,7 +17,7 @@ import {
 
 const navItems = [
   { icon: Home, name: 'Dashboard', path: '/dashboard' },
-  { icon: BookOpenText, name: 'Study Activities', path: '/study-activities' },
+  { icon: BookOpenText, name: 'Study Activities', path: '/study_activities' },
   { icon: WholeWord, name: 'Words', path: '/words' },
   { icon: Group, name: 'Word Groups', path: '/groups' },
   { icon: Hourglass, name: 'Sessions', path: '/sessions' },

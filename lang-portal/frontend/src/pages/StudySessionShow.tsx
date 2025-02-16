@@ -96,7 +96,7 @@ export default function StudySessionShow() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <h2 className="text-sm font-medium text-gray-500 dark:text-gray-400">Activity</h2>
-            <Link to={`/study-activities/${session.activity_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+            <Link to={`/study_activities/${session.activity_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
               {session.activity_name}
             </Link>
           </div>

@@ -161,8 +161,10 @@ There will be the following tables:
 {
   "id": 1,
   "group_id": 1,
+  "activity_name": "Vocabulary Quiz",
   "created_at": "2022-01-01T00:00:00Z",
-  "study_activity_id": 1
+  "correct_count": 1,
+  "wrong_count": 3
 }
 ```
 #### GET `/api/dashboard/study_progress`

@@ -5,8 +5,6 @@ import kotlinx.serialization.SerialName
 
 @Serializable
 data class CreateStudyActivityRequest(
-    @SerialName("group_id")
-    val groupId: Int,
-    @SerialName("study_activity_id")
-    val studyActivityId: Int
+    @SerialName("group_id") val groupId: Int,
+    @SerialName("study_activity_id") val studyActivityId: Int,
 )

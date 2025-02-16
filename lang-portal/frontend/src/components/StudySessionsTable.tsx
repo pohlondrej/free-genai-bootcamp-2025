@@ -49,7 +49,7 @@ export default function StudySessionsTable({
                 </Link>
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
-                <Link to={`/study-activities/${session.activity_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                <Link to={`/study_activities/${session.activity_id}`} className="text-blue-600 dark:text-blue-400 hover:underline">
                   {session.activity_name}
                 </Link>
               </td>

@@ -17,7 +17,7 @@ export default function Words() {
       setError(null)
       try {
         const response = await fetchWords(currentPage, sortKey, sortDirection)
-        setWords(response.words)
+        setWords(response.items)
         setTotalPages(response.total_pages)
       } catch (err) {
         setError('Failed to load words')

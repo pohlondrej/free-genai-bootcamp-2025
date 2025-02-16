@@ -38,7 +38,7 @@ export default function StudyActivityLaunch() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch(`http://localhost:5000/api/study-activities/${id}/launch`)
+    fetch(`http://0.0.0.0:8080/api/study_activities/${id}`)
       .then(response => {
         if (!response.ok) throw new Error('Failed to fetch launch data')
         return response.json()

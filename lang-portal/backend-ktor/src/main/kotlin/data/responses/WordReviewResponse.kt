@@ -2,14 +2,15 @@ package com.pohlondrej.langportal.backend.data.responses
 
 import com.pohlondrej.langportal.backend.data.serializers.LocalDateTimeSerializer
 import java.time.LocalDateTime
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class WordReviewResponse(
     val success: Boolean,
-    val wordId: Int,
-    val studySessionId: Int,
+    @SerialName("word_id") val wordId: Int,
+    @SerialName("study_session_id") val studySessionId: Int,
     val correct: Boolean,
     @Serializable(with = LocalDateTimeSerializer::class)
-    val createdAt: LocalDateTime
+    @SerialName("created_at") val createdAt: LocalDateTime
 )

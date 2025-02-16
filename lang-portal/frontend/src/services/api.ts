@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:5000';
+const API_BASE_URL = 'http://0.0.0.0:8080/api';
 
 // Group types
 export interface Group {
@@ -8,7 +8,7 @@ export interface Group {
 }
 
 export interface GroupsResponse {
-  groups: Group[];
+  items: Group[];
   total_pages: number;
   current_page: number;
 }
@@ -34,7 +34,7 @@ export interface WordResponse {
 }
 
 export interface WordsResponse {
-  words: Word[];
+  items: Word[];
   total_pages: number;
   current_page: number;
   total_words: number;
@@ -99,7 +99,7 @@ export interface GroupDetails {
 }
 
 export interface GroupWordsResponse {
-  words: Word[];
+  items: Word[];
   total_pages: number;
   current_page: number;
 }
@@ -152,8 +152,9 @@ export const fetchWordDetails = async (wordId: number): Promise<Word> => {
   if (!response.ok) {
     throw new Error('Failed to fetch word details');
   }
-  const data: WordResponse = await response.json();
-  return data.word;
+  const data: Word = await response.json();
+  console.log(data);
+  return data;
 };
 
 // Study Session API
@@ -206,7 +207,7 @@ export async function fetchStudySessions(
   perPage: number = 10
 ): Promise<StudySessionsResponse> {
   const response = await fetch(
-    `${API_BASE_URL}/api/study-sessions?page=${page}&per_page=${perPage}`
+    `${API_BASE_URL}/study_sessions?page=${page}&per_page=${perPage}`
   );
   if (!response.ok) {
     throw new Error('Failed to fetch study sessions');
@@ -237,7 +238,7 @@ export async function fetchGroupStudySessions(
 
 // Dashboard API
 export const fetchRecentStudySession = async (): Promise<RecentSession | null> => {
-  const response = await fetch(`${API_BASE_URL}/dashboard/recent-session`);
+  const response = await fetch(`${API_BASE_URL}/dashboard/last_study_session`);
   if (!response.ok) {
     throw new Error('Failed to fetch recent session');
   }
@@ -247,7 +248,7 @@ export const fetchRecentStudySession = async (): Promise<RecentSession | null> =
 };
 
 export const fetchStudyStats = async (): Promise<StudyStats> => {
-  const response = await fetch(`${API_BASE_URL}/dashboard/stats`);
+  const response = await fetch(`${API_BASE_URL}/dashboard/quick_stats`);
   if (!response.ok) {
     throw new Error('Failed to fetch study stats');
   }

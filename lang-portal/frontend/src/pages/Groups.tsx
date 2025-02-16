@@ -20,7 +20,7 @@ export default function Groups() {
       setError(null)
       try {
         const response = await fetchGroups(currentPage, sortKey, sortDirection)
-        setGroups(response.groups)
+        setGroups(response.items)
         setTotalPages(response.total_pages)
       } catch (err) {
         setError('Failed to load groups')

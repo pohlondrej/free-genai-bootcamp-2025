@@ -51,7 +51,7 @@ export default function Dashboard() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold">Dashboard</h1>
         <Link 
-          to="/study-activities"
+          to="/study_activities"
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
         >
           Start Studying
@@ -91,7 +91,7 @@ export default function Dashboard() {
             <div className="text-center py-6">
               <p className="text-gray-500 mb-4">No sessions yet</p>
               <Link 
-                to="/study-activities"
+                to="/study_activities"
                 className="text-blue-500 hover:text-blue-600 inline-flex items-center gap-1"
               >
                 Start your first session <ArrowRight className="w-3 h-3" />
@@ -175,7 +175,7 @@ export default function Dashboard() {
                 <>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 dark:text-gray-300">Success Rate</span>
-                    <span className="font-medium">{Math.round(stats.success_rate * 100)}%</span>
+                    <span className="font-medium">{Math.round(stats.success_rate)}%</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-gray-600 dark:text-gray-300">Study Sessions</span>
@@ -194,7 +194,7 @@ export default function Dashboard() {
                 <div className="text-center py-6">
                   <p className="text-gray-500 mb-4">Complete sessions to see your stats</p>
                   <Link 
-                    to="/study-activities"
+                    to="/study_activities"
                     className="text-blue-500 hover:text-blue-600 inline-flex items-center gap-1"
                   >
                     Try an activity <ArrowRight className="w-3 h-3" />
@@ -206,7 +206,7 @@ export default function Dashboard() {
             <div className="text-center py-6">
               <p className="text-gray-500 mb-4">Complete sessions to see your stats</p>
               <Link 
-                to="/study-activities"
+                to="/study_activities"
                 className="text-blue-500 hover:text-blue-600 inline-flex items-center gap-1"
               >
                 Try an activity <ArrowRight className="w-3 h-3" />

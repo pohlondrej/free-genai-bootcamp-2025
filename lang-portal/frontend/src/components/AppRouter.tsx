@@ -19,9 +19,9 @@ export default function AppRouter() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/study-activities" element={<StudyActivities />} />
-          <Route path="/study-activities/:id" element={<StudyActivityShow />} />
-          <Route path="/study-activities/:id/launch" element={<StudyActivityLaunch />} />
+          <Route path="/study_activities" element={<StudyActivities />} />
+          <Route path="/study_activities/:id" element={<StudyActivityShow />} />
+          <Route path="/study_activities/:id/launch" element={<StudyActivityLaunch />} />
           <Route path="/words" element={<Words />} />
           <Route path="/words/:id" element={<WordShow />} />
           <Route path="/groups" element={<Groups />} />

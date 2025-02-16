@@ -14,7 +14,7 @@ export default function StudyActivities() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/study-activities')
+    fetch('http://0.0.0.0:8080/api/study_activities')
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch study activities')
