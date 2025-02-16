@@ -25,6 +25,12 @@ ENV PYTHONPATH=$PYTHONPATH:$APP_HOME
 
 USER user
 
+# Download model files
+ARG HF_MODEL_NAME
+ENV HF_MODEL_NAME=${HF_MODEL_NAME}
+
+RUN python -c "from transformers import AutoTokenizer, AutoModel; AutoTokenizer.from_pretrained('${HF_MODEL_NAME}'); AutoModel.from_pretrained('${HF_MODEL_NAME}')"
+
 # Run the Python script
 FROM python-base
 
