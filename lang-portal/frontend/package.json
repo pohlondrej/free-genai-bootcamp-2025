@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "BROWSER=firefox vite --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -22,6 +22,7 @@
     "autoprefixer": "^10.4.20",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "create-react-app": "^5.1.0",
     "lucide-react": "^0.446.0",
     "postcss": "^8.4.47",
     "react": "^18.3.1",
