@@ -16,3 +16,19 @@ Our company wants to automate FAQ creation from documentation and support data. 
     - Answer: missing environment variables in the Dockerfile
 - `docker run -p 8000:8000 -e HF_MODEL_NAME="bert-base-uncased" faqgen` gives "404 not found" error
     - Answer: wrong endpoint; should have accessed http://localhost:8000/generate (which actually worked, so now I have a Bert model running in a container...sweet!)
+- What models should I actually use for FAQ generation?
+    - Answer: Copilot suggest playing with t5-small. Never heard of it. What is it?
+        - Answer: It's a really small model, which is apparently really good for text-to-text use cases.
+- "No module named comps"
+    - 'comps' is not installed, add it to requirements.
+        - Oh wait, there is no 'comps'. It has to be 'opea-comps'. Of course.
+- Error 500: Field required [type=missing, input_value=FormData([]), input_type=FormData]
+    - Need more complex prompt. For example: 
+```curl -X POST \
+  -H "Content-Type: multipart/form-data" \
+  -F "messages=[{\"role\": \"user\", \"content\": \"Summarize this document\"}]" \
+  -F "files=@document.pdf" \
+  http://localhost:8000/
+```
+- AttributeError: 'str' object has no attribute 'content'
+    - The error AttributeError: 'str' object has no attribute 'content' arises because the request.form() method returns a dictionary where the values are strings.

@@ -1,35 +1,71 @@
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from transformers import AutoTokenizer, AutoModel
+from fastapi import FastAPI, Request, UploadFile, File
+from comps.cores.proto.api_protocol import ChatCompletionRequest, ChatCompletionResponse, ChatCompletionResponseChoice, ChatMessage, UsageInfo
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+from typing import List
 import torch
 import os
+import uvicorn
 
+# Initialize FastAPI app
 app = FastAPI()
 
-# Load model and tokenizer
-MODEL_NAME = os.getenv("HF_MODEL_NAME", "bert-base-uncased")
-try:
-    tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-    model = AutoModel.from_pretrained(MODEL_NAME)
-    model.eval()  # Set to evaluation mode
-except Exception as e:
-    raise RuntimeError(f"Error loading model: {e}")
+# Assuming you have these loaded globally (as in the T5 example)
+MODEL_NAME = os.getenv("HF_MODEL_NAME", "t5-small")
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
+model.eval()
 
-class InputText(BaseModel):
-    text: str
+@app.post("/")
+async def handle_request(request: Request, files: List[UploadFile] = File(default=None)):
+    data = await request.form()
+    chat_request = ChatCompletionRequest.parse_obj(data)
+    file_summaries = []
 
-@app.post("/generate")
-async def generate(input_text: InputText):
+    if files:
+        for file in files:
+            file_path = f"/tmp/{file.filename}"
+            import aiofiles
+            async with aiofiles.open(file_path, "wb") as f:
+                await f.write(await file.read())
+            # Assuming read_text_from_file is defined elsewhere
+            # docs = read_text_from_file(file, file_path)
+            # os.remove(file_path)
+            # if isinstance(docs, list):
+            #     file_summaries.extend(docs)
+            # else:
+            #     file_summaries.append(docs)
+            file_summaries.append(f"File {file.filename} processed.") # Placeholder
+
+    if file_summaries:
+        prompt = chat_request.messages[0].content + "\n".join(file_summaries) # Use the message content
+    else:
+        prompt = chat_request.messages[0].content # Use the message content
+
     try:
-        inputs = tokenizer(input_text.text, return_tensors="pt", truncation=True, max_length=512)
+        input_text_processed = "generate faq: " + prompt  # Add a prompt
+        inputs = tokenizer(input_text_processed, return_tensors="pt", truncation=True, max_length=512)
         with torch.no_grad():
-            outputs = model(**inputs)
-        # Process the outputs (replace with your actual logic)
-        mean_output = outputs.last_hidden_state.mean().item()
-        return {"result": mean_output}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            outputs = model.generate(**inputs, max_length=200)  # Generate text
+        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
+        choices = [ChatCompletionResponseChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=generated_text),
+            finish_reason="stop"
+        )]
+        usage = UsageInfo()  # You might want to calculate actual usage
+        return ChatCompletionResponse(model="faqgen", choices=choices, usage=usage)
+
+    except Exception as e:
+        # Handle exceptions properly
+        choices = [ChatCompletionResponseChoice(
+            index=0,
+            message=ChatMessage(role="assistant", content=f"Error: {str(e)}"),
+            finish_reason="error"
+        )]
+        usage = UsageInfo()
+        return ChatCompletionResponse(model="faqgen", choices=choices, usage=usage)
+
+# Run the app using uvicorn
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
