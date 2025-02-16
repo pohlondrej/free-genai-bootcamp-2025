@@ -1,0 +1,7 @@
+transformers
+torch
+uvicorn
+fastapi
+sentencepiece
+opea-comps
+pdfminer.six
