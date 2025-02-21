@@ -48,8 +48,8 @@ Develop the core backend logic for presenting quiz questions, handling user answ
 #### Acceptance Criteria:
 - Users can complete a multi-phase quiz session
 - Scores are calculated correctly
-- Quiz history is retrievable and clearable
 #### Technical Notes:
+- Ignore session history for now. Keep everything in memory, no persistance required.
 - Ignore audio for now. If needed, use a short example sound as a placeholder.
 - This is backend only. It should include API for the frontend, but no frontend implementation.
 
