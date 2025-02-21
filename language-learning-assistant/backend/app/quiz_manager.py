@@ -1,23 +1,35 @@
 from typing import Dict, Optional
 from uuid import UUID
 from .models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
+from .audio_manager import AudioManager
 
 class QuizManager:
     def __init__(self):
         self.active_sessions: Dict[UUID, QuizSession] = {}
+        self.audio_manager = AudioManager()
 
     def create_session(self) -> QuizSession:
-        # Create a demo session with placeholder data
+        # Create placeholder audio data (1 second of silence)
+        placeholder_audio = bytes([0] * 44100 * 2)  # 1 second of silence (44.1kHz, 16-bit)
+        
+        # Cache all audio files
+        intro_key = self.audio_manager.save_audio(placeholder_audio, "intro.mp3")
+        outro_key = self.audio_manager.save_audio(placeholder_audio, "outro.mp3")
+        demo_key = self.audio_manager.save_audio(placeholder_audio, "demo.mp3")
+
+        # Create a demo session with cached audio
         session = QuizSession(
+            en_intro_audio=intro_key,
+            en_outro_audio=outro_key,
             vocabulary_stage=VocabularyStage(
-                entries=[{"jp_audio": "demo.mp3", "en_text": "Hello"} for _ in range(4)]
+                entries=[{"jp_audio": demo_key, "en_text": "Hello"} for _ in range(4)]
             ),
             comprehension_stage=ComprehensionStage(
-                jp_audio="demo.mp3",
+                jp_audio=demo_key,
                 correct_answer=True
             ),
             recall_stage=RecallStage(
-                jp_audio="demo.mp3",
+                jp_audio=demo_key,
                 options=["日本", "はい", "こんにちは"],
                 incorrect_option="こんにちは"
             )
