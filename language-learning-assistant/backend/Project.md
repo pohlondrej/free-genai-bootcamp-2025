@@ -53,19 +53,55 @@ Develop the core backend logic for presenting quiz questions, handling user answ
 - Ignore audio for now. If needed, use a short example sound as a placeholder.
 - This is backend only. It should include API for the frontend, but no frontend implementation.
 
-### 2: Integrate LLM for Question/Answer Generation
+### 2: Basic LLM Integration
 #### Description:
-Integrate the chosen LLM (via LiteLLM) to generate Japanese listening comprehension questions and corresponding answer choices. Start with a basic prompt to generate simple questions.
-- Implement prompt engineering for question generation
-- Set up RAG with Chroma for context-aware questions
-- Generate plausible incorrect answers
+Set up basic LiteLLM integration with a simple prompt workflow.
+- Install and configure LiteLLM
+- Create basic prompt templates
+- Implement basic error handling and retry logic
+- Add configuration for model selection and parameters
 #### Acceptance Criteria:
-The application can successfully query the LLM and receive generated question and answer data.
-- LLM generates contextually appropriate questions
-- Questions follow the specified difficulty level
-- Generated incorrect answers are plausible but clearly wrong
+- Can successfully connect to LLM API
+- Can generate basic Japanese questions
+- Response format matches Session API structure
 
-### 3: Integrate TTS for Audio Playback
+### 3: Question Generation Logic
+#### Description:
+Implement core question generation logic with proper prompt engineering.
+- Design prompt templates for each quiz phase
+- Implement temperature/sampling controls
+- Add output validation
+- Create fallback content for API failures
+#### Acceptance Criteria:
+- Questions are appropriate for each stage
+- Output is consistently formatted
+- Japanese language output is correct
+
+### 4: RAG Integration
+#### Description:
+Implement Retrieval-Augmented Generation with Chroma.
+- Set up Chroma database
+- Create embedding pipeline
+- Implement retrieval logic
+- Connect retrieval results to prompt generation
+#### Acceptance Criteria:
+- Can store and retrieve relevant context
+- Questions are contextually appropriate
+- Search results are relevant
+
+### 5: Answer Generation
+#### Description:
+Implement generation of plausible incorrect answers.
+- Design prompts for distractor generation
+- Implement validation of incorrect answers
+- Add difficulty scaling
+- Ensure answers are clearly wrong but plausible
+#### Acceptance Criteria:
+- Generates appropriate number of options
+- Incorrect answers are plausible but clearly wrong
+- Answers are appropriate for difficulty level
+
+### 6: Integrate TTS for Audio Playback
 #### Description:
 Integrate a TTS engine to generate audio for the Japanese questions and answer choices.
 - Set up Japanese TTS engine with natural voice
