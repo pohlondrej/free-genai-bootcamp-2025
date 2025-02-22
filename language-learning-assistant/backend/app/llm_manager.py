@@ -69,14 +69,111 @@ class LLMManager:
                 print(f"Raw response: {response}")
             return None
 
-    def generate_vocabulary(self):
-        response = self._call_llm(VOCABULARY_PROMPT)
-        if response and "words" in response:
-            return response["words"]
-        return None
-        
-    def generate_comprehension(self):
-        return self._call_llm(COMPREHENSION_PROMPT)
-        
-    def generate_recall(self):
-        return self._call_llm(RECALL_PROMPT)
+    def generate_session_content(self) -> Optional[Dict[str, Any]]:
+        """Generate a complete, coherent learning session"""
+        try:
+            # Generate topic and context
+            topic_data = self._call_llm(SESSION_TOPIC_PROMPT)
+            if not topic_data or "topic" not in topic_data:
+                print("Failed to generate topic")
+                return None
+            print(f"Generated topic: {topic_data}")
+                
+            # Generate vocabulary with context
+            vocab_data = self._call_llm(
+                VOCABULARY_PROMPT.format(topic=topic_data["topic"])
+            )
+            if not vocab_data or "words" not in vocab_data:
+                print("Failed to generate vocabulary")
+                return None
+            print(f"Generated vocabulary: {vocab_data}")
+            
+            # Generate conversation using words that exist
+            try:
+                vocab_list = ", ".join(w["jp_text"] for w in vocab_data["words"])
+            except (KeyError, TypeError):
+                print("Malformed vocabulary data")
+                return None
+                
+            conv_data = self._call_llm(
+                CONVERSATION_PROMPT.format(
+                    topic=topic_data["topic"],
+                    vocab_list=vocab_list
+                )
+            )
+            if not conv_data or "jp_text" not in conv_data:
+                print("Failed to generate conversation")
+                return None
+            print(f"Generated conversation: {conv_data}")
+            
+            # Generate recall quiz based on conversation
+            recall_data = self._call_llm(
+                RECALL_PROMPT.format(jp_text=conv_data["jp_text"])
+            )
+            if not recall_data or "words" not in recall_data:
+                print("Failed to generate recall quiz")
+                return None
+            print(f"Generated recall: {recall_data}")
+            
+            # Validate recall response
+            if recall_data:
+                words = recall_data.get("words", [])
+                incorrect = recall_data.get("incorrect_word")
+                if len(words) != 3 or not incorrect or incorrect not in words:
+                    print("Invalid recall format - regenerating")
+                    recall_data = None
+                    for _ in range(settings.LLM_MAX_RETRIES):
+                        recall_data = self._call_llm(
+                            RECALL_PROMPT.format(jp_text=conv_data["jp_text"])
+                        )
+                        if (recall_data and len(recall_data.get("words", [])) == 3 
+                            and recall_data.get("incorrect_word") in recall_data["words"]):
+                            break
+                        recall_data = None
+                
+            if not recall_data or "words" not in recall_data or len(recall_data["words"]) != 3:
+                print("Failed to generate valid recall quiz")
+                return None
+            
+            # Validate all required fields exist before returning
+            data_sections = {
+                "topic": topic_data,
+                "vocabulary": vocab_data,
+                "conversation": conv_data,
+                "recall": recall_data
+            }
+            required_fields = {
+                "topic": ["topic", "context"],
+                "vocabulary": ["words", "preview"],
+                "conversation": ["jp_text", "correct_answer"],
+                "recall": ["words", "incorrect_word"]
+            }
+            
+            for section, fields in required_fields.items():
+                data = data_sections[section]  # Use the dictionary instead of locals()
+                if not data or not all(field in data for field in fields):
+                    print(f"Missing required fields in {section}")
+                    print(f"Expected: {fields}")
+                    print(f"Got: {list(data.keys()) if data else None}")
+                    return None
+            
+            return {
+                "topic": topic_data,
+                "vocabulary": vocab_data,
+                "conversation": conv_data,
+                "recall": recall_data,
+                "intro_text": INTRO_TEMPLATE.format(
+                    context=topic_data["context"],
+                    preview=vocab_data.get("preview", "Let's practice!")
+                ),
+                "outro_text": OUTRO_TEMPLATE.format(
+                    topic=topic_data["topic"],
+                    vocab_count=len(vocab_data["words"])
+                )
+            }
+            
+        except Exception as e:
+            print(f"Session generation error: {str(e)}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            return None
