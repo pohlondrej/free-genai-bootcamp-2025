@@ -23,9 +23,9 @@ A language learning application that leverages AI to enhance Japanese listening 
 - English TTS: Pre-lesson vocabulary preview
 - **Quiz 1**: Vocabulary matching
   - Format: Match 4 Japanese audio clips to English words
-  - Goal: Prepare user for upcoming conversation
+  - Goal: Prepare user for upcoming monologue
 
-### 2. Main Conversation Phase
+### 2. Main Monologue Phase
 - English TTS: Topic introduction and speaker context
 - Japanese TTS: First segment (2-3 sentences)
 - **Quiz 2**: Comprehension check
@@ -35,7 +35,7 @@ A language learning application that leverages AI to enhance Japanese listening 
 ### 3. Extension Phase
 - Japanese TTS: Second segment (1-2 sentences)
 - **Quiz 3**: Vocabulary recall
-  - Format: Select 2 words from 3 options that appeared in conversation
+  - Format: Select 2 words from 3 options that appeared in monologue
   - Goal: Test active listening and vocabulary retention
 
 ### 4. Wrap-up Phase

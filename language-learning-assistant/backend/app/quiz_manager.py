@@ -50,7 +50,7 @@ class QuizManager:
             ),
             comprehension_stage=ComprehensionStage(
                 jp_audio=conv_key,
-                correct_answer=session_content["conversation"]["correct_answer"]
+                correct_answer=session_content["monologue"]["correct_answer"]
             ),
             recall_stage=RecallStage(
                 jp_audio=conv_key,

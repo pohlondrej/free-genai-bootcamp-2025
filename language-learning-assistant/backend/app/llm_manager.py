@@ -29,7 +29,8 @@ class LLMManager:
                     ],
                     temperature=settings.LLM_TEMPERATURE,
                     api_key=settings.LLM_API_KEY,
-                    timeout=settings.LLM_TIMEOUT
+                    timeout=settings.LLM_TIMEOUT,
+                    frequency_penalty=settings.LLM_FREQUENCY_PENALTY
                 )
             except Exception as e:
                 last_error = e
@@ -88,27 +89,27 @@ class LLMManager:
                 return None
             print(f"Generated vocabulary: {vocab_data}")
             
-            # Generate conversation using words that exist
+            # Generate monologue using words that exist
             try:
                 vocab_list = ", ".join(w["jp_text"] for w in vocab_data["words"])
             except (KeyError, TypeError):
                 print("Malformed vocabulary data")
                 return None
                 
-            conv_data = self._call_llm(
-                CONVERSATION_PROMPT.format(
+            monologue_data = self._call_llm(
+                MONOLOGUE_PROMPT.format(
                     topic=topic_data["topic"],
                     vocab_list=vocab_list
                 )
             )
-            if not conv_data or "jp_text" not in conv_data:
-                print("Failed to generate conversation")
+            if not monologue_data or "jp_text" not in monologue_data:
+                print("Failed to generate monologue")
                 return None
-            print(f"Generated conversation: {conv_data}")
+            print(f"Generated monologue: {monologue_data}")
             
-            # Generate recall quiz based on conversation
+            # Generate recall quiz based on monologue
             recall_data = self._call_llm(
-                RECALL_PROMPT.format(jp_text=conv_data["jp_text"])
+                RECALL_PROMPT.format(jp_text=monologue_data["jp_text"])
             )
             if not recall_data or "words" not in recall_data:
                 print("Failed to generate recall quiz")
@@ -124,7 +125,7 @@ class LLMManager:
                     recall_data = None
                     for _ in range(settings.LLM_MAX_RETRIES):
                         recall_data = self._call_llm(
-                            RECALL_PROMPT.format(jp_text=conv_data["jp_text"])
+                            RECALL_PROMPT.format(jp_text=monologue_data["jp_text"])
                         )
                         if (recall_data and len(recall_data.get("words", [])) == 3 
                             and recall_data.get("incorrect_word") in recall_data["words"]):
@@ -139,13 +140,13 @@ class LLMManager:
             data_sections = {
                 "topic": topic_data,
                 "vocabulary": vocab_data,
-                "conversation": conv_data,
+                "monologue": monologue_data,
                 "recall": recall_data
             }
             required_fields = {
                 "topic": ["topic", "context"],
                 "vocabulary": ["words", "preview"],
-                "conversation": ["jp_text", "correct_answer"],
+                "monologue": ["jp_text", "correct_answer"],
                 "recall": ["words", "incorrect_word"]
             }
             
@@ -160,7 +161,7 @@ class LLMManager:
             return {
                 "topic": topic_data,
                 "vocabulary": vocab_data,
-                "conversation": conv_data,
+                "monologue": monologue_data,
                 "recall": recall_data,
                 "intro_text": INTRO_TEMPLATE.format(
                     context=topic_data["context"],
