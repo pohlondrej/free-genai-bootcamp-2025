@@ -11,7 +11,7 @@ audio_manager = AudioManager()
 
 @app.post("/session/", response_model=QuizSession)
 async def create_session():
-    return quiz_manager.create_session()
+    return await quiz_manager.create_session()
 
 @app.get("/session/{session_id}", response_model=QuizSession)
 async def get_session(session_id: UUID):

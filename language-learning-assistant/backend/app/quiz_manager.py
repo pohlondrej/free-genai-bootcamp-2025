@@ -2,36 +2,51 @@ from typing import Dict, Optional
 from uuid import UUID
 from .models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
 from .audio_manager import AudioManager
+from .llm_manager import LLMManager
 
 class QuizManager:
     def __init__(self):
         self.active_sessions: Dict[UUID, QuizSession] = {}
         self.audio_manager = AudioManager()
+        self.llm_manager = LLMManager()
 
-    def create_session(self) -> QuizSession:
+    async def create_session(self) -> QuizSession:
         # Create placeholder audio data (1 second of silence)
-        placeholder_audio = bytes([0] * 44100 * 2)  # 1 second of silence (44.1kHz, 16-bit)
+        placeholder_audio = bytes([0] * 44100 * 2)
         
         # Cache all audio files
         intro_key = self.audio_manager.save_audio(placeholder_audio, "intro.mp3")
         outro_key = self.audio_manager.save_audio(placeholder_audio, "outro.mp3")
         demo_key = self.audio_manager.save_audio(placeholder_audio, "demo.mp3")
 
-        # Create a demo session with cached audio
+        # Generate content using LLM
+        vocab_data = self.llm_manager.generate_vocabulary()
+        comp_data = self.llm_manager.generate_comprehension()
+        recall_data = self.llm_manager.generate_recall()
+
+        # Create vocabulary entries with fallback
+        vocab_entries = []
+        if vocab_data:
+            vocab_entries = [
+                {"jp_audio": demo_key, "en_text": item["en_text"]}
+                for item in vocab_data[:4]
+            ]
+        if not vocab_entries:
+            vocab_entries = [{"jp_audio": demo_key, "en_text": "Hello"} for _ in range(4)]
+
+        # Create session with LLM content or fallback to demo content
         session = QuizSession(
             en_intro_audio=intro_key,
             en_outro_audio=outro_key,
-            vocabulary_stage=VocabularyStage(
-                entries=[{"jp_audio": demo_key, "en_text": "Hello"} for _ in range(4)]
-            ),
+            vocabulary_stage=VocabularyStage(entries=vocab_entries),
             comprehension_stage=ComprehensionStage(
                 jp_audio=demo_key,
-                correct_answer=True
+                correct_answer=comp_data["correct_answer"] if comp_data else True
             ),
             recall_stage=RecallStage(
                 jp_audio=demo_key,
-                options=["日本", "はい", "こんにちは"],
-                incorrect_option="こんにちは"
+                options=recall_data["words"] if recall_data else ["日本", "はい", "こんにちは"],
+                incorrect_option=recall_data["incorrect_word"] if recall_data else "こんにちは"
             )
         )
         self.active_sessions[session.session_id] = session

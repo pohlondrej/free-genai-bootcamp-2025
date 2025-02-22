@@ -45,3 +45,18 @@ A language learning application that leverages AI to enhance Japanese listening 
 ### Expected Duration
 - Total session time: ~2-3 minutes
 - Each quiz: 10-30 seconds
+
+## Development Setup
+
+### Environment Variables
+Required environment variables:
+```bash
+export LLM_API_KEY="your-api-key-here"
+```
+
+Optional environment variables:
+```bash
+export LLM_MODEL="gpt-3.5-turbo"
+export LLM_TEMPERATURE="0.7"
+export LLM_MAX_RETRIES="3"
+export LLM_TIMEOUT="30"
