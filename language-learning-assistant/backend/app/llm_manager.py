@@ -1,27 +1,50 @@
 import json
 from typing import Any, Dict, Optional
-from litellm import completion
+from time import sleep
+from litellm import completion, ModelResponse
 from .config import settings
 from .prompts import *
+
+class LLMError(Exception):
+    """Base class for LLM-related errors"""
+    pass
 
 class LLMManager:
     def __init__(self):
         self.model = settings.LLM_MODEL
+        self.backoff_factor = 2
+        
+    def _call_llm_with_retry(self, prompt: str) -> ModelResponse:
+        """Call LLM with exponential backoff retry"""
+        attempts = 0
+        last_error = None
+        
+        while attempts < settings.LLM_MAX_RETRIES:
+            try:
+                return completion(
+                    model=self.model,
+                    messages=[
+                        {"role": "system", "content": "You are a helpful Japanese language teaching assistant. Always respond with valid JSON."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=settings.LLM_TEMPERATURE,
+                    api_key=settings.LLM_API_KEY,
+                    timeout=settings.LLM_TIMEOUT
+                )
+            except Exception as e:
+                last_error = e
+                attempts += 1
+                if attempts < settings.LLM_MAX_RETRIES:
+                    sleep_time = self.backoff_factor ** attempts
+                    print(f"Attempt {attempts} failed. Retrying in {sleep_time}s...")
+                    sleep(sleep_time)
+                
+        raise LLMError(f"Failed after {attempts} attempts. Last error: {last_error}")
         
     def _call_llm(self, prompt: str) -> Optional[Dict[str, Any]]:
         try:
             print(f"\nSending prompt to LLM: {prompt[:100]}...(truncated)")
-            response = completion(
-                model=self.model,
-                messages=[
-                    {"role": "system", "content": "You are a helpful Japanese language teaching assistant. Always respond with valid JSON."},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=settings.LLM_TEMPERATURE,
-                api_key=settings.LLM_API_KEY,
-                max_retries=settings.LLM_MAX_RETRIES,
-                timeout=settings.LLM_TIMEOUT
-            )
+            response = self._call_llm_with_retry(prompt)
             
             if not response or not response.choices:
                 print("No response received from LLM")
