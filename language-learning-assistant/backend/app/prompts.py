@@ -1,5 +1,5 @@
-VOCABULARY_PROMPT = """You are a Japanese language learning assistant. Generate 4 basic Japanese vocabulary words with their English translations.
-Return ONLY valid JSON matching this exact format:
+VOCABULARY_PROMPT = """You are a Japanese language learning assistant. Generate 4 random Japanese vocabulary words with their English translations.
+Return ONLY valid JSON matching this exact JSON format, but come up with your own random words:
 {
     "words": [
         {"jp_text": "猫", "en_text": "cat"},
@@ -9,15 +9,15 @@ Return ONLY valid JSON matching this exact format:
     ]
 }"""
 
-COMPREHENSION_PROMPT = """You are a Japanese language learning assistant. Generate a simple Japanese sentence with a yes/no question about it.
-Return ONLY valid JSON matching this exact format:
+COMPREHENSION_PROMPT = """You are a Japanese language learning assistant. Generate a random Japanese sentence with a yes/no question about it.
+Return ONLY valid JSON matching this exact JSON format, but generate your own random sentence:
 {
     "jp_text": "私は学生です",
     "correct_answer": true
 }"""
 
-RECALL_PROMPT = """You are a Japanese language learning assistant. Generate 3 Japanese words where two are related and one is different.
-Return ONLY valid JSON matching this exact format:
+RECALL_PROMPT = """You are a Japanese language learning assistant. Generate 3 random Japanese words where two are related and one is different.
+Return ONLY valid JSON matching this exact JSON format, but come up with your own random words:
 {
     "words": ["りんご", "みかん", "いぬ"],
     "incorrect_word": "いぬ"
