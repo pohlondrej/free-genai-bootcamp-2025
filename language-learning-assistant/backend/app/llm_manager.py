@@ -71,7 +71,6 @@ class LLMManager:
             return None
 
     def generate_session_content(self) -> Optional[Dict[str, Any]]:
-        """Generate a complete, coherent learning session"""
         try:
             # Generate topic and context
             topic_data = self._call_llm(SESSION_TOPIC_PROMPT)
@@ -89,7 +88,7 @@ class LLMManager:
                 return None
             print(f"Generated vocabulary: {vocab_data}")
             
-            # Generate monologue using words that exist
+            # Generate first monologue
             try:
                 vocab_list = ", ".join(w["jp_text"] for w in vocab_data["words"])
             except (KeyError, TypeError):
@@ -103,51 +102,49 @@ class LLMManager:
                 )
             )
             if not monologue_data or "jp_text" not in monologue_data:
-                print("Failed to generate monologue")
+                print("Failed to generate first monologue")
                 return None
-            print(f"Generated monologue: {monologue_data}")
+            print(f"Generated first monologue: {monologue_data}")
             
-            # Generate recall quiz based on monologue
+            # Generate continuation and recall quiz
             recall_data = self._call_llm(
                 RECALL_PROMPT.format(jp_text=monologue_data["jp_text"])
             )
-            if not recall_data or "words" not in recall_data:
-                print("Failed to generate recall quiz")
+            if not recall_data or "continuation" not in recall_data or "quiz" not in recall_data:
+                print("Failed to generate continuation and recall quiz")
                 return None
-            print(f"Generated recall: {recall_data}")
+            print(f"Generated continuation and recall: {recall_data}")
             
-            # Validate recall response
-            if recall_data:
-                words = recall_data.get("words", [])
-                incorrect = recall_data.get("incorrect_word")
-                if len(words) != 3 or not incorrect or incorrect not in words:
-                    print("Invalid recall format - regenerating")
-                    recall_data = None
-                    for _ in range(settings.LLM_MAX_RETRIES):
-                        recall_data = self._call_llm(
-                            RECALL_PROMPT.format(jp_text=monologue_data["jp_text"])
-                        )
-                        if (recall_data and len(recall_data.get("words", [])) == 3 
-                            and recall_data.get("incorrect_word") in recall_data["words"]):
-                            break
-                        recall_data = None
+            # Validate continuation and quiz
+            continuation = recall_data["continuation"]
+            quiz = recall_data["quiz"]
+            
+            if not all(key in continuation for key in ["scene", "jp_text", "en_context"]):
+                print("Missing required continuation fields")
+                return None
                 
-            if not recall_data or "words" not in recall_data or len(recall_data["words"]) != 3:
-                print("Failed to generate valid recall quiz")
+            if not all(key in quiz for key in ["words", "incorrect_word", "hint"]):
+                print("Missing required quiz fields")
                 return None
-            
+                
+            if len(quiz["words"]) != 3 or quiz["incorrect_word"] not in quiz["words"]:
+                print("Invalid quiz format")
+                return None
+
             # Validate all required fields exist before returning
             data_sections = {
                 "topic": topic_data,
                 "vocabulary": vocab_data,
                 "monologue": monologue_data,
-                "recall": recall_data
+                "continuation": continuation,
+                "quiz": quiz
             }
             required_fields = {
                 "topic": ["topic", "context"],
                 "vocabulary": ["words", "preview"],
                 "monologue": ["jp_text", "correct_answer"],
-                "recall": ["words", "incorrect_word"]
+                "continuation": ["jp_text", "scene", "en_context"],
+                "quiz": ["words", "incorrect_word", "hint"]
             }
             
             for section, fields in required_fields.items():
@@ -162,7 +159,10 @@ class LLMManager:
                 "topic": topic_data,
                 "vocabulary": vocab_data,
                 "monologue": monologue_data,
-                "recall": recall_data,
+                "recall": {
+                    "continuation": continuation,
+                    "quiz": quiz
+                },
                 "intro_text": INTRO_TEMPLATE.format(
                     context=topic_data["context"],
                     preview=vocab_data.get("preview", "Let's practice!")

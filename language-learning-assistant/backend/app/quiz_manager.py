@@ -11,51 +11,40 @@ class QuizManager:
         self.llm_manager = LLMManager()
 
     async def create_session(self) -> QuizSession:
-        # Create placeholder audio data (1 second of silence)
         placeholder_audio = bytes([0] * 44100 * 2)
         
         # Generate content using LLM
         session_content = self.llm_manager.generate_session_content()
         if not session_content:
-            # Fallback to demo content if LLM fails
             return self._create_demo_session(placeholder_audio)
 
-        # Cache audio placeholders (will be replaced with TTS later)
-        intro_key = self.audio_manager.save_audio(
-            placeholder_audio,
-            f"intro_{uuid4()}.mp3"
-        )
-        outro_key = self.audio_manager.save_audio(
-            placeholder_audio,
-            f"outro_{uuid4()}.mp3"
-        )
-        vocab_key = self.audio_manager.save_audio(
-            placeholder_audio,
-            f"vocab_{uuid4()}.mp3"
-        )
-        conv_key = self.audio_manager.save_audio(
-            placeholder_audio,
-            f"conv_{uuid4()}.mp3"
-        )
+        # Cache audio placeholders with unique IDs
+        intro_key = self.audio_manager.save_audio(placeholder_audio, f"intro_{uuid4()}.mp3")
+        outro_key = self.audio_manager.save_audio(placeholder_audio, f"outro_{uuid4()}.mp3")
+        vocab_keys = [
+            self.audio_manager.save_audio(placeholder_audio, f"vocab_{uuid4()}.mp3")
+            for _ in session_content["vocabulary"]["words"]
+        ]
+        monologue1_key = self.audio_manager.save_audio(placeholder_audio, f"monologue1_{uuid4()}.mp3")
+        monologue2_key = self.audio_manager.save_audio(placeholder_audio, f"monologue2_{uuid4()}.mp3")
 
-        # Create session following the API format
         session = QuizSession(
             en_intro_audio=intro_key,
             en_outro_audio=outro_key,
             vocabulary_stage=VocabularyStage(
                 entries=[
-                    {"jp_audio": vocab_key, "en_text": word["en_text"]}
-                    for word in session_content["vocabulary"]["words"]
+                    {"jp_audio": key, "en_text": word["en_text"]}
+                    for key, word in zip(vocab_keys, session_content["vocabulary"]["words"])
                 ]
             ),
             comprehension_stage=ComprehensionStage(
-                jp_audio=conv_key,
+                jp_audio=monologue1_key,
                 correct_answer=session_content["monologue"]["correct_answer"]
             ),
             recall_stage=RecallStage(
-                jp_audio=conv_key,
-                options=session_content["recall"]["words"],
-                incorrect_option=session_content["recall"]["incorrect_word"]
+                jp_audio=monologue2_key,  # Using the continuation monologue audio
+                options=session_content["recall"]["quiz"]["words"],
+                incorrect_option=session_content["recall"]["quiz"]["incorrect_word"]
             )
         )
         

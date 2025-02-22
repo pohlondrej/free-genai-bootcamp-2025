@@ -49,20 +49,28 @@ MONOLOGUE_PROMPT = """Create a short Japanese monologue about '{topic}' using so
 The monologue should be:
 - Natural and realistic
 - Simple enough for beginners
+- Short, maximum 3 sentences
 - Include at least 2 vocabulary words
 - Have a clear yes/no question about its content
 
 Return ONLY valid JSON matching this format (but create your own monologue):
 {{"scene": "Describe where/when this happens", "jp_text": "Write natural Japanese dialog", "en_context": "Explain what's happening", "question": "Ask a yes/no question in Japanese", "correct_answer": true}}"""
 
-RECALL_PROMPT = """Given this monologue: {jp_text}
-Create a vocabulary recall quiz where:
-1. Pick 2 words that appeared in the monologue
-2. Add 1 unrelated but plausible Japanese word
-3. The unrelated word should match the topic's context but NOT be in the monologue
+RECALL_PROMPT = """Given this first monologue: {jp_text}
+Create a continuation of the story (1-2 sentences) that follows naturally from the first monologue.
+Then create a vocabulary quiz about words used in your continuation.
 
-Return ONLY valid JSON matching this format (using your chosen words):
-{{"words": ["word1", "word2", "unrelated"], "incorrect_word": "unrelated", "hint": "Write a hint about which words to pick"}}"""
+Return ONLY valid JSON matching this format:
+{{"continuation": {{
+    "scene": "Describe the next moment in the story",
+    "jp_text": "Write the continuation in natural Japanese",
+    "en_context": "Explain what happens next"
+}},
+"quiz": {{
+    "words": ["word1", "word2", "unrelated"],
+    "incorrect_word": "unrelated",
+    "hint": "Which two words appeared in the continuation?"
+}}}}"""
 
 INTRO_TEMPLATE = "Welcome! {context} {preview}"
 OUTRO_TEMPLATE = "Great job! You learned about {topic} and practiced {vocab_count} new words!"
