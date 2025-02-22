@@ -48,16 +48,17 @@ Return ONLY valid JSON matching this format (but use words related to your topic
 MONOLOGUE_PROMPT = """Create a short Japanese monologue about '{topic}' using some of these words: {vocab_list}.
 The monologue should be:
 - Natural and realistic
+- It must be a monologue, not a dialogue
 - Simple enough for beginners
 - Short, maximum 3 sentences
 - Include at least 2 vocabulary words
 - Have a clear yes/no question about its content
 
 Return ONLY valid JSON matching this format (but create your own monologue):
-{{"scene": "Describe where/when this happens", "jp_text": "Write natural Japanese dialog", "en_context": "Explain what's happening", "question": "Ask a yes/no question in Japanese", "correct_answer": true}}"""
+{{"scene": "Describe where/when this happens", "jp_text": "Write natural Japanese dialog", "en_context": "Explain what's happening", "question": "Ask a yes/no question in English", "correct_answer": true}}"""
 
 RECALL_PROMPT = """Given this first monologue: {jp_text}
-Create a continuation of the story (1-2 sentences) that follows naturally from the first monologue.
+Create a continuation of the monologue (1-2 sentences) that follows naturally from the first monologue.
 Then create a vocabulary quiz about words used in your continuation.
 
 Return ONLY valid JSON matching this format:
