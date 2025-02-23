@@ -21,17 +21,12 @@ def play_audio(cache_key: str):
     audio_url = f"{BACKEND_URL}/audio/{cache_key}"
     st.audio(audio_url)
 
-def submit_answer(session_id: str, answer: str) -> bool:
-    """Submit answer to backend"""
-    response = requests.post(f"{BACKEND_URL}/session/{session_id}/answer", json={"answer": answer})
-    if response.ok:
-        return response.json()["correct"]
-    return False
-
 def main():
     st.title("Japanese Learning Assistant")
     
     # Initialize session state variables
+    if "session" not in st.session_state:
+        st.session_state.session = None
     if "selected_audio" not in st.session_state:
         st.session_state.selected_audio = None
     if "selected_text" not in st.session_state:
@@ -39,22 +34,35 @@ def main():
     if "matched_pairs" not in st.session_state:
         st.session_state.matched_pairs = set()
     if "correct_recalls" not in st.session_state:
-        st.session_state.correct_recalls = set()  # Track correct recall selections
-    
-    # Initialize or get session
-    if "session" not in st.session_state:
-        with st.spinner("Creating new session..."):
-            st.session_state.session = create_session()
-    
+        st.session_state.correct_recalls = set()
+
+    # Show welcome screen if no session
+    if not st.session_state.session:
+        st.write("""
+        Welcome to the Japanese Learning Assistant!
+        
+        Practice your Japanese listening comprehension through:
+        - Vocabulary matching
+        - Monologue comprehension
+        - Word recall
+        """)
+        if st.button("Start New Session"):
+            with st.spinner("Creating new session..."):
+                st.session_state.session = create_session()
+            st.rerun()
+        return
+
+    # Rest of the quiz logic
     if not st.session_state.session:
         st.error("Could not create session")
         return
         
     # Get current stage
-    stage = st.session_state.session["current_stage"]
+    stage = min(st.session_state.session["current_stage"], 3)
     stages = ["Vocabulary", "Comprehension", "Recall"]
-    st.progress((stage + 1) / len(stages))
-    st.subheader(f"Stage {stage + 1}: {stages[stage]}")
+    st.progress(min((stage + 1) / len(stages), 1.0))
+    if stage < 3:
+        st.subheader(f"Stage {stage + 1}: {stages[stage]}")
     
     # Display intro audio on first stage
     if stage == 0:
@@ -121,17 +129,13 @@ def main():
         play_audio(comp_stage["jp_audio"])
         
         answer = st.radio(
-            comp_stage["question"],  # Use LLM-generated question
+            comp_stage["question"],
             ["Yes", "No"],
             key="comprehension_answer"
         )
         
         if st.button("Submit"):
-            # Convert Yes/No to true/false
-            is_correct = submit_answer(
-                st.session_state.session["session_id"],
-                "true" if answer == "Yes" else "false"
-            )
+            is_correct = (answer == "Yes") == comp_stage["correct_answer"]
             if is_correct:
                 st.success("Correct!")
             else:
