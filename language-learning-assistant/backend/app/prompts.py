@@ -52,6 +52,7 @@ IMPORTANT:
 - Words must be relevant to '{topic}'
 - Use natural Japanese writing (kanji where appropriate)
 - Choose words that work well together in a conversation
+- Do not use special formatting (e.g. bold, italics)
 
 Return ONLY valid JSON matching this format (but use your own unique words):
 {{"words": [
@@ -69,6 +70,7 @@ The monologue should be:
 - Short, maximum 3 sentences
 - Include at least 2 vocabulary words
 - Have a clear yes/no question about its content
+- Do not use special formatting (e.g. bold, italics)
 
 Return ONLY valid JSON matching this format (but create your own monologue):
 {{"scene": "Describe where/when this happens", "jp_text": "Write natural Japanese dialog", "en_context": "Explain what's happening", "question": "Ask a yes/no question in English", "correct_answer": true}}"""
@@ -76,6 +78,9 @@ Return ONLY valid JSON matching this format (but create your own monologue):
 RECALL_PROMPT = """Given this first monologue: {jp_text}
 Create a continuation of the monologue (1-2 sentences) that follows naturally from the first monologue.
 Then create a vocabulary quiz about words used in your continuation.
+
+IMPORTANT:
+- Do not use special formatting (e.g. bold, italics)
 
 Return ONLY valid JSON matching this format:
 {{"continuation": {{

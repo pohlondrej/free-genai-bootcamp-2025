@@ -3,13 +3,15 @@ from uuid import UUID, uuid4
 from .models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
 from .audio_manager import AudioManager
 from .llm_manager import LLMManager
+from .tts_manager import TTSManager
 
 class QuizManager:
     def __init__(self):
         self.active_sessions: Dict[UUID, QuizSession] = {}
         self.audio_manager = AudioManager()
         self.llm_manager = LLMManager()
-
+        self.tts_manager = TTSManager()
+    
     async def create_session(self) -> QuizSession:
         placeholder_audio = bytes([0] * 44100 * 2)
         
@@ -18,15 +20,27 @@ class QuizManager:
         if not session_content:
             return self._create_demo_session(placeholder_audio)
 
-        # Cache audio placeholders with unique IDs
-        intro_key = self.audio_manager.save_audio(placeholder_audio, f"intro_{uuid4()}.mp3")
-        outro_key = self.audio_manager.save_audio(placeholder_audio, f"outro_{uuid4()}.mp3")
-        vocab_keys = [
-            self.audio_manager.save_audio(placeholder_audio, f"vocab_{uuid4()}.mp3")
-            for _ in session_content["vocabulary"]["words"]
-        ]
-        monologue1_key = self.audio_manager.save_audio(placeholder_audio, f"monologue1_{uuid4()}.mp3")
-        monologue2_key = self.audio_manager.save_audio(placeholder_audio, f"monologue2_{uuid4()}.mp3")
+        # Generate audio for each text
+        intro_audio = self.tts_manager.generate_speech(session_content["intro_text"], "en")
+        outro_audio = self.tts_manager.generate_speech(session_content["outro_text"], "en")
+        
+        # Cache audio files
+        intro_key = self.audio_manager.save_audio(intro_audio or placeholder_audio, f"intro_{uuid4()}.wav")
+        outro_key = self.audio_manager.save_audio(outro_audio or placeholder_audio, f"outro_{uuid4()}.wav")
+        
+        # Generate vocabulary audio
+        vocab_keys = []
+        for word in session_content["vocabulary"]["words"]:
+            audio = self.tts_manager.generate_speech(word["jp_text"], "jp")
+            key = self.audio_manager.save_audio(audio or placeholder_audio, f"vocab_{uuid4()}.wav")
+            vocab_keys.append(key)
+        
+        # Generate monologue audio
+        monologue1_audio = self.tts_manager.generate_speech(session_content["monologue"]["jp_text"], "jp")
+        monologue2_audio = self.tts_manager.generate_speech(session_content["recall"]["continuation"]["jp_text"], "jp")
+        
+        monologue1_key = self.audio_manager.save_audio(monologue1_audio or placeholder_audio, f"monologue1_{uuid4()}.wav")
+        monologue2_key = self.audio_manager.save_audio(monologue2_audio or placeholder_audio, f"monologue2_{uuid4()}.wav")
 
         session = QuizSession(
             en_intro_audio=intro_key,
