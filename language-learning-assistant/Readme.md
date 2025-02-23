@@ -60,3 +60,6 @@ export LLM_MODEL="gpt-3.5-turbo"
 export LLM_TEMPERATURE="0.7"
 export LLM_MAX_RETRIES="3"
 export LLM_TIMEOUT="30"
+export CHROMA_DB_DIR="chroma_db"  # Vector database location
+export EMBEDDING_MODEL="gemini/text-embedding-004"  # Embedding model for RAG
+```

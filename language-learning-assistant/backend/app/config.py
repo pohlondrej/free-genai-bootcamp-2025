@@ -13,5 +13,8 @@ class Settings(BaseSettings):
     LLM_TOP_P: float = float(os.getenv("LLM_TOP_P", "0.9"))
     LLM_FREQUENCY_PENALTY: float = float(os.getenv("LLM_FREQUENCY_PENALTY", "0.5"))
     LLM_STOP_SEQUENCES: Optional[list] = None
+    CHROMA_DB_DIR: str = os.getenv("CHROMA_DB_DIR", "chroma_db")
+    EMBEDDING_MODEL_API_KEY: str = os.getenv("EMBEDDING_MODEL_API_KEY", GEMINI_API_KEY)
+    EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "gemini/text-embedding-004")
 
 settings = Settings()

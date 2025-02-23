@@ -1,4 +1,8 @@
 SESSION_TOPIC_PROMPT = """Generate a simple conversational topic for a Japanese language lesson.
+
+Recently used topics (DO NOT USE THESE):
+{recent_topics}
+
 Pick ONE random combination from these options:
 
 Locations:
@@ -23,7 +27,11 @@ Time:
 - Weekend
 - Holiday season
 
-Make it specific and interesting, but keep it at beginner level.
+IMPORTANT:
+- Choose a topic that is DIFFERENT from the recent topics listed above
+- Make it specific and interesting
+- Keep it at beginner level
+- Aim for everyday situations
 
 Return ONLY valid JSON matching this format (but create your own unique scenario):
 {{"topic": "at the bookstore", "context": "A student is looking for a Japanese textbook", "difficulty": "beginner"}}"""
@@ -35,9 +43,17 @@ The words should be:
 - Suitable for beginners
 - A mix of nouns and useful expressions
 
-The japanese vocabulary words should not use furigana.
+Previous successful examples (DO NOT COPY, USE ONLY AS INSPIRATION):
+{examples}
 
-Return ONLY valid JSON matching this format (but use words related to your topic):
+IMPORTANT:
+- The japanese vocabulary words should not use furigana.
+- Create completely new words different from the examples
+- Words must be relevant to '{topic}'
+- Use natural Japanese writing (kanji where appropriate)
+- Choose words that work well together in a conversation
+
+Return ONLY valid JSON matching this format (but use your own unique words):
 {{"words": [
     {{"jp_text": "example1", "en_text": "meaning1"}},
     {{"jp_text": "example2", "en_text": "meaning2"}},

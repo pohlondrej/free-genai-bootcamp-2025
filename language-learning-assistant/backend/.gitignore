@@ -40,3 +40,6 @@ htmlcov/
 
 # Project-specific
 audio_cache/
+
+# Vector DB
+chroma_db/

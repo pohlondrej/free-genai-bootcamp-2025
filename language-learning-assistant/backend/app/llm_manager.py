@@ -4,6 +4,8 @@ from time import sleep
 from litellm import completion, ModelResponse
 from .config import settings
 from .prompts import *
+from .chroma_manager import ChromaManager
+from uuid import uuid4
 
 class LLMError(Exception):
     """Base class for LLM-related errors"""
@@ -13,6 +15,7 @@ class LLMManager:
     def __init__(self):
         self.model = settings.LLM_MODEL
         self.backoff_factor = 2
+        self.chroma = ChromaManager()
         
     def _call_llm_with_retry(self, prompt: str) -> ModelResponse:
         """Call LLM with exponential backoff retry"""
@@ -70,18 +73,98 @@ class LLMManager:
                 print(f"Raw response: {response}")
             return None
 
+    def _get_context(self, topic: str) -> str:
+        """Get relevant examples for the topic"""
+        similar = self.chroma.find_similar("topics", topic)
+        print(f"\nFound {len(similar)} similar examples for topic '{topic}'")
+        
+        if not similar:
+            print("No examples found in database")
+            return ""
+        
+        contexts = []
+        for item in similar:
+            print(f"\nExample from DB:")
+            print(f"- Topic: {item['metadata'].get('topic', '')}")
+            print(f"- Text: {item['text'][:100]}...")
+            contexts.append(f"Example:\nTopic: {item['metadata'].get('topic', '')}\n{item['text']}")
+        return "\n\n".join(contexts)
+
+    def _store_successful_generation(self, data: Dict[str, Any]) -> None:
+        """Store successful generations in vector DB"""
+        try:
+            # Store topic
+            self.chroma.add_example(
+                "topics",
+                f"{data['topic']['context']}\n{data['monologue']['jp_text']}",
+                {
+                    "topic": data["topic"]["topic"],
+                    "difficulty": data["topic"]["difficulty"],
+                    "id": str(uuid4())
+                }
+            )
+            
+            # Store vocabulary with its context
+            for word in data["vocabulary"]["words"]:
+                self.chroma.add_example(
+                    "vocabulary",
+                    f"{word['jp_text']}: {word['en_text']}",
+                    {
+                        "topic": data["topic"]["topic"],
+                        "id": str(uuid4())
+                    }
+                )
+            
+            # Store monologues
+            self.chroma.add_example(
+                "monologues",
+                data["monologue"]["jp_text"],
+                {
+                    "topic": data["topic"]["topic"],
+                    "scene": data["monologue"]["scene"],
+                    "id": str(uuid4())
+                }
+            )
+            print("Stored successful generation in vector DB")
+        except Exception as e:
+            print(f"Failed to store generation: {e}")
+
     def generate_session_content(self) -> Optional[Dict[str, Any]]:
         try:
-            # Generate topic and context
-            topic_data = self._call_llm(SESSION_TOPIC_PROMPT)
+            # Get recent topics to avoid repetition
+            recent_topics = self.chroma.get_recent_topics()
+            print(f"\nRecent topics: {recent_topics}")
+            
+            # Format recent topics for prompt
+            recent_topics_str = "None found" if not recent_topics else "\n".join(
+                f"- {topic}" for topic in recent_topics
+            )
+            
+            # Generate topic with awareness of past topics
+            topic_data = self._call_llm(
+                SESSION_TOPIC_PROMPT.format(recent_topics=recent_topics_str)
+            )
             if not topic_data or "topic" not in topic_data:
                 print("Failed to generate topic")
                 return None
-            print(f"Generated topic: {topic_data}")
+            
+            if topic_data["topic"] in recent_topics:
+                print(f"Generated topic was in recent list, rejecting")
+                return None
                 
+            print(f"Generated unique topic: {topic_data}")
+            
+            # Get relevant examples
+            context = self._get_context(topic_data["topic"])
+            if context:
+                print(f"Found similar examples:\n{context}")
+
             # Generate vocabulary with context
             vocab_data = self._call_llm(
-                VOCABULARY_PROMPT.format(topic=topic_data["topic"])
+                VOCABULARY_PROMPT.format(
+                    topic=topic_data["topic"],
+                    examples=context
+                )
             )
             if not vocab_data or "words" not in vocab_data:
                 print("Failed to generate vocabulary")
@@ -155,7 +238,7 @@ class LLMManager:
                     print(f"Got: {list(data.keys()) if data else None}")
                     return None
             
-            return {
+            result = {
                 "topic": topic_data,
                 "vocabulary": vocab_data,
                 "monologue": monologue_data,
@@ -172,6 +255,11 @@ class LLMManager:
                     vocab_count=len(vocab_data["words"])
                 )
             }
+            
+            # Store successful generation
+            self._store_successful_generation(result)
+            
+            return result
             
         except Exception as e:
             print(f"Session generation error: {str(e)}")
