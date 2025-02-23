@@ -53,6 +53,7 @@ IMPORTANT:
 - Use natural Japanese writing (kanji where appropriate)
 - Choose words that work well together in a conversation
 - Do not use special formatting (e.g. bold, italics)
+- The preview should be in English and should contain no Japanese words.
 
 Return ONLY valid JSON matching this format (but use your own unique words):
 {{"words": [
@@ -60,7 +61,7 @@ Return ONLY valid JSON matching this format (but use your own unique words):
     {{"jp_text": "example2", "en_text": "meaning2"}},
     {{"jp_text": "example3", "en_text": "meaning3"}},
     {{"jp_text": "example4", "en_text": "meaning4"}}
-], "preview": "Write an engaging preview for your chosen words."}}"""
+], "preview": "Write a short but engaging preview for the topic."}}"""
 
 MONOLOGUE_PROMPT = """Create a short Japanese monologue about '{topic}' using some of these words: {vocab_list}.
 The monologue should be:

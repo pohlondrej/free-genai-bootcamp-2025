@@ -4,6 +4,7 @@ from typing import Optional
 import json
 from pathlib import Path
 import random
+import base64
 
 # Backend API URL
 BACKEND_URL = "http://localhost:8000"
@@ -21,10 +22,24 @@ def play_audio(cache_key: str):
     audio_url = f"{BACKEND_URL}/audio/{cache_key}"
     st.audio(audio_url)
 
+def autoplay_audio(file_url: str):
+    """Automatically play audio from URL using HTML audio tag"""
+    response = requests.get(file_url)
+    audio_bytes = response.content
+    b64 = base64.b64encode(audio_bytes).decode()
+    md = f"""
+        <audio autoplay="true">
+        <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+        </audio>
+        """
+    st.markdown(md, unsafe_allow_html=True)
+
 def main():
     st.title("Japanese Learning Assistant")
     
     # Initialize session state variables
+    if "intro_played" not in st.session_state:
+        st.session_state.intro_played = False
     if "session" not in st.session_state:
         st.session_state.session = None
     if "selected_audio" not in st.session_state:
@@ -66,7 +81,10 @@ def main():
     
     # Display intro audio on first stage
     if stage == 0:
-        play_audio(st.session_state.session["en_intro_audio"])
+        if not st.session_state.intro_played:
+            audio_url = f"{BACKEND_URL}/audio/{st.session_state.session['en_intro_audio']}"
+            autoplay_audio(audio_url)
+            st.session_state.intro_played = True
     
     # Display current stage content
     if stage == 0:  # Vocabulary Stage
@@ -134,14 +152,23 @@ def main():
             key="comprehension_answer"
         )
         
+        if "submitted_answer" not in st.session_state:
+            st.session_state.submitted_answer = False
+        
         if st.button("Submit"):
             is_correct = (answer == "Yes") == comp_stage["correct_answer"]
             if is_correct:
-                st.success("Correct!")
+                st.success("✨ Excellent! That's correct!")
+                st.session_state.submitted_answer = True
             else:
-                st.error("Incorrect.")
-            st.session_state.session["current_stage"] += 1
-            st.rerun()
+                st.error("Sorry, that's not correct. Try listening again!")
+        
+        # Show continue button only after correct answer
+        if st.session_state.submitted_answer:
+            if st.button("Continue to Recall Stage"):
+                st.session_state.session["current_stage"] = 2
+                st.session_state.submitted_answer = False  # Reset for next stage
+                st.rerun()
 
     elif stage == 2:  # Recall Stage
         recall_stage = st.session_state.session["recall_stage"]
@@ -156,13 +183,16 @@ def main():
                 if word in st.session_state.correct_recalls:
                     st.button(word, key=f"recall_{word}", type="primary", disabled=True)
                 elif word == recall_stage["incorrect_option"]:
+                    # This is the incorrect word - clear selections if clicked
                     if st.button(word, key=f"recall_{word}", type="secondary"):
                         st.error("Incorrect! This word wasn't in the audio.")
+                        st.session_state.correct_recalls.clear()  # Reset on wrong answer
                 else:
+                    # This is a correct word
                     if st.button(word, key=f"recall_{word}", type="secondary"):
                         st.session_state.correct_recalls.add(word)
                         if len(st.session_state.correct_recalls) == 2:
-                            st.success("Well done! You found both words!")
+                            st.success("Well done! You found both correct words!")
 
         # Show Finish button when two correct words are found
         if len(st.session_state.correct_recalls) == 2:
@@ -172,8 +202,10 @@ def main():
 
     # Show outro on completion
     if st.session_state.session["current_stage"] >= 3:
-        play_audio(st.session_state.session["en_outro_audio"])
-        if st.button("Start New Session"):
+        audio_url = f"{BACKEND_URL}/audio/{st.session_state.session['en_outro_audio']}"
+        autoplay_audio(audio_url)
+        st.write("Congratulations! You've completed the session.")
+        if st.button("Finish session"):
             del st.session_state.session
             st.rerun()
 
