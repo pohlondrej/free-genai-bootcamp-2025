@@ -53,6 +53,7 @@ class QuizManager:
             ),
             comprehension_stage=ComprehensionStage(
                 jp_audio=monologue1_key,
+                question=session_content["monologue"]["question"],  # Add question
                 correct_answer=session_content["monologue"]["correct_answer"]
             ),
             recall_stage=RecallStage(

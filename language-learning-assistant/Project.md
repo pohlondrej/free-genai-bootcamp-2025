@@ -30,6 +30,7 @@
     "comprehension_stage": {
         "stage_id": "uuid",
         "jp_audio": "cache_key",
+        "question": "LLM-generated question in English",
         "correct_answer": true
     },
     "recall_stage": {
@@ -114,7 +115,39 @@ The application can generate and play audio for the questions and answers.
 - Audio caching reduces latency
 - Playback controls work reliably
 
-### 7: Japanese Language Quality Improvements (Stretch Goal)
+### 7: Create Frontend
+#### Description:
+Implement a basic Streamlit frontend for the language learning application.
+
+- Build core quiz interface:
+  - Display current question/task
+  - Show answer options
+  - Accept user input
+  - Display correct/incorrect feedback
+- Implement audio features:
+  - Basic audio player
+  - Replay button
+- Add minimal visual feedback:
+  - Loading indicators
+  - Error messages
+  - Stage progress (1/3, 2/3, 3/3)
+
+#### Acceptance Criteria:
+- Users can complete a full quiz session
+- Audio plays correctly
+- Interface shows current stage clearly
+- Loading and errors are visible
+- Correct/incorrect feedback works
+
+#### Technical Notes:
+- Must use Streamlit as required
+- Keep interface minimal and functional
+- Focus on core quiz flow
+- Handle basic error cases
+- Should be implemented 
+
+## Improvements
+### 1: Japanese Language Quality Improvements
 #### Description:
 Implement additional validation and quality controls for Japanese language output.
 - Add validation for kanji/kana mix appropriate for beginners

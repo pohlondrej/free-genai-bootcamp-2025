@@ -3,6 +3,8 @@ import io
 import numpy as np
 import soundfile as sf
 from TTS.api import TTS
+import logging
+import time
 
 class TTSManager:
     def __init__(self):
@@ -45,6 +47,10 @@ class TTSManager:
     def generate_speech(self, text: str, language: str = "en") -> Optional[bytes]:
         """Generate speech with fallback and validation"""
         try:
+            start_time = time.time()
+            logging.info(f"Starting TTS generation for language: {language}")
+            logging.debug(f"Text to synthesize: {text[:100]}...")
+            
             # Add speech marks for better prosody
             marked_text = self._add_speech_marks(text, language)
             
@@ -79,8 +85,12 @@ class TTSManager:
                 subtype='PCM_16',
                 endian='LITTLE'
             )
+            
+            # Log performance metrics
+            duration = time.time() - start_time
+            logging.info(f"TTS generation completed in {duration:.2f}s")
             return buffer.getvalue()
             
         except Exception as e:
-            print(f"TTS Error: {str(e)}")
+            logging.error(f"TTS Error: {str(e)}", exc_info=True)
             return None

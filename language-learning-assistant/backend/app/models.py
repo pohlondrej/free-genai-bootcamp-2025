@@ -28,10 +28,12 @@ class ComprehensionStage(BaseModel):
     Attributes:
         stage_id (UUID4): Unique identifier for this stage
         jp_audio (str): Cache key or path to the Japanese audio question
+        question (str): The LLM-generated question in English
         correct_answer (bool): True for 'yes', False for 'no' answer
     """
     stage_id: UUID4 = uuid4()
     jp_audio: str
+    question: str
     correct_answer: bool
 
 class RecallStage(BaseModel):

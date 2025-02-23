@@ -81,6 +81,7 @@ Then create a vocabulary quiz about words used in your continuation.
 
 IMPORTANT:
 - Do not use special formatting (e.g. bold, italics)
+- Do not use furigana or romaji in the japanese text
 
 Return ONLY valid JSON matching this format:
 {{"continuation": {{
