@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+pydantic-settings
+litellm>=1.0.0
+python-dotenv
+chromadb>=0.4.22
+sentence-transformers>=2.2.2
+coqui-tts
+coqui-tts[ja]
+streamlit>=1.32.0
+requests>=2.31.0
+python-dotenv>=1.0.0
