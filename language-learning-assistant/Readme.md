@@ -2,15 +2,16 @@
 A listening comprehension application inspired by [DuoRadio](https://blog.duolingo.com/duoradio-listening-practice/) by Duolingo.
 
 ## Docs
-[Project Description](docs/Project.md) - high-level project overview, API description
-[Tasks](docs/Tasks.md) - step-by-step tasks used to develop this project
-[Next Steps](docs/Improvements.md) - cool ideas for furture development
+- [Project Description](docs/Project.md) - high-level project overview, API description
+- [Tasks](docs/Tasks.md) - step-by-step tasks used to develop this project
+- [Next Steps](docs/Improvements.md) - cool ideas for furture development
 
 ## Screenshots
 
 ## Setup
 ### Python Environment
 **Python 3.10 is required!**
+
 Highly recommended to use Conda for virtual environment setup; (this setup assumes Conda is installed):
 #### Create Conda Environment:
 ```
@@ -51,4 +52,4 @@ python run.py
 ```
 from the Conda environment. Please allow ~10-15 seconds for the server to start.
 
-** Enjoy! **
+**Enjoy!**
