@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Optional
 import os
+from .config import settings
 
 class AudioManager:
-    def __init__(self, cache_dir: str = "audio_cache"):
-        self.cache_dir = Path(cache_dir)
+    def __init__(self, cache_dir: str = None):
+        self.cache_dir = Path(cache_dir or settings.AUDIO_CACHE_DIR)
         self.cache_dir.mkdir(exist_ok=True)
     
     def get_audio_path(self, cache_key: str) -> Optional[Path]:

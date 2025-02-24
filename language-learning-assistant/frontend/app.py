@@ -34,18 +34,6 @@ def autoplay_audio(file_url: str):
         """
     st.markdown(md, unsafe_allow_html=True)
 
-def autoplay_audio_and_hide_player(file_url: str):
-    """Play audio without showing player"""
-    response = requests.get(file_url)
-    audio_bytes = response.content
-    b64 = base64.b64encode(audio_bytes).decode()
-    md = f"""
-        <audio autoplay="true" style="display: none">
-        <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
-        </audio>
-        """
-    st.markdown(md, unsafe_allow_html=True)
-
 def clear_session_state():
     """Clear all session state variables"""
     st.session_state.intro_played = False
@@ -140,7 +128,7 @@ def main():
                 if entry["jp_audio"] not in st.session_state.matched_pairs:
                     if st.button("🔊", key=button_key):
                         audio_url = f"{BACKEND_URL}/audio/{entry['jp_audio']}"
-                        autoplay_audio_and_hide_player(audio_url)
+                        autoplay_audio(audio_url)
                         # Toggle selection
                         if st.session_state.selected_audio == entry["jp_audio"]:
                             st.session_state.selected_audio = None
@@ -246,7 +234,7 @@ def main():
         audio_url = f"{BACKEND_URL}/audio/{st.session_state.session['en_outro_audio']}"
         autoplay_audio(audio_url)
         st.write("Congratulations! You've completed the session.")
-        if st.button("Start New Session"):
+        if st.button("Back to Main Menu"):
             clear_session_state()  # Clear state before starting new session
             st.rerun()
 

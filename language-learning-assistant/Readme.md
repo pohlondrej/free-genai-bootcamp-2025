@@ -1,65 +1,54 @@
 # Language Learning Assistant
-## Business Goal
-A language learning application that leverages AI to enhance Japanese listening comprehension skills. It uses AI-powered question generation and speech synthesis based on RAG and LLM output to provide adaptive quizzes.
-## Technical Uncertainties
-- How can I craft effective LLM prompts to *consistently* generate high-quality, relevant, and appropriately challenging questions?
-- What is the best approach for deploying the application's backend (LLM, vector database, TTS) in a cloud or locally?
-- How can I ensure the LLM generates plausible but incorrect answers for multiple-choice questions?
-- Which TTS model provides the best quality and natural-sounding Japanese speech?
-- What strategies can I use to minimize the latency between user interaction, question generation, TTS, and feedback?
-## Technical Restrictions
-- Must use LiteLLM for model management.
-- Must use Streamlit for frontend.
-- Must use Chroma for vector storage.
-- Should use SQLite for non-vector data.
-- Must use a Japanese and English TTS engines.
-- Should store user quiz history (scores, answers).
-    - Users should be able to clear the quiz history.
-- Should be deployable locally (using Docker).
-- Should follow separation of concerns.
-## Session Format
-### 1. Introduction Phase
-- English TTS: Announcer welcomes user and sets context
-- English TTS: Pre-lesson vocabulary preview
-- **Quiz 1**: Vocabulary matching
-  - Format: Match 4 Japanese audio clips to English words
-  - Goal: Prepare user for upcoming monologue
+A listening comprehension application inspired by [DuoRadio](https://blog.duolingo.com/duoradio-listening-practice/) by Duolingo.
 
-### 2. Main Monologue Phase
-- English TTS: Topic introduction and speaker context
-- Japanese TTS: First segment (2-3 sentences)
-- **Quiz 2**: Comprehension check
-  - Format: Yes/No question about content
-  - Goal: Verify understanding of main points
+## Docs
+[Project Description](docs/Project.md) - high-level project overview, API description
+[Tasks](docs/Tasks.md) - step-by-step tasks used to develop this project
+[Next Steps](docs/Improvements.md) - cool ideas for furture development
 
-### 3. Extension Phase
-- Japanese TTS: Second segment (1-2 sentences)
-- **Quiz 3**: Vocabulary recall
-  - Format: Select 2 words from 3 options that appeared in monologue
-  - Goal: Test active listening and vocabulary retention
+## Screenshots
 
-### 4. Wrap-up Phase
-- English TTS: Brief summary and farewell
-- Display session score and progress
+## Setup
+### Python Environment
+**Python 3.10 is required!**
+Highly recommended to use Conda for virtual environment setup; (this setup assumes Conda is installed):
+#### Create Conda Environment:
+```
+conda create -n "langassist_duoradio" python=3.10
+conda activate langassist_duoradio
+```
+#### Install Required Python Packages:
 
-### Expected Duration
-- Total session time: ~2-3 minutes
-- Each quiz: 10-30 seconds
-
-## Development Setup
-
-### Environment Variables
-Required environment variables:
+### Set Environment Variables
+LLM API key and model must be specified before starting the server.
+- Gemini 2.0 Flash was used during development, and is set as default option.
+    - Still requires `LLM_API_KEY` or `GEMINI_API_KEY` to run, though.
+    - `GEMINI_API_KEY` works for both LLM and embedding model.
+- All models supported by LiteLLM can be used, although no models except Gemini were tested.
+[Supported Providers](https://docs.litellm.ai/docs/providers)
+[Free Gemini API Key](https://aistudio.google.com/app/apikey) 
+#### Required environment variables
 ```bash
 export LLM_API_KEY="your-api-key-here"
+export LLM_MODEL="your-cloud-llm" # gemini/gemini-2.0-flash by default
+export EMBEDDING_MODEL_API_KEY="your-embedding-model-api-key-here"
+export EMBEDDING_MODEL="your-cloud-embedding-model" # "gemini/text-embedding-004" by default
 ```
 
-Optional environment variables:
+#### Optional environment variables
 ```bash
-export LLM_MODEL="gpt-3.5-turbo"
 export LLM_TEMPERATURE="0.7"
 export LLM_MAX_RETRIES="3"
 export LLM_TIMEOUT="30"
-export CHROMA_DB_DIR="chroma_db"  # Vector database location
-export EMBEDDING_MODEL="gemini/text-embedding-004"  # Embedding model for RAG
+export CHROMA_DB_DIR="/path/to/chroma/db"  # Vector database location, defaults to ./chroma_db
+export AUDIO_CACHE_DIR="/path/to/audio/cache"  # Audio cache location, defaults to ./audio_cache
 ```
+
+### Launch
+To start the server, simply run:
+```bash
+python run.py
+```
+from the Conda environment. Please allow ~10-15 seconds for the server to start.
+
+** Enjoy! **

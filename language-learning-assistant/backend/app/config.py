@@ -16,5 +16,6 @@ class Settings(BaseSettings):
     CHROMA_DB_DIR: str = os.getenv("CHROMA_DB_DIR", "chroma_db")
     EMBEDDING_MODEL_API_KEY: str = os.getenv("EMBEDDING_MODEL_API_KEY", GEMINI_API_KEY)
     EMBEDDING_MODEL: str = os.getenv("EMBEDDING_MODEL", "gemini/text-embedding-004")
+    AUDIO_CACHE_DIR: str = os.getenv("AUDIO_CACHE_DIR", "audio_cache")
 
 settings = Settings()
