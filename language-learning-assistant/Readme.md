@@ -18,11 +18,15 @@ A listening comprehension application inspired by [DuoRadio](https://blog.duolin
 
 Highly recommended to use Conda for virtual environment setup; (this setup assumes Conda is installed):
 #### Create Conda Environment:
-```
+```bash
 conda create -n "langassist_duoradio" python=3.10
 conda activate langassist_duoradio
 ```
 #### Install Required Python Packages:
+```bash
+conda install pip
+pip install -r requirements.txt
+```
 
 ### Set Environment Variables
 LLM API key and model must be specified before starting the server.
