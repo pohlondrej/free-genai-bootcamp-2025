@@ -34,6 +34,30 @@ def autoplay_audio(file_url: str):
         """
     st.markdown(md, unsafe_allow_html=True)
 
+def autoplay_audio_and_hide_player(file_url: str):
+    """Play audio without showing player"""
+    response = requests.get(file_url)
+    audio_bytes = response.content
+    b64 = base64.b64encode(audio_bytes).decode()
+    md = f"""
+        <audio autoplay="true" style="display: none">
+        <source src="data:audio/mp3;base64,{b64}" type="audio/mp3">
+        </audio>
+        """
+    st.markdown(md, unsafe_allow_html=True)
+
+def clear_session_state():
+    """Clear all session state variables"""
+    st.session_state.intro_played = False
+    st.session_state.session = None
+    st.session_state.selected_audio = None
+    st.session_state.selected_text = None
+    st.session_state.matched_pairs = set()
+    st.session_state.correct_recalls = set()
+    st.session_state.submitted_answer = False
+    if "randomized_entries" in st.session_state:
+        del st.session_state.randomized_entries
+
 def main():
     st.title("Japanese Learning Assistant")
     
@@ -63,6 +87,7 @@ def main():
         """)
         if st.button("Start New Session"):
             with st.spinner("Creating new session..."):
+                clear_session_state()  # Clear state before creating new session
                 st.session_state.session = create_session()
             st.rerun()
         return
@@ -90,6 +115,14 @@ def main():
     if stage == 0:  # Vocabulary Stage
         vocab_stage = st.session_state.session["vocabulary_stage"]
         
+        # Message area for feedback
+        message_area = st.empty()
+        
+        # Show matched pairs count
+        total_pairs = len(vocab_stage["entries"])
+        matched = len(st.session_state.matched_pairs)
+        st.write(f"Matched: {matched}/{total_pairs}")
+        
         # Randomize English texts for display
         if "randomized_entries" not in st.session_state:
             entries_copy = vocab_stage["entries"].copy()
@@ -106,8 +139,13 @@ def main():
                 button_key = f"audio_{entry['jp_audio']}"
                 if entry["jp_audio"] not in st.session_state.matched_pairs:
                     if st.button("🔊", key=button_key):
-                        play_audio(entry["jp_audio"])
-                        st.session_state.selected_audio = entry["jp_audio"]
+                        audio_url = f"{BACKEND_URL}/audio/{entry['jp_audio']}"
+                        autoplay_audio_and_hide_player(audio_url)
+                        # Toggle selection
+                        if st.session_state.selected_audio == entry["jp_audio"]:
+                            st.session_state.selected_audio = None
+                        else:
+                            st.session_state.selected_audio = entry["jp_audio"]
                 else:
                     st.button("✓", key=button_key, disabled=True)
         
@@ -118,7 +156,11 @@ def main():
                 text_key = f"text_{entry['en_text']}"
                 if entry["jp_audio"] not in st.session_state.matched_pairs:
                     if st.button(entry["en_text"], key=text_key):
-                        st.session_state.selected_text = entry
+                        # Toggle selection
+                        if st.session_state.selected_text == entry:
+                            st.session_state.selected_text = None
+                        else:
+                            st.session_state.selected_text = entry
                 else:
                     st.button(entry["en_text"], key=text_key, disabled=True)
         
@@ -126,18 +168,17 @@ def main():
         if st.session_state.selected_audio and st.session_state.selected_text:
             if st.session_state.selected_audio == st.session_state.selected_text["jp_audio"]:
                 st.session_state.matched_pairs.add(st.session_state.selected_audio)
-                st.success("Correct match!")
+                message_area.success(f"Correct match! ({matched + 1}/{total_pairs})")
             else:
-                st.error("Try again!")
-            # Reset selections
+                message_area.error("Not quite right. Try a different pair!")
             st.session_state.selected_audio = None
             st.session_state.selected_text = None
             st.rerun()
         
         # Show continue button when all pairs are matched
-        if len(st.session_state.matched_pairs) == len(vocab_stage["entries"]):
+        if len(st.session_state.matched_pairs) >= total_pairs:
             if st.button("Continue to Comprehension"):
-                st.session_state.session["current_stage"] += 1
+                st.session_state.session["current_stage"] = 1  # Set exact stage number
                 st.session_state.matched_pairs = set()  # Reset for next session
                 st.rerun()
 
@@ -205,8 +246,8 @@ def main():
         audio_url = f"{BACKEND_URL}/audio/{st.session_state.session['en_outro_audio']}"
         autoplay_audio(audio_url)
         st.write("Congratulations! You've completed the session.")
-        if st.button("Finish session"):
-            del st.session_state.session
+        if st.button("Start New Session"):
+            clear_session_state()  # Clear state before starting new session
             st.rerun()
 
 if __name__ == "__main__":
