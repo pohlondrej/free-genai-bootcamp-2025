@@ -11,11 +11,17 @@ CANVAS_HEIGHT = 400  # Less tall
 
 def get_random_word():
     try:
-        response = requests.get(f"{BACKEND_URL}/word/random")
-        return response.json()["word"]
+        with st.spinner('Fetching new word...'):
+            response = requests.get(f"{BACKEND_URL}/word/random", timeout=5.0)
+            response.raise_for_status()  # Raise error for bad status codes
+            return response.json()["word"]
+    except requests.exceptions.Timeout:
+        st.error("Backend server is not responding. Please try again.")
+    except requests.exceptions.ConnectionError:
+        st.error("Cannot connect to backend server. Is it running?")
     except Exception as e:
-        st.error("Failed to fetch word from backend")
-        return None
+        st.error(f"Error: {str(e)}")
+    return None
 
 def convert_canvas_to_base64(canvas_result):
     if canvas_result is not None and canvas_result.image_data is not None:
@@ -72,10 +78,22 @@ def main():
         if st.button("Submit", type="primary"):
             image_data = convert_canvas_to_base64(canvas_result)
             if image_data:
-                # For now, just mock the response
-                st.session_state.feedback = {"match": True, "detected_text": st.session_state.current_word["kana"]}
-                st.session_state.show_feedback = True
-                st.rerun()
+                with st.spinner('Checking your drawing...'):
+                    try:
+                        response = requests.post(
+                            f"{BACKEND_URL}/submit",
+                            json={
+                                "image": image_data,
+                                "expected_word": st.session_state.current_word["kana"]
+                            },
+                            timeout=10.0
+                        )
+                        response.raise_for_status()
+                        st.session_state.feedback = response.json()
+                        st.session_state.show_feedback = True
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"Failed to check drawing: {str(e)}")
             else:
                 st.error("Please draw something first!")
 
@@ -84,6 +102,7 @@ def main():
             st.session_state.current_word = get_random_word()
             st.session_state.feedback = None
             st.session_state.show_feedback = False
+            st.session_state.canvas_key += 1  # Add this line to clear canvas
             st.rerun()
 
     # Show feedback
