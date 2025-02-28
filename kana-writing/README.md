@@ -9,7 +9,7 @@ For detailed technical specifications, API documentation, and implementation det
 - [Future Improvements](docs/Improvements.md)
 
 ## Screenshots
-![Kana Writing Practice App](docs/images/app-screenshot.png)
+<img src="docs/images/image.png" alt="Kana Writing Practice App" height="400"/>
 
 ## Key Features
 - Random kana word generation
