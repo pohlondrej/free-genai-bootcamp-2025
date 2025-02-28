@@ -3,6 +3,8 @@
 ## Overview
 A simple web-based application for practicing Japanese kana writing. Users are presented with random Japanese words (in kana only), which they must draw on a canvas. The app uses OCR to verify if the drawing matches the prompt.
 
+For detailed technical specifications, API documentation, and implementation details, see [Project Technical Documentation](docs/Project.md).
+
 ## Key Features
 - Random kana word generation
 - Drawing canvas for user input
@@ -10,7 +12,22 @@ A simple web-based application for practicing Japanese kana writing. Users are p
 - Immediate feedback (match/no match)
 
 ## Quick Start
-(To be added)
+1. Create a conda environment:
+   ```bash
+   conda create -n kana-practice python=3.10
+   conda activate kana-practice
+   ```
 
-## Technical Documentation
-For detailed technical specifications, API documentation, and implementation details, see [Project Technical Documentation](docs/Project.md).
+2. Install dependencies:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+3. Start the services:
+   ```bash
+   python start.py
+   ```
+
+4. Access:
+   - Backend API: http://localhost:8000/docs
+   - Frontend: http://localhost:8501 (coming soon)

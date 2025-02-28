@@ -1,11 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
 
+# Virtual Environment
+venv/
+.venv/
+.env
 
+# Testing
+.coverage
+htmlcov/
 
-
-
-
-
-
-
-
-htmlcov/.coverage.pytest_cache/*.log.venv/venv/.env*$py.class*.py[cod]__pycache__/
+# Logs
+*.log
