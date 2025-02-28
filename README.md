@@ -9,3 +9,4 @@
 - [OPEA Comps](opea-comps/Readme.md)
 ## Week 2
 - [Language Learning Assistant](language-learning-assistant/Readme.md)
+- [Kana Writing Practice](kana-writing/README.md)
