@@ -30,4 +30,4 @@ For detailed technical specifications, API documentation, and implementation det
 
 4. Access:
    - Backend API: http://localhost:8000/docs
-   - Frontend: http://localhost:8501 (coming soon)
+   - Frontend: http://localhost:8501
