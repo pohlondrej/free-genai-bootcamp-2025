@@ -12,6 +12,16 @@ KANA_WORDS: List[Dict[str, str]] = [
     {"kana": "すみません", "romaji": "sumimasen"},
     {"kana": "たべもの", "romaji": "tabemono"},
     {"kana": "のみもの", "romaji": "nomimono"},
+    {"kana": "がっこう", "romaji": "gakkou"},
+    {"kana": "せんせい", "romaji": "sensei"},
+    {"kana": "でんわ", "romaji": "denwa"},
+    {"kana": "れんしゅう", "romaji": "renshuu"},
+    {"kana": "きょうかしょ", "romaji": "kyoukasho"},
+    {"kana": "しゅくだい", "romaji": "shukudai"},
+    {"kana": "えんぴつ", "romaji": "enpitsu"},
+    {"kana": "かんじ", "romaji": "kanji"},
+    {"kana": "ともだち", "romaji": "tomodachi"},
+    {"kana": "せいと", "romaji": "seito"},
 ]
 
 def get_random_word() -> Dict[str, str]:
