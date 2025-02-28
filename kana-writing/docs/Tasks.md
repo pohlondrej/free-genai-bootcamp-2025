@@ -5,12 +5,12 @@
 Implement the basic FastAPI backend service with word dictionary and random word generation.
 
 **Acceptance Criteria:**
-- [ ] Create kana word dictionary with at least 20 basic words
-- [ ] Implement FastAPI endpoint GET /word/random
-- [ ] Response includes both kana and romaji
-- [ ] Words are properly randomized
-- [ ] Error handling for service unavailability
-- [ ] Basic unit tests for word generation
+- [x] Create kana word dictionary with at least 20 basic words
+- [x] Implement FastAPI endpoint GET /word/random
+- [x] Response includes both kana and romaji
+- [x] Words are properly randomized
+- [x] Error handling for service unavailability
+- [x] Basic unit tests for word generation
 
 ## Task 2: Streamlit Frontend
 **Description:**  

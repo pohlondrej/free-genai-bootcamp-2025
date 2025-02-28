@@ -12,22 +12,30 @@ def start_services():
         backend = subprocess.Popen(
             ["uvicorn", "main:app", "--reload", "--port", "8000"],
             cwd=root_dir / "backend",
-            # Add these for better error visibility
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True
         )
         
-        # Print output in real-time
+        # Start frontend
+        print("Starting frontend at http://localhost:8501 ...")
+        frontend = subprocess.Popen(
+            ["streamlit", "run", "app.py"],
+            cwd=root_dir / "frontend",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True
+        )
+        
+        # Monitor both processes
         while True:
-            output = backend.stdout.readline()
-            if output:
-                print(output.strip())
-            # Check if process is still running
-            if backend.poll() is not None:
-                error = backend.stderr.read()
-                if error:
-                    print("Error:", error, file=sys.stderr)
+            b_output = backend.stdout.readline()
+            f_output = frontend.stdout.readline()
+            if b_output:
+                print("Backend:", b_output.strip())
+            if f_output:
+                print("Frontend:", f_output.strip())
+            if backend.poll() is not None or frontend.poll() is not None:
                 break
         
     except FileNotFoundError:
@@ -37,6 +45,8 @@ def start_services():
         print("\nShutting down services...")
         if backend.poll() is None:
             backend.terminate()
+        if frontend.poll() is None:
+            frontend.terminate()
         sys.exit(0)
 
 if __name__ == "__main__":
