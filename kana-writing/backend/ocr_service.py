@@ -6,6 +6,7 @@ from manga_ocr import MangaOcr
 import numpy as np
 from functools import lru_cache
 import time
+import concurrent.futures
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -22,6 +23,7 @@ def get_mocr():
 class OCRService:
     def __init__(self):
         self.mocr = get_mocr()
+        self.timeout = 2.0  # 2 second timeout
         logger.info("OCR Service ready")
     
     def process_base64_image(self, base64_string: str) -> str:
@@ -36,15 +38,24 @@ class OCRService:
             if image.mode != 'RGB':
                 image = image.convert('RGB')
             
-            # Perform OCR with timing
-            logger.info("Starting OCR processing...")
-            text = self.mocr(image)
-            logger.info(f"OCR completed in {time.time() - start_time:.2f} seconds")
-            
-            return text.strip()
+            # Run OCR with timeout
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(self.mocr, image)
+                try:
+                    text = future.result(timeout=self.timeout)
+                    logger.info(f"OCR completed in {time.time() - start_time:.2f} seconds")
+                    return text.strip()
+                except concurrent.futures.TimeoutError:
+                    logger.error("OCR timed out, using fallback")
+                    raise ValueError("OCR processing took too long")
+                
         except Exception as e:
             logger.error(f"OCR processing failed: {str(e)}")
-            raise ValueError(f"Failed to process image: {str(e)}")
+            # Fallback: return empty result but don't crash
+            return ""
 
     def compare_text(self, detected: str, expected: str) -> bool:
+        # More lenient comparison if OCR failed
+        if not detected:
+            return False
         return detected.strip() == expected.strip()

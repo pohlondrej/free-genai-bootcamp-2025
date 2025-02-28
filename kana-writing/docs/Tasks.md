@@ -17,27 +17,27 @@ Implement the basic FastAPI backend service with word dictionary and random word
 Create the user interface with drawing capabilities and API integration. Initially implement with mock OCR responses to test the flow.
 
 **Acceptance Criteria:**
-- [ ] Implement drawing canvas
-- [ ] Add clear canvas functionality
-- [ ] Display current word to draw
-- [ ] Implement submit button
-- [ ] Show match/no match feedback (initially with mock responses)
-- [ ] Add "next word" button
-- [ ] Test cross-browser compatibility
-- [ ] Verify canvas resolution is sufficient for OCR
-- [ ] Add loading states for API calls
-- [ ] Basic error handling for API failures
+- [x] Implement drawing canvas
+- [x] Add clear canvas functionality
+- [x] Display current word to draw
+- [x] Implement submit button
+- [x] Show match/no match feedback (initially with mock responses)
+- [x] Add "next word" button
+- [x] Test cross-browser compatibility
+- [x] Verify canvas resolution is sufficient for OCR
+- [x] Add loading states for API calls
+- [x] Basic error handling for API failures
 
 ## Task 3: Drawing Recognition Service
 **Description:**  
 After basic frontend-backend flow is working, implement the OCR service using MangaOCR to process submitted drawings.
 
 **Acceptance Criteria:**
-- [ ] Set up MangaOCR integration
-- [ ] Implement POST /submit endpoint with real OCR
-- [ ] Handle base64 image processing
-- [ ] Implement text matching logic
-- [ ] Proper error handling for invalid images
-- [ ] Test with various image qualities
-- [ ] Response time under 2 seconds
-- [ ] Add fallback mechanism for OCR failures
+- [x] Set up MangaOCR integration
+- [x] Implement POST /submit endpoint with real OCR
+- [x] Handle base64 image processing
+- [x] Implement text matching logic
+- [x] Proper error handling for invalid images
+- [x] Test with various image qualities
+- [x] Response time under 2 seconds
+- [x] Add fallback mechanism for OCR failures

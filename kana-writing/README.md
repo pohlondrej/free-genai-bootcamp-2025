@@ -3,7 +3,10 @@
 ## Overview
 A simple web-based application for practicing Japanese kana writing. Users are presented with random Japanese words (in kana only), which they must draw on a canvas. The app uses OCR to verify if the drawing matches the prompt.
 
-For detailed technical specifications, API documentation, and implementation details, see [Project Technical Documentation](docs/Project.md).
+For detailed technical specifications, API documentation, and implementation details, see:
+- [Project Technical Documentation](docs/Project.md)
+- [Implementation Tasks](docs/Tasks.md)
+- [Future Improvements](docs/Improvements.md)
 
 ## Key Features
 - Random kana word generation
