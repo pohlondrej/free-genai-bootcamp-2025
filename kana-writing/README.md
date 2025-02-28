@@ -8,6 +8,9 @@ For detailed technical specifications, API documentation, and implementation det
 - [Implementation Tasks](docs/Tasks.md)
 - [Future Improvements](docs/Improvements.md)
 
+## Screenshots
+![Kana Writing Practice App](docs/images/app-screenshot.png)
+
 ## Key Features
 - Random kana word generation
 - Drawing canvas for user input
