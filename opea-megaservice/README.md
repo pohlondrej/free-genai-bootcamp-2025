@@ -7,7 +7,7 @@
 
 ## Key Technologies
 
-* **GenAIComps:** A project for simplifying Generative AI deployment using Docker. (Read-only, located in the `GenAIComps` directory)
+* **GenAIComps:** A project for simplifying Generative AI deployment using Docker. (Read-only, located in the `GenAIComps` and `GenAIExamples` directories)
 * **Docker:** Containerization platform for packaging and deploying applications.
 * **Docker Compose:** Tool for orchestrating multi-container Docker applications.
 * **vLLM:** High-throughput and memory-efficient LLM inference and serving engine (CPU compatible). (Read-only, located in the `vllm` directory)
@@ -15,6 +15,7 @@
 ## Project Layout
 
 *   `GenAIComps/`: Contains the original OPEA GenAI Comps project. (Read-only)
+*   `GenAIExamples/`: Contains OPEA GenAI examples. (Read-only)
 *   `vllm/`: Contains the vLLM library. (Read-only)
 *   `docs/`: Contains project documentation.
     *   `docs/Learnings.md`: Records all learnings and observations.
