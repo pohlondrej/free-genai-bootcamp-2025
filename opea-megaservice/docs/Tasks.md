@@ -2,10 +2,10 @@
 
 ## Tasks
 
-### 1. Project Setup and Exploration ⏳
+### 1. Project Setup and Exploration 🔄
 
-- [ ] Study ChatQnA example in `GenAIExamples/`:
-    - [ ] Locate and document the project structure
+- [x] Study ChatQnA example in `GenAIExamples/`:
+    - [.] Locate and document the project structure
     - [ ] Identify the model(s) used and their requirements
     - [ ] Map out the key components and their interactions
     - [ ] Document findings in `Learnings.md`
