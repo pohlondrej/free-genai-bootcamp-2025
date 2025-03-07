@@ -2,15 +2,16 @@
 
 ## Project Goal
 
-* Adapt a project from the OPEA GenAI Comps (optimized for Intel HW) to run on a CPU using vLLM.
-* Focus on efficient learning and implementation within a limited timeframe.
+* Adapt the "ChatQnA" project from OPEA GenAI Examples to run on CPU using vLLM
+* Document the learning process and understanding of mega services architecture
+* Successfully run the adapted service or document valuable learnings trying to do so
 
 ## Key Technologies
 
-* **GenAIComps:** A project for simplifying Generative AI deployment using Docker. (Read-only, located in the `GenAIComps` and `GenAIExamples` directories)
-* **Docker:** Containerization platform for packaging and deploying applications.
-* **Docker Compose:** Tool for orchestrating multi-container Docker applications.
-* **vLLM:** High-throughput and memory-efficient LLM inference and serving engine (CPU compatible). (Read-only, located in the `vllm` directory)
+* **GenAIComps & Examples:** Reference projects containing the original OPEA implementation (Read-only source code)
+* **Docker:** Containerization platform for packaging and deploying applications
+* **Docker Compose:** Tool for orchestrating multi-container Docker applications
+* **vLLM:** High-throughput and memory-efficient LLM inference engine (CPU compatible)
 
 ## Project Layout
 

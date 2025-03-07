@@ -52,3 +52,17 @@ Provide the context to make the necessary modifications without wasting time on 
     *   Stick to docker compose.
 
 ## Lessons Learned
+
+### Entry Template
+[YYYY-MM-DD HH:MM] Context: [Setup/Analysis/Implementation/Issue]
+- What was attempted
+- What was learned
+- Any blockers or solutions found
+- References to relevant files or documentation
+
+### First Entry
+[2024-01-09 10:00] Context: Setup
+- Established project structure and documentation guidelines
+- Confirmed read-only status of reference directories
+- Set up learning documentation format
+- Ready to begin ChatQnA analysis
