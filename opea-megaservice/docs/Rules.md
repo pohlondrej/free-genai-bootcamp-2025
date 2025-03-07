@@ -2,7 +2,7 @@
 
 1. **Read-only Directories:**
    - The `vllm/` and `GenAIComps/` folders must not be modified
-   - The `GenAIExamples/` folder must not be modified
+   - The `ChatQnAExample/` folder must not be modified
 
 2. **Documentation:**
    - All learnings and observations must be recorded in `docs/Learnings.md`

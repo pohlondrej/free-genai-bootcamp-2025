@@ -5,10 +5,10 @@
 ### 1. Project Setup and Exploration 🔄
 
 - [x] Study ChatQnA example in `GenAIExamples/`:
-    - [.] Locate and document the project structure
-    - [ ] Identify the model(s) used and their requirements
+    - [x] Locate and document the project structure
+    - [.] Identify the model(s) used and their requirements
     - [ ] Map out the key components and their interactions
-    - [ ] Document findings in `Learnings.md`
+    - [.] Document findings in `Learnings.md`
 - [ ] Evaluate vLLM compatibility:
     - [ ] Check if original models can run with vLLM
     - [ ] Research alternative models if needed

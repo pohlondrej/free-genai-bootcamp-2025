@@ -16,7 +16,7 @@
 ## Project Layout
 
 *   `GenAIComps/`: Contains the original OPEA GenAI Comps project. (Read-only)
-*   `GenAIExamples/`: Contains OPEA GenAI examples. (Read-only)
+*   `ChatQnAExample/`: Contains the ChatQnA example to be adapted. (Read-only)
 *   `vllm/`: Contains the vLLM library. (Read-only)
 *   `docs/`: Contains project documentation.
     *   `docs/Learnings.md`: Records all learnings and observations.
