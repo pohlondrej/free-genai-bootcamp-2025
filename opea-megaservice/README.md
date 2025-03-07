@@ -7,45 +7,30 @@
 
 ## Key Technologies
 
-* **GenAIComps:** A project for simplifying Generative AI deployment using Docker.
+* **GenAIComps:** A project for simplifying Generative AI deployment using Docker. (Read-only, located in the `GenAIComps` directory)
 * **Docker:** Containerization platform for packaging and deploying applications.
 * **Docker Compose:** Tool for orchestrating multi-container Docker applications.
-* **vLLM:** High-throughput and memory-efficient LLM inference and serving engine (CPU compatible).
+* **vLLM:** High-throughput and memory-efficient LLM inference and serving engine (CPU compatible). (Read-only, located in the `vllm` directory)
 
-## Key Learnings and Action Plan
+## Project Layout
 
-### 1. Prioritize Essential Knowledge
+*   `GenAIComps/`: Contains the original OPEA GenAI Comps project. (Read-only)
+*   `vllm/`: Contains the vLLM library. (Read-only)
+*   `docs/`: Contains project documentation.
+    *   `docs/Learnings.md`: Records all learnings and observations.
+    *   `docs/Rules.md`: Contains project rules and constraints.
+    *   `docs/Tasks.md`: Contains the project's action plan.
+*   `docker-compose.yml`: Defines the multi-container Docker application.
+*   `.gitignore`: Specifies intentionally untracked files that Git should ignore.
 
-* **Docker Compose Fundamentals:**
-    * Service definitions in `docker-compose.yml`.
-    * Linking services (`depends_on`, networks).
-    * Volume mounting (for model weights).
-    * Environment variables in docker compose.
-* **vLLM Basic Usage (CPU Mode):**
-    * Command-line options (`--disable-gpu`, `--model`).
-    * Loading model weights.
-    * Basic request testing.
-* **Model Weight Management:**
-    * Downloading and storing model weights.
-    * Mounting weights into Docker containers.
-* **OPEA Project Structure (Superficial):**
-    * Locating `docker-compose.yml` and LLM serving Dockerfiles.
-    * Understanding the overall mega service architecture.
+## Setup
 
-### 2. Simplicity first. Avoid:
+1.  Ensure Docker and Docker Compose are installed.
+2.  Refer to `docs/Tasks.md` for the project's action plan.
+3.  Record all learnings in `docs/Learnings.md`.
+4.  Adhere to the rules specified in `docs/Rules.md`.
 
-* **Advanced Docker Features (initially):**
-    * Avoid complex networking, multi-stage builds, etc.
-* **Deep OPEA Code Analysis:**
-    * Resist delving into intricate internal workings.
-* **Premature Performance Optimization:**
-    * Focus on functionality first.
-* **Troubleshooting Complex Dependencies:**
-    * Simplify or find alternatives.
-* **Prematurely using Kubernetes:**
-    * Stick to docker compose.
-
-### 3. Dockerfile vLLM CPU example.
+### Dockerfile vLLM CPU example.
 
 ```dockerfile
 FROM vllm/vllm:latest
@@ -54,7 +39,8 @@ COPY your_model_weights /model
 
 CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--model", "/model", "--host", "0.0.0.0", "--port", "8000", "--disable-gpu"]
 ```
-### 4. Key Considerations
+
+### Key Considerations
 - CPU inference will be slower than GPU.
 - Memory management is crucial.
 - Consider smaller LLMs.
