@@ -278,3 +278,195 @@ ERROR: Unable to proceed with detailed analysis. I apologize for my previous ent
   - Supports both streaming and non-streaming responses
   - Follows standard chat roles (assistant, user)
 - OBSERVATION: The mega service acts as a facade, hiding the complexity of the RAG pipeline behind a simple chat interface
+
+[2024-01-09 13:25] Context: UI Analysis
+- LEARNING: ChatQnA provides two UI implementations:
+  1. Svelte UI (default):
+     - Uses Vite for development
+     - Runs on port 5173
+     - Built with modern stack: TypeScript, TailwindCSS, Flowbite
+     - Simple to run directly with npm
+  2. React UI (alternative):
+     - Also uses Vite
+     - Requires Nginx for production
+     - More complex deployment setup
+- LEARNING: Both UIs share common features:
+  - Node 20.11.1 as base
+  - Modern tooling (Vite, TypeScript)
+  - Docker support
+- DECISION: Will start with Svelte UI for testing as it has simpler setup
+
+[2024-01-09 13:30] Context: Build System Analysis
+- LEARNING: The `docker_image_build/build.yaml` defines how to build all service images:
+  1. Core Services:
+     - chatqna: Base service
+     - chatqna-guardrails: With guardrails enabled
+     - chatqna-without-rerank: Version without reranking
+  2. UI Services:
+     - chatqna-ui: Svelte UI
+     - chatqna-conversation-ui: React UI
+  3. Component Services:
+     - embedding: Text embedding service
+     - retriever: Document retrieval service
+     - reranking: Result reranking service
+- OBSERVATION: This build system is for creating the base images, but we should use the ready-made images from the OPEA registry
+- DECISION: Since we're using the Xeon configuration which uses pre-built images, we don't need to build from source
+
+[2024-01-09 13:35] Context: Environment Configuration Analysis
+- LEARNING: Key environment variables from set_env.sh:
+  1. Model Configuration:
+     - EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
+     - RERANK_MODEL_ID="BAAI/bge-reranker-base"
+     - LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"
+  2. Vector Store:
+     - INDEX_NAME="rag-redis"
+  3. Optional Features:
+     - LOGFLAG: For enabling logging (disabled by default)
+     - JAEGER_IP: For OpenTelemetry tracing
+- OBSERVATION: The set_env.sh tries to source a parent .set_env.sh file which is not present
+- CONCERN: We need to understand what environment variables should be in the missing .set_env.sh file
+- DECISION: We should check the compose.yaml to see what other environment variables are used
+
+[2024-01-09 13:40] Context: vLLM Service Configuration
+- LEARNING: vLLM service configuration in compose.yaml:
+  1. Base Configuration:
+     - Port: 9009:80
+     - Uses OPEA registry image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+  2. Resource Requirements:
+     - Shared memory: 128GB (shm_size: 128g)
+     - Model cache volume: ${MODEL_CACHE:-./data}
+  3. Environment Variables:
+     - HF_TOKEN: For model access (same as HUGGINGFACEHUB_API_TOKEN)
+     - LLM_MODEL_ID: Model to load (default: meta-llama/Meta-Llama-3-8B-Instruct)
+     - VLLM_TORCH_PROFILER_DIR: For performance profiling
+  4. Health Check:
+     - Endpoint: /health
+     - Retries: 100 times every 10s
+  5. Command:
+     - Runs model with host 0.0.0.0 and port 80
+
+[2024-01-09 13:40] Context: Required Environment Variables
+- LEARNING: Essential variables that must be set:
+  1. Authentication:
+     - HUGGINGFACEHUB_API_TOKEN: For model access
+  2. Registry:
+     - REGISTRY: Docker registry (default: opea)
+     - TAG: Image version (default: latest)
+  3. Model Configuration:
+     - MODEL_CACHE: Where to store model files
+     - LLM_MODEL_ID: Which model to use
+  4. Network:
+     - host_ip: For health checks
+     - Optional: http_proxy, https_proxy, no_proxy
+- OBSERVATION: The missing .set_env.sh likely sets REGISTRY and TAG variables
+- DECISION: We need these variables set before running the compose file
+
+[2024-01-09 13:55] Context: vLLM Memory Requirements
+- LEARNING: vLLM service configuration in compose.yaml:
+  1. Base Configuration:
+     - Uses OPEA registry image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+     - Port: 9009:80
+     - Default shared memory: 128GB
+  2. Environment Variables:
+     - HF_TOKEN: For model access
+     - LLM_MODEL_ID: Model to load (meta-llama/Meta-Llama-3-8B-Instruct)
+     - VLLM_TORCH_PROFILER_DIR: For performance profiling
+  3. Health Check:
+     - Endpoint: /health
+     - Retries: 100 times every 10s
+- OBSERVATION: While 128GB shared memory is the default, we can try with less
+- DECISION: We should:
+  1. Start with a lower shared memory value
+  2. Test if Meta-Llama-3-8B-Instruct loads successfully
+  3. Monitor memory usage and adjust as needed
+
+[2024-01-09 14:00] Context: vLLM Memory Analysis
+- LEARNING: vLLM memory configuration investigation:
+  1. Default Configuration:
+     - compose.yaml sets 128GB shared memory (shm_size: 128g)
+     - Uses OPEA registry's vLLM image
+     - Mounts model cache at /data
+  2. Model Size Context:
+     - Meta-Llama-3-8B-Instruct is an 8 billion parameter model
+     - Base model without quantization needs significant memory
+     - FP8 quantization could reduce memory by 2x (per vLLM docs)
+  3. Key Observations:
+     - 128GB might be the recommended size for optimal performance
+     - Memory requirements could be reduced with quantization
+     - Need to investigate if OPEA's vLLM image supports quantization
+  4. Next Investigation Steps:
+     - Examine OPEA's vLLM image configuration
+     - Look for quantization options in vLLM service
+     - Research minimum viable memory for 8B parameter models
+
+[2024-01-09 14:05] Context: vLLM CPU Deployment Options
+- LEARNING: vLLM CPU optimization possibilities:
+  1. Command Line Options:
+     - Current compose.yaml only uses basic options (--model, --host, --port)
+     - Additional options might be available for CPU optimization
+     - Need to check OPEA's vLLM image documentation for supported flags
+  2. Quantization Support:
+     - vLLM supports quantization for reduced memory footprint
+     - FP8 quantization could reduce memory by 2x
+     - Need to verify if OPEA's image includes quantization support
+  3. CPU-Specific Settings:
+     - VLLM_CPU_OMP_THREADS_BIND: Controls CPU thread binding
+     - Memory utilization can be tuned
+     - Thread and worker count might be configurable
+- OBSERVATION: The default 128GB shared memory in compose.yaml seems to be:
+  1. A conservative setting for optimal performance
+  2. Likely configured for Xeon servers with large memory
+  3. Possibly reducible with proper optimization
+- NEXT STEPS:
+  1. Need to find OPEA's vLLM image documentation
+  2. Research if quantization is already enabled
+  3. Document minimum memory requirements for our model
+  4. Test with reduced memory after documentation phase
+
+[2024-01-09 14:10] Context: OPEA vLLM Image Analysis
+- LEARNING: OPEA's vLLM image build configuration:
+  1. Uses CPU-specific Dockerfile:
+     - Located at vllm/Dockerfile.cpu
+     - Builds image ${REGISTRY:-opea}/vllm:${TAG:-latest}
+     - Extends base chatqna configuration
+  2. Implications:
+     - The image is specifically optimized for CPU deployment
+     - Memory requirements (128GB) likely based on testing
+     - Might include CPU-specific optimizations
+- OBSERVATION: The 128GB requirement might be:
+  1. Based on testing with Meta-Llama-3-8B-Instruct
+  2. A safe default for production deployment
+  3. Possibly adjustable based on specific use case
+- QUESTIONS to Investigate:
+  1. Does the CPU Dockerfile include quantization?
+  2. What are the minimum memory requirements?
+  3. Are there CPU-specific optimizations enabled?
+  4. Can we safely reduce memory without impacting stability?
+- NEXT STEPS:
+  1. Document memory requirements from vLLM documentation
+  2. Research successful deployments with less memory
+  3. Prepare for testing phase with reduced memory
+
+[2024-01-09 14:15] Context: Meta-Llama-3-8B-Instruct Memory Requirements
+- LEARNING: Research on memory requirements:
+  1. Model Specifications:
+     - Parameters: 8 billion
+     - Context Length: 128K tokens
+     - Disk Space: ~16GB for model files
+  2. Minimum Requirements:
+     - RAM: At least 16GB recommended
+     - CPU: Modern processor with 8+ cores
+  3. vLLM Considerations:
+     - Original architecture optimized for GPU
+     - CPU backend differs significantly
+     - NUMA considerations for multi-socket machines
+     - VLLM_CPU_OMP_THREADS_BIND important for memory access
+- OBSERVATION: The 128GB in compose.yaml is likely:
+  1. Configured for optimal production performance
+  2. Includes buffer for concurrent requests
+  3. Accounts for both model and system overhead
+- DECISION: For our CPU deployment:
+  1. Start with minimum 32GB shared memory (2x minimum RAM)
+  2. Monitor performance and stability
+  3. Increase if needed based on load testing
+  4. Document actual memory usage patterns
