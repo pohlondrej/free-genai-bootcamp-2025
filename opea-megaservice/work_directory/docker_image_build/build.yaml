@@ -73,9 +73,12 @@ services:
     image: ${REGISTRY:-opea}/guardrails:${TAG:-latest}
   vllm:
     build:
-      context: vllm
-      dockerfile: Dockerfile.cpu
-    extends: chatqna
+      context: ../
+      dockerfile: docker_image_build/vllm/Dockerfile
+      args:
+        - http_proxy=${http_proxy}
+        - https_proxy=${https_proxy}
+        - no_proxy=${no_proxy}
     image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
   vllm-gaudi:
     build:
@@ -89,3 +92,7 @@ services:
       dockerfile: comps/third_parties/nginx/src/Dockerfile
     extends: chatqna
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
+
+networks:
+  default:
+    driver: bridge

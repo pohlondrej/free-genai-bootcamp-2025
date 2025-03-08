@@ -273,12 +273,28 @@ Provide the context to make the necessary modifications without wasting time on 
   - Exit code 132 suggests memory-related crash
   - Hypothesis: Default image might be GPU-optimized
 
-#### [2025-03-08 23:45] Context: vLLM CPU Configuration
-- FINDING: SIGILL likely due to CPU instruction compatibility
-  - Added CPU-specific optimizations:
-    - TORCH_USE_RTLD_GLOBAL: Enable global symbol loading
-    - TORCH_CPU_ARCH: Use native CPU instructions
-    - OMP/MKL threads: Limited to 4 for better control
+#### [2025-03-08 23:45] Context: vLLM CPU Compatibility Resolution
+- ROOT CAUSE: vLLM CPU Support Issues
+  - Pre-built vLLM in OPEA docker image not compatible with CPU
+  - Same issue when running vLLM directly outside Docker
+  - Not a model size or timeout issue as initially suspected
+
+- SOLUTION: Build vLLM from Source
+  1. Follow official docs: https://docs.vllm.ai/en/latest/getting_started/installation/cpu/
+  2. Critical Dependencies:
+     - pytorch-cpu
+     - torchvision-cpu
+  3. Build vLLM from source for CPU compatibility
+
+- IMPLICATIONS:
+  1. Need to modify OPEA build process
+  2. Cannot use pre-built vLLM packages
+  3. Must ensure CPU-specific PyTorch is used
+
+- NEXT STEPS:
+  1. Update Docker build to compile vLLM from source
+  2. Ensure correct CPU dependencies are included
+  3. Test with project's target models (Falcon2-11B or Meta-Llama-3-8B-Instruct)
 
 #### [2025-03-09 00:00] Context: Hardware-Specific Configuration
 - HARDWARE SPECS:
@@ -335,3 +351,16 @@ Provide the context to make the necessary modifications without wasting time on 
   - Even smaller model (0.5B parameters)
   - Should load much faster than Falcon
   - Will help isolate if issue is model size dependent
+
+#### [2025-03-09 10:30] Context: vLLM CPU Compatibility Resolution
+- ROOT CAUSE: vLLM CPU Support Issues
+  - Pre-built vLLM in OPEA docker image not compatible with CPU
+  - Same issue when running vLLM directly outside Docker
+  - Not a model size or timeout issue as initially suspected
+
+- SOLUTION: Build vLLM from Source
+  1. Follow official docs: https://docs.vllm.ai/en/latest/getting_started/installation/cpu/
+  2. Critical Dependencies:
+     - pytorch-cpu
+     - torchvision-cpu
+  3. Build vLLM from source for CPU compatibility

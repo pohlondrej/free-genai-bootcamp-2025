@@ -10,11 +10,8 @@ services:
       - "9009:80"
     volumes:
       - "${MODEL_CACHE:-./data}:/data"
-    shm_size: 16g
+    shm_size: ${VLLM_SHM_SIZE:-16g}  # Project requirement: reduced from 128GB
     environment:
-      no_proxy: ${no_proxy}
-      http_proxy: ${http_proxy}
-      https_proxy: ${https_proxy}
       HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       VLLM_TORCH_PROFILER_DIR: "/mnt"
