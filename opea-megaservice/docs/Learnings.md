@@ -200,10 +200,7 @@ Provide the context to make the necessary modifications without wasting time on 
 - Essential variables: `HUGGINGFACEHUB_API_TOKEN`, `REGISTRY`, `TAG`, `MODEL_CACHE`, `LLM_MODEL_ID`, `host_ip`, `http_proxy`, `https_proxy`, `no_proxy`.
 
 #### [2024-01-09 13:55] Context: vLLM Memory Analysis
-- vLLM memory requirements: 128GB default, potential for quantization.
+- vLLM memory requirements: 128GB default, but 16GB might be enough.
 
 #### [2024-01-09 14:00] Context: vLLM CPU Optimization
 - vLLM CPU optimization options and OPEA's CPU implementation.
-
-#### [2024-01-09 14:15] Context: Meta-Llama-3-8B
-- Model deployment requirements and vLLM considerations.
