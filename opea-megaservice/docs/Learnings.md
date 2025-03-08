@@ -364,3 +364,49 @@ Provide the context to make the necessary modifications without wasting time on 
      - pytorch-cpu
      - torchvision-cpu
   3. Build vLLM from source for CPU compatibility
+
+#### [2025-03-09 11:48] Context: Successful vLLM CPU Deployment
+- ACHIEVEMENT: Working vLLM CPU Setup
+  - Successfully built vLLM from source with CPU support
+  - Successfully built vLLM docker image
+  - Health checks passing with 200 OK responses
+  - No warnings or errors in logs
+- Important build flags:
+  - VLLM_TARGET_DEVICE=cpu
+  - --break-system-packages for pip installs (to go around PEP 668 in Docker environment)
+
+#### [2025-03-09 12:03] Context: Megaservice Dependency Hierarchy
+- SERVICE DEPENDENCIES (from base to top):
+  1. Base Layer (No Dependencies):
+     - redis-vector-db: Vector database
+     - tei-embedding-service: Text embeddings
+     - vllm-service: LLM inference (working)
+
+  2. Second Layer:
+     - dataprep-redis-service:
+       * redis-vector-db
+       * tei-embedding-service
+     - retriever:
+       * redis-vector-db
+     - tei-reranking-service (no deps)
+
+  3. Third Layer:
+     - chatqna-xeon-backend-server:
+       * redis-vector-db
+       * tei-embedding-service
+       * retriever
+       * tei-reranking-service
+       * vllm-service
+
+  4. Top Layer (UI):
+     - chatqna-xeon-ui-server:
+       * chatqna-xeon-backend-server
+     - chatqna-xeon-nginx-server:
+       * chatqna-xeon-backend-server
+       * chatqna-xeon-ui-server
+
+- INTEGRATION STRATEGY:
+  1. Start with base services (redis + tei-embedding)
+  2. Add retriever and reranking
+  3. Add backend server
+  4. Finally add UI components
