@@ -21,14 +21,12 @@ if [ -z "${host_ip}" ]; then
 fi
 
 # Model configuration
-export LLM_MODEL_ID="meta-llama/Meta-Llama-3-8B-Instruct"  # Primary model choice
+export LLM_MODEL_ID="tiiuae/Falcon3-7B-Base"  # Using newer Falcon3 for testing
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
 
 # vLLM memory optimization (reduced from 128GB default)
-# Starting with 32GB (2x minimum 16GB requirement) for testing
-export VLLM_SHM_SIZE=32g
-export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding for better performance
-export VLLM_QUANTIZATION="fp8"  # Enable FP8 quantization to reduce memory by 2x
+export VLLM_SHM_SIZE=16g  # Half of available 32GB RAM
+export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding
 
 # Optional: proxy settings if needed
 #export http_proxy=""

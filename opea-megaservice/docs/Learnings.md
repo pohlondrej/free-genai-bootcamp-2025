@@ -231,3 +231,66 @@ Provide the context to make the necessary modifications without wasting time on 
 - Single service deployment
 - Port 9009:80 for API access
 - Model cache mounted from host
+
+#### [2025-03-08 22:55] Context: vLLM Initial Test
+- Testing vLLM service with:
+  - Model: meta-llama/Meta-Llama-3-8B-Instruct
+  - Memory: 16GB shared memory
+  - Quantization: FP8 for reduced memory usage
+  - Max batched tokens: 2048
+- ISSUE: `--cpu-memory-utilization` parameter not supported in vLLM API server
+  - Removed parameter from compose.vllm.yaml
+  - Will rely on default memory management
+
+#### [2025-03-08 23:05] Context: Model Access Requirements
+- IMPORTANT: meta-llama/Meta-Llama-3-8B-Instruct requires explicit access approval
+  - Need to register at huggingface.co and request access
+  - URL: https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct
+  - Access token alone is not sufficient, need to be on authorized list
+  - Error 403 will occur until access is granted
+- ALTERNATIVE: TII Falcon2-11B is openly available
+  - Model: tiiuae/falcon-11B
+  - No special access requirements
+
+#### [2025-03-08 23:15] Context: Model Selection Update
+- PROBLEM: Access to meta-llama/Meta-Llama-3-8B-Instruct denied
+- DECISION: Switching to Falcon3-7B-Base for initial vLLMtesting
+  - Advantages over Falcon2-11B:
+    - Smaller size (7B vs 11B parameters)
+    - GQA for faster inference
+  - Memory benefits:
+    - 7B model should work better with 16GB shared memory
+
+#### [2025-03-08 23:25] Context: vLLM Configuration Issues
+- ISSUE 1: Token batch size must match model context length
+  - Falcon3-7B-Base has 32k context length
+  - Initial setting (2048) was too small
+  - Fixed by setting max_num_batched_tokens to 32768
+  - Learning: Always match max_num_batched_tokens to model's context length
+
+- ISSUE 2: vLLM Docker image may be GPU-focused
+  - Error: "Triton not installed... GPU functions not available"
+  - Exit code 132 suggests memory-related crash
+  - Hypothesis: Default image might be GPU-optimized
+
+#### [2025-03-08 23:45] Context: vLLM CPU Configuration
+- FINDING: SIGILL likely due to CPU instruction compatibility
+  - Added CPU-specific optimizations:
+    - TORCH_USE_RTLD_GLOBAL: Enable global symbol loading
+    - TORCH_CPU_ARCH: Use native CPU instructions
+    - OMP/MKL threads: Limited to 4 for better control
+
+#### [2025-03-09 00:00] Context: Hardware-Specific Configuration
+- HARDWARE SPECS:
+  - CPU: 6 cores, 12 threads
+  - RAM: 32GB total
+  - Allocation:
+    - vLLM shared memory: 16GB (half of total RAM)
+    - Physical cores: All 6 cores allocated
+    - Thread binding: Enabled for better performance
+
+- CRITICAL CHANGES:
+  1. Removed FP8 quantization (not supported on CPU)
+  2. Thread Configuration:
+     - OMP_NUM_THREADS=6 (match physical cores)
+     - MKL_NUM_THREADS=6 (match physical cores)
