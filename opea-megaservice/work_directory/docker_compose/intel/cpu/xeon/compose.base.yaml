@@ -1,0 +1,47 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+services:
+  redis-vector-db:
+    image: redis/redis-stack:7.2.0-v9
+    container_name: redis-vector-db
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+  tei-embedding-service:
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.5
+    container_name: tei-embedding-server
+    ports:
+      - "6006:80"
+    volumes:
+      - "${MODEL_CACHE:-./data}:/data"
+    shm_size: 1g
+    environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    command: --model-id ${EMBEDDING_MODEL_ID} --auto-truncate
+
+  vllm-service:
+    image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+    container_name: vllm-service
+    ports:
+      - "9009:80"
+    volumes:
+      - "${MODEL_CACHE:-./data}:/data"
+    shm_size: ${VLLM_SHM_SIZE:-16g}  # Project requirement: reduced from 128GB
+    environment:
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      VLLM_TORCH_PROFILER_DIR: "/mnt"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://$host_ip:9009/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 100
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80
+
+networks:
+  default:
+    driver: bridge
