@@ -1,0 +1,33 @@
+# Copyright (C) 2024 Intel Corporation
+# SPDX-License-Identifier: Apache-2.0
+
+# Minimal compose file for testing vLLM with reduced memory settings
+services:
+  vllm-service:
+    image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
+    container_name: vllm-service-test
+    ports:
+      - "9009:80"
+    volumes:
+      - "${MODEL_CACHE:-./data}:/data"
+    shm_size: 32g  # Testing with reduced memory
+    environment:
+      HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
+      LLM_MODEL_ID: ${LLM_MODEL_ID}
+      VLLM_TORCH_PROFILER_DIR: "/mnt"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 100
+    command: >
+      --model ${LLM_MODEL_ID}
+      --host 0.0.0.0
+      --port 80
+      --quantization fp8
+      --cpu-memory-utilization 0.9
+      --max-num-batched-tokens 2048
+
+networks:
+  default:
+    driver: bridge

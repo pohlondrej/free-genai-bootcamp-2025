@@ -204,3 +204,30 @@ Provide the context to make the necessary modifications without wasting time on 
 
 #### [2024-01-09 14:00] Context: vLLM CPU Optimization
 - vLLM CPU optimization options and OPEA's CPU implementation.
+
+#### [2025-03-08 22:30] Context: Project Structure
+##### `.set_env.sh` (root level)
+- Core variables: HUGGINGFACEHUB_API_TOKEN, REGISTRY, TAG, host_ip
+- Model: meta-llama/Meta-Llama-3-8B-Instruct
+- Memory settings: VLLM_SHM_SIZE=32g (reduced from 128GB)
+- CPU optimization: VLLM_CPU_OMP_THREADS_BIND=1
+- Memory optimization: VLLM_QUANTIZATION="fp8"
+##### `requirements.txt`
+- Core: fastapi, uvicorn, vllm>=0.2.7
+- RAG: redis, langchain, transformers
+- Models: BAAI/bge-base-en-v1.5, BAAI/bge-reranker-base
+##### Existing files from ChatQnAExample
+- chatqna.py: Main service implementation
+- chatqna_wrapper.py: Service wrapper
+- docker_compose/intel/cpu/xeon/: Base configuration
+
+#### [2025-03-08 22:35] Context: Testing Strategy
+- Start with standalone vLLM service
+  - Test with 32GB shared memory + FP8 quantization
+  - Validate basic inference works
+
+#### [2025-03-08 22:40] Context: vLLM Test Configuration
+- Created minimal test configuration in `compose.vllm.yaml`:
+- Single service deployment
+- Port 9009:80 for API access
+- Model cache mounted from host
