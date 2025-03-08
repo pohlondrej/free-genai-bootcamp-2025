@@ -21,23 +21,21 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-12 10 --slave /u
 WORKDIR /app
 
 # Install CPU-specific PyTorch dependencies
-RUN pip install --no-cache-dir \
-    pytorch-cpu \
-    torchvision-cpu
+RUN pip install --break-system-packages --no-cache-dir torch==2.3.1+cpu torchvision==0.18.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
 
 # Clone and build vLLM from source
-RUN git clone https://github.com/vllm-project/vllm.git && cd vllm
+RUN git clone https://github.com/vllm-project/vllm.git
 
 # Install build dependencies
-RUN pip install --upgrade pip && pip install "cmake>=3.26" wheel packaging ninja "setuptools-scm>=8" numpy
-RUN pip install -v -r requirements/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
+RUN pip install --break-system-packages "cmake>=3.26" wheel packaging ninja "setuptools-scm>=8" numpy
+RUN cd vllm && pip install --break-system-packages -v -r requirements/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
 # Install additional dependencies
 # COPY work_directory/requirements.txt /app/requirements.txt
 # RUN pip install --no-cache-dir -r requirements.txt
 
 # Build vLLM
-RUN VLLM_TARGET_DEVICE=cpu python setup.py install
+RUN cd vllm && VLLM_TARGET_DEVICE=cpu python3 setup.py install
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
