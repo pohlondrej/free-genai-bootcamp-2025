@@ -1,0 +1,26 @@
+# Core dependencies
+fastapi>=0.104.1
+uvicorn>=0.24.0
+pydantic>=2.5.2
+vllm>=0.2.7  # For CPU optimized LLM inference
+docarray>=0.40.0  # For vector operations
+
+# RAG components
+redis>=5.0.1  # For vector storage
+redis-om>=0.2.1  # Redis object mapping
+langchain>=0.1.0  # For prompt templates and RAG utilities
+
+# Embedding and reranking models
+transformers>=4.36.2  # For BAAI/bge-base-en-v1.5
+torch>=2.1.0  # Required by transformers and vLLM
+sentence-transformers>=2.2.2  # For BAAI/bge-reranker-base
+
+# API and networking
+httpx>=0.25.2
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Optional: Monitoring and profiling
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
+opentelemetry-instrumentation-fastapi>=0.42b0
