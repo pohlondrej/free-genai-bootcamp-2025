@@ -21,14 +21,9 @@ if [ -z "${host_ip}" ]; then
 fi
 
 # Model configuration
-export LLM_MODEL_ID="tiiuae/Falcon3-7B-Base"  # Using newer Falcon3 for testing
+export LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct"  # Using 0.5B model for testing
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
 
 # vLLM memory optimization (reduced from 128GB default)
 export VLLM_SHM_SIZE=16g  # Half of available 32GB RAM
 export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding
-
-# Optional: proxy settings if needed
-#export http_proxy=""
-#export https_proxy=""
-#export no_proxy=""

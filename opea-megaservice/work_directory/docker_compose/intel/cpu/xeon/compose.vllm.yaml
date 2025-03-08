@@ -5,48 +5,25 @@
 services:
   vllm-service:
     image: ${REGISTRY:-opea}/vllm:${TAG:-latest}
-    container_name: vllm-service-test
+    container_name: vllm-service
     ports:
       - "9009:80"
     volumes:
       - "${MODEL_CACHE:-./data}:/data"
-    shm_size: ${VLLM_SHM_SIZE:-16g}  # Half of 32GB RAM
-    # Enable all CPU capabilities
-    cap_add:
-      - SYS_NICE  # For CPU affinity
-    security_opt:
-      - seccomp=unconfined  # Allow all CPU instructions
+    shm_size: 16g
     environment:
+      no_proxy: ${no_proxy}
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
       HF_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       LLM_MODEL_ID: ${LLM_MODEL_ID}
       VLLM_TORCH_PROFILER_DIR: "/mnt"
-      VLLM_CPU_OMP_THREADS_BIND: ${VLLM_CPU_OMP_THREADS_BIND:-1}
-      # CPU optimization settings
-      TORCH_USE_RTLD_GLOBAL: "TRUE"  # Enable global symbol loading
-      OMP_NUM_THREADS: "6"  # Match physical cores
-      MKL_NUM_THREADS: "6"  # Match physical cores
-      TORCH_CPU_ARCH: "native"  # Use native CPU instructions
-      # PyTorch CPU flags
-      TORCH_CPU_OPERATOR_PARALLEL: "1"
-      TORCH_JIT_ENABLE_CPU_AVX: "1"  # Enable AVX support
-      TORCH_JIT_ENABLE_CPU_AVX2: "1"  # Enable AVX2 support
-    deploy:
-      resources:
-        limits:
-          cpus: '6'  # All physical cores
-        reservations:
-          cpus: '4'  # Ensure minimum 4 cores
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://$host_ip:9009/health || exit 1"]
       interval: 10s
       timeout: 10s
       retries: 100
-    command: >
-      --model ${LLM_MODEL_ID}
-      --host 0.0.0.0
-      --port 80
-      --max-num-batched-tokens 32768
-      --device cpu
+    command: --model $LLM_MODEL_ID --host 0.0.0.0 --port 80
 
 networks:
   default:
