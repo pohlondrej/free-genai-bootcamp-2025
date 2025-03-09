@@ -291,11 +291,6 @@ Provide the context to make the necessary modifications without wasting time on 
   2. Cannot use pre-built vLLM packages
   3. Must ensure CPU-specific PyTorch is used
 
-- NEXT STEPS:
-  1. Update Docker build to compile vLLM from source
-  2. Ensure correct CPU dependencies are included
-  3. Test with project's target models (Falcon2-11B or Meta-Llama-3-8B-Instruct)
-
 #### [2025-03-09 00:00] Context: Hardware-Specific Configuration
 - HARDWARE SPECS:
   - CPU: 6 cores, 12 threads
@@ -410,3 +405,13 @@ Provide the context to make the necessary modifications without wasting time on 
   2. Add retriever and reranking
   3. Add backend server
   4. Finally add UI components
+
+#### [2025-03-09 12:42] Context: Base Layer Success
+- Base services working (redis + tei-embedding + vllm)
+- Using additive approach: copying working vllm config to base compose
+- Preserving original working files
+- Data directory added to .gitignore
+
+#### [2025-03-09 13:05] Second Layer Issues
+1. TEI reranking service fails with "Header etag is missing" - may need additional HF configuration
+2. Retriever connects to Redis but fails with connection refused to localhost:4318 - appears to be trying to connect to telemetry endpoint
