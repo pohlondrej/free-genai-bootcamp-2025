@@ -437,3 +437,11 @@ What is weird is that the error says:
 #### [2025-03-09 15:00] Context: Third Layer Success
 - Successfully verified that the chatqna-xeon-backend-server is running with default OPEA configuration.
 - The FastAPI Swagger UI is accessible at http://localhost:8888/docs and returns 200 status code, indicating proper service initialization.
+
+#### [2025-03-09 17:56] UI Routing Issue: /v1/chatqna Path Not Found
+- The UI service is encountering a 404 error when trying to access `/v1/chatqna` endpoint
+- The SvelteKit error suggests the UI is making requests to `/v1/chatqna` but this path is not being correctly proxied to the backend service
+- Issue appears to be in the routing configuration between UI, NGINX, and backend:
+  1. NGINX configuration needs to correctly proxy `/v1/chatqna` requests to the backend service
+  2. Backend FastAPI service might need a base path prefix to match `/v1/chatqna`
+  3. Environment variable `BACKEND_SERVICE_NAME=chatqna` is correct, but path mapping might need adjustment
