@@ -20,6 +20,9 @@ if [ -z "${host_ip}" ]; then
     exit 1
 fi
 
+# Proxy settings
+export no_proxy=huggingface.co,localhost,127.0.0.1
+
 # Model cache location
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
 
@@ -28,6 +31,6 @@ export EMBEDDING_MODEL_ID="BAAI/bge-small-en-v1.5"  # Small, efficient embedding
 export INDEX_NAME="opea-vector-store"  # Redis index name
 
 # Second layer configuration
-export RERANK_MODEL_ID="cross-encoder/ms-marco-MiniLM-L-6-v2"  # Small, efficient reranking model
+export RERANK_MODEL_ID="BAAI/bge-reranker-base"  # Small, efficient reranking model
 export LOGFLAG="INFO"  # Retriever logging level
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_REDIS"  # Retriever component identifier

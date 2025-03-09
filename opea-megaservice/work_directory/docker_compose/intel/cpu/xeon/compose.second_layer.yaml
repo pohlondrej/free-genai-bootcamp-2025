@@ -61,6 +61,7 @@ services:
       HUGGINGFACEHUB_API_TOKEN: ${HUGGINGFACEHUB_API_TOKEN}
       LOGFLAG: ${LOGFLAG}
       RETRIEVER_COMPONENT_NAME: ${RETRIEVER_COMPONENT_NAME}
+      OTEL_SDK_DISABLED: "true"  # Disable telemetry to avoid connection errors
     restart: unless-stopped
 
   tei-reranking-service:

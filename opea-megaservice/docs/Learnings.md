@@ -415,3 +415,12 @@ Provide the context to make the necessary modifications without wasting time on 
 #### [2025-03-09 13:05] Second Layer Issues
 1. TEI reranking service fails with "Header etag is missing" - may need additional HF configuration
 2. Retriever connects to Redis but fails with connection refused to localhost:4318 - appears to be trying to connect to telemetry endpoint
+
+#### [2025-03-09 14:56] Second Layer Solutions
+1. Retriever telemetry issue:
+   - Fixed by setting OTEL_SDK_DISABLED=true
+   - Prevents connection attempts to non-existent telemetry endpoint
+
+2. Reranking model issue:
+   - Fixed by using BAAI/bge-reranker-base instead of incorrectly chosen cross-encoder/ms-marco-MiniLM-L-6-v2
+   - Important: Always check existing OPEA files for proven configurations before introducing new models
