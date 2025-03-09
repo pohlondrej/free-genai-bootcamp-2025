@@ -434,3 +434,6 @@ The model used for embedding is `BAAI/bge-base-en-v1.5` with 768 dimensions, and
 What is weird is that the error says:
 `Error parsing vector similarity query: query vector blob size (4) does not match index's expected size (3072).`, and 3072 is indeed the correct size, given FLOAT32 occupies 4 bytes (768 * 4 = 3072).
 
+#### [2025-03-09 15:00] Context: Third Layer Success
+- Successfully verified that the chatqna-xeon-backend-server is running with default OPEA configuration.
+- The FastAPI Swagger UI is accessible at http://localhost:8888/docs and returns 200 status code, indicating proper service initialization.
