@@ -424,3 +424,13 @@ Provide the context to make the necessary modifications without wasting time on 
 2. Reranking model issue:
    - Fixed by using BAAI/bge-reranker-base instead of incorrectly chosen cross-encoder/ms-marco-MiniLM-L-6-v2
    - Important: Always check existing OPEA files for proven configurations before introducing new models
+
+#### [2025-03-09 15:00] Context: Issue: Redis Retriever Service Returns 500 Error
+
+When using the retriever-redis-server with the dataprep service, I encountered persistent Internal Server Error (500) responses from the retriever endpoint `/v1/retrieval`. The issue appears to be related to vector dimension mismatches between the embedding model and Redis index, but changing the model from `bge-small-en-v1.5` to `bge-base-en-v1.5` did not fully resolve it.
+
+The model used for embedding is `BAAI/bge-base-en-v1.5` with 768 dimensions, and by running redis-cli, the value of `vector-dim` is also 768.
+
+What is weird is that the error says:
+`Error parsing vector similarity query: query vector blob size (4) does not match index's expected size (3072).`, and 3072 is indeed the correct size, given FLOAT32 occupies 4 bytes (768 * 4 = 3072).
+

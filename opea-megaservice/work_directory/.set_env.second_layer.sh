@@ -27,7 +27,7 @@ export no_proxy=huggingface.co,localhost,127.0.0.1
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
 
 # Base services configuration
-export EMBEDDING_MODEL_ID="BAAI/bge-small-en-v1.5"  # Small, efficient embedding model
+export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"  # Small, efficient embedding model
 export INDEX_NAME="opea-vector-store"  # Redis index name
 
 # Second layer configuration
