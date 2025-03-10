@@ -30,10 +30,6 @@ RUN git clone https://github.com/vllm-project/vllm.git
 RUN pip install --break-system-packages "cmake>=3.26" wheel packaging ninja "setuptools-scm>=8" numpy
 RUN cd vllm && pip install --break-system-packages -v -r requirements/cpu.txt --extra-index-url https://download.pytorch.org/whl/cpu
 
-# Install additional dependencies
-# COPY work_directory/requirements.txt /app/requirements.txt
-# RUN pip install --no-cache-dir -r requirements.txt
-
 # Build vLLM
 RUN cd vllm && VLLM_TARGET_DEVICE=cpu python3 setup.py install
 

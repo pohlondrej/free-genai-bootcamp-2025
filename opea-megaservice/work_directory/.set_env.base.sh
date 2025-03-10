@@ -20,7 +20,14 @@ if [ -z "${host_ip}" ]; then
     exit 1
 fi
 
-# Base services configuration
+# Model configuration
+export LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct"  # Using 0.5B model for testing
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
-export EMBEDDING_MODEL_ID="BAAI/bge-small-en-v1.5"  # Small, efficient embedding model
+
+# vLLM memory optimization
+export VLLM_SHM_SIZE=16g
+export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding
+
+# Base services configuration
+export EMBEDDING_MODEL_ID="BAAI/bge-small-en-v1.5" 
 export INDEX_NAME="opea-vector-store"  # Redis index name

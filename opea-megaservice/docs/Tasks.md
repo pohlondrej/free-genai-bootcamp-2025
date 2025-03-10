@@ -10,11 +10,11 @@
 - [x] Document findings in `Learnings.md`
 - [x] Evaluate vLLM compatibility
   - Confirmed vLLM is the default LLM backend
-  - Found CPU-specific Dockerfile
+  - Must build from source for CPU deployment
+  - Base image: Ubuntu 22.04
   - Documented memory requirements
-  - Identified optimization possibilities
 
-### 2. vLLM CPU Adaptation [IN PROGRESS] 
+### 2. vLLM CPU Adaptation [COMPLETED] 
 
 - [x] Analyze base configuration
   - Default shared memory: 128GB
@@ -22,46 +22,67 @@
   - Found health check endpoints
   - Documented environment variables
 - [x] Research optimization options
-  - Identified quantization possibilities
-  - Found CPU-specific settings
-  - Located command line options
+  - Identified CPU-specific dependencies
+  - Found PyTorch CPU packages
+  - Located build requirements
   - Noted memory tuning parameters
-- [ ] Document deployment requirements
-  - Minimum memory requirements
-  - CPU-specific optimizations
-  - Quantization support
-  - Performance implications
-- [ ] Test deployment
-  - Start with basic services
-  - Try reduced memory
-  - Monitor performance
-  - Document findings
+- [x] Document deployment requirements
+  - torch==2.1.0+cpu from PyTorch repo
+  - torchvision==0.16.0+cpu from PyTorch repo
+  - python3-dev and build-essential
+  - Memory configurable via VLLM_SHM_SIZE
+- [x] Test deployment
+  - Successfully started all layers
+  - Configured reduced memory (16GB)
+  - Services running but need UI fixes
+  - Documented findings in Learnings.md
 
-### 3. Documentation [NOT STARTED]
+### 3. Documentation [COMPLETED]
 
-- [ ] Document setup process
-- [ ] Create troubleshooting guide
-- [ ] Add performance notes
-- [ ] Write deployment instructions
+- [x] Document setup process (in README.md)
+- [x] Create troubleshooting guide (in Learnings.md)
+- [x] Add performance notes (in README.md)
+- [x] Write deployment instructions (in README.md)
+
+### 4. Next Steps [IN PROGRESS]
+
+- [ ] Fix UI routing issues:
+  - Investigate /v1/chatqna 404 error
+  - Check NGINX configuration
+  - Verify backend service paths
+- [ ] Investigate retriever service:
+  - Test document retrieval functionality
+  - Verify Redis vector DB integration
+  - Check embedding service connection
+- [ ] Performance optimization:
+  - Monitor memory usage with reduced VLLM_SHM_SIZE
+  - Test different batch sizes
+  - Document optimal configuration
 
 ## Current State Summary
 
 ### Key Components Identified:
-1. Entry Point: `chatqna.py`
-2. Docker Configuration: `intel/cpu/xeon/compose.yaml`
-3. Frontend: `ui` directory
-4. Build Instructions: `docker_image_build/build.yaml`
+1. Layered Architecture:
+   - First Layer: Base services (Redis)
+   - Second Layer: Core services (Embedding, Reranking)
+   - Third Layer: Backend services (ChatQnA, vLLM)
+   - Fourth Layer: UI services (Frontend, NGINX)
+2. Docker Configuration: Layer-specific compose files
+3. Environment Files: Layer-specific configurations
+4. vLLM: CPU-optimized build from source
 
 ### Architecture Understanding:
 1. Mega Service Pattern with multiple microservices:
-   - Embedding Service (port 6000)
-   - Retriever Service (port 7000)
-   - Rerank Service (port 8000)
-   - LLM Service (port 9000)
-   - Main Orchestrator (port 8888)
+   - Embedding Service
+   - Retriever Service
+   - Rerank Service
+   - vLLM Service (CPU-optimized)
+   - ChatQnA Backend
+   - UI and NGINX
 
 ### Key Findings:
-1. vLLM is already the default LLM backend
-2. Uses Meta-Llama-3-8B-Instruct model by default
-3. OpenAI-compatible API interface
-4. Well-structured modular architecture
+1. vLLM successfully running with CPU optimizations
+2. All services containerized and running
+3. UI needs routing fixes
+4. Retriever functionality needs verification
+5. Memory requirements can be reduced (16GB tested)

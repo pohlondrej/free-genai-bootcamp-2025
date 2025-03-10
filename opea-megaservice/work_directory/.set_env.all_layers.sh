@@ -23,15 +23,20 @@ fi
 # Proxy settings
 export no_proxy=huggingface.co,localhost,127.0.0.1
 
-# Model cache location
+# Model configuration
+export LLM_MODEL_ID="Qwen/Qwen2.5-0.5B-Instruct"
 export MODEL_CACHE=${MODEL_CACHE:-"./data"}
 
+# vLLM memory optimization
+export VLLM_SHM_SIZE=16g
+export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding
+
 # Base services configuration
-export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"  # Small, efficient embedding model
+export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
 export INDEX_NAME="opea-vector-store"  # Redis index name
 
 # Second layer configuration
-export RERANK_MODEL_ID="BAAI/bge-reranker-base"  # Small, efficient reranking model
+export RERANK_MODEL_ID="BAAI/bge-reranker-base"
 export LOGFLAG="INFO"  # Retriever logging level
 export RETRIEVER_COMPONENT_NAME="OPEA_RETRIEVER_REDIS"  # Retriever component identifier
 
