@@ -1,6 +1,12 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
-
+# Base and second layer services:
+# - base layer services:
+#   - vllm-service - vLLM server with LLM model
+#   - redis-vector-db - Redis with vector database
+#   - tei-embedding-service - TEI embedding service
+# - second layer (data processing services):
+#   - retriever - service for retrieving documents from vector database
+#   - dataprep-redis-service - inserts documents into vector database
+#   - tei-reranking-service - reranks TEI embeddings
 services:
   redis-vector-db:
     image: redis/redis-stack:7.2.0-v9

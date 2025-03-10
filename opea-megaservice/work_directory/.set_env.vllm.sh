@@ -1,7 +1,4 @@
-#!/usr/bin/env bash
-
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# This file contains environment variables for vLLM service
 
 # Required: HuggingFace token for model access
 if [ -z "${HUGGINGFACEHUB_API_TOKEN}" ]; then

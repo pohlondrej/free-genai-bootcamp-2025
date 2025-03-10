@@ -1,7 +1,4 @@
-#!/usr/bin/env bash
-
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# This file contains environment variables for the complete OPEA Mega Service stack
 
 # Required: HuggingFace token for model access
 if [ -z "${HUGGINGFACEHUB_API_TOKEN}" ]; then
@@ -33,7 +30,7 @@ export VLLM_CPU_OMP_THREADS_BIND=1  # Enable CPU thread binding
 
 # Base services configuration
 export EMBEDDING_MODEL_ID="BAAI/bge-base-en-v1.5"
-export INDEX_NAME="opea-vector-store"  # Redis index name
+export INDEX_NAME="rag-redis"  # Redis index name
 
 # Second layer configuration
 export RERANK_MODEL_ID="BAAI/bge-reranker-base"

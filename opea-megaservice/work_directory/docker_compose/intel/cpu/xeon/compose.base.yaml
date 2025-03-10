@@ -1,6 +1,10 @@
 # Copyright (C) 2024 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+# Base layer services; these services do not depend on other services
+# - redis-vector-db - Redis with vector database
+# - tei-embedding-service - TEI embedding service
+# - vllm-service - vLLM server with LLM model
 services:
   redis-vector-db:
     image: redis/redis-stack:7.2.0-v9

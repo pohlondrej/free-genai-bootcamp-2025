@@ -1,5 +1,4 @@
-# Copyright (C) 2024 Intel Corporation
-# SPDX-License-Identifier: Apache-2.0
+# Dockerfile for custom AMD CPU vLLM service
 
 FROM ubuntu:24.04
 
