@@ -432,3 +432,25 @@ What is weird is that the error says:
   1. NGINX configuration needs to correctly proxy `/v1/chatqna` requests to the backend service
   2. Backend FastAPI service might need a base path prefix to match `/v1/chatqna`
   3. Environment variable `BACKEND_SERVICE_NAME=chatqna` is correct, but path mapping might need adjustment
+
+#### [2025-03-11 00:16] Context: UI Integration Fix
+- Fixed UI routing by configuring environment variables:
+  ```
+  CHAT_BASE_URL=http://localhost:80/v1/chatqna
+  UPLOAD_FILE_BASE_URL=http://localhost:80/v1/dataprep/ingest
+  GET_FILE=http://localhost:80/v1/dataprep/get
+  DELETE_FILE=http://localhost:80/v1/dataprep/delete
+  ```
+- Using `localhost` instead of container name avoids CORS issues (same-origin request)
+- UI now successfully communicates with backend through NGINX
+
+#### [2025-03-11 00:51] Context: Retriever Service Verification
+- Retriever service successfully tested:
+  - Redis vector DB integration working
+  - BGE embedding model (768-dim vectors) functioning
+  - Search config: k=4, fetch_k=20, lambda_mult=0.5
+  - Document IDs using prefix `doc:rag-redis:`
+- Full RAG pipeline verified:
+  1. Document upload → chunks → embeddings → Redis
+  2. Query → embedding → vector search → reranking
+  3. LLM response using retrieved context

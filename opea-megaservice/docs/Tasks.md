@@ -38,16 +38,17 @@
 - [x] Add performance notes (in README.md)
 - [x] Write deployment instructions (in README.md)
 
-## 4. Next Steps [TODO]
+## 4. Next Steps [IN PROGRESS]
 
-- [ ] Fix UI routing issues:
-  - Investigate /v1/chatqna 404 error
-  - Check NGINX configuration
-  - Verify backend service paths
-- [ ] Investigate retriever service:
-  - Test document retrieval functionality
-  - Verify Redis vector DB integration
-  - Check embedding service connection
+- [x] Fix UI routing issues:
+  - Fixed /v1/chatqna 404 error by using localhost URLs
+  - Resolved CORS issues by making same-origin requests
+  - UI now successfully communicates with backend
+- [x] Investigate retriever service:
+  - Confirmed document retrieval functionality
+  - Verified Redis vector DB integration
+  - Embedding service working (768-dim vectors)
+  - Reranking configured (fetch_k=20)
 - [ ] Performance optimization:
   - Monitor memory usage with reduced VLLM_SHM_SIZE
   - Test different batch sizes

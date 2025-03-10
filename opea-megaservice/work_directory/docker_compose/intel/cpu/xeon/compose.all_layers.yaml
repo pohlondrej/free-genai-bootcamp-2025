@@ -157,8 +157,13 @@ services:
       - no_proxy=${no_proxy}
       - https_proxy=${https_proxy}
       - http_proxy=${http_proxy}
+      - CHAT_BASE_URL=http://localhost:80/v1/chatqna
+      - UPLOAD_FILE_BASE_URL=http://localhost:80/v1/dataprep/ingest
+      - GET_FILE=http://localhost:80/v1/dataprep/get
+      - DELETE_FILE=http://localhost:80/v1/dataprep/delete
     ipc: host
     restart: always
+
   chatqna-xeon-nginx-server:
     image: ${REGISTRY:-opea}/nginx:${TAG:-latest}
     container_name: chatqna-xeon-nginx-server

@@ -66,12 +66,12 @@ Each layer has its own:
 
 ### Current Status and Next Steps
 
-1. UI Routing Issue:
-   - 404 error on /v1/chatqna endpoint
-   - NGINX configuration might need review
-   - Backend service paths need verification
+1. UI Integration [COMPLETED]:
+   - Fixed routing issues by using localhost URLs
+   - UI successfully communicates with backend
+   - All requests routed through NGINX
 
-2. Retriever Service:
+2. Retriever Service [COMPLETED]:
    - Document retrieval needs testing
    - Redis vector DB integration needs verification
    - Embedding service connection check needed
