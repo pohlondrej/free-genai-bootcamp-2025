@@ -10,3 +10,5 @@
 ## Week 2
 - [Language Learning Assistant](language-learning-assistant/Readme.md)
 - [Kana Writing Practice](kana-writing/README.md)
+## Week 3
+- [OPEA MegaService](opea-megaservice/README.md)

@@ -36,48 +36,42 @@ An adapted version of the OPEA ChatQnA service optimized for CPU deployment usin
 - Memory configuration:
   - 16GB RAM (down from 128GB default)
 - Tested models:
-  - Qwen/Qwen2.5-0.5B-Instruct (for vLLM)
+  - Qwen/Qwen2.5-0.5B-Instruct; should be changed to Meta-Llama-3-8B-Instruct in production
   - BAAI/bge-base-en-v1.5 (for embedding)
   - BAAI/bge-reranker-base (for reranking)
 
 ### Architecture
 The service uses a layered architecture pattern:
 
-1. First Layer (Base Services, no dependencies):
+1. `*base*` (core services, no dependencies)
    - Redis
    - Embedding service
    - vLLM service (CPU-optimized)
 
-2. Second Layer (Core Services):
+2. `*second_layer*` (data services, depends on base)
    - Reranking service (depends on embedding service)
    - Dataprep service (depends on embedding service and Redis)
    - Retriever service (depends on Redis)
 
-3. Third Layer (Backend Service, depends on first and second layers):
+3. `*third_layer*` (backend service, depends on first and second layers)
    - ChatQnA backend server
 
-4. Fourth Layer (UI Services, depends on backend service):
+4. `*fourth_layer*` (ui services, depends on backend service)
    - Frontend UI server
    - NGINX for routing and proxying
 
 Each layer has its own:
 - Environment file (.set_env.*.sh)
 - Docker Compose configuration
-- Service-specific variables
 
 ### Current Status and Next Steps
 
 1. UI Routing Issue:
    - 404 error on /v1/chatqna endpoint
-   - NGINX configuration needs review
+   - NGINX configuration might need review
    - Backend service paths need verification
 
 2. Retriever Service:
    - Document retrieval needs testing
    - Redis vector DB integration needs verification
    - Embedding service connection check needed
-
-3. Performance:
-   - vLLM running with reduced memory (16GB)
-   - Further optimization possible
-   - Batch size testing needed

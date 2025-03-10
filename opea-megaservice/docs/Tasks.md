@@ -12,24 +12,20 @@
   - Confirmed vLLM is the default LLM backend
   - Must build from source for CPU deployment
   - Base image: Ubuntu 22.04
-  - Documented memory requirements
 
 ### 2. vLLM CPU Adaptation [COMPLETED] 
 
 - [x] Analyze base configuration
   - Default shared memory: 128GB
   - Uses OPEA's CPU-optimized image
-  - Found health check endpoints
   - Documented environment variables
 - [x] Research optimization options
   - Identified CPU-specific dependencies
   - Found PyTorch CPU packages
   - Located build requirements
-  - Noted memory tuning parameters
 - [x] Document deployment requirements
-  - torch==2.1.0+cpu from PyTorch repo
-  - torchvision==0.16.0+cpu from PyTorch repo
-  - python3-dev and build-essential
+  - torch==2.3.1+cpu from PyTorch repo
+  - torchvision==0.18.1+cpu from PyTorch repo
   - Memory configurable via VLLM_SHM_SIZE
 - [x] Test deployment
   - Successfully started all layers
@@ -44,7 +40,7 @@
 - [x] Add performance notes (in README.md)
 - [x] Write deployment instructions (in README.md)
 
-### 4. Next Steps [IN PROGRESS]
+### 4. Next Steps [TODO]
 
 - [ ] Fix UI routing issues:
   - Investigate /v1/chatqna 404 error
