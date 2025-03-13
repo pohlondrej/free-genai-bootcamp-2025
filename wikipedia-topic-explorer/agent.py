@@ -17,7 +17,7 @@ class AgentError(Exception):
     pass
 
 class TopicExplorerAgent:
-    def __init__(self, max_turns: int = 10):
+    def __init__(self, max_turns: int = 20):
         self.max_turns = max_turns
         self.turn_count = 0
         self.tools = {
@@ -137,7 +137,45 @@ class TopicExplorerAgent:
             try:
                 # Get and validate LLM response
                 response = self.call_llm('\n'.join(conversation))
-                self.validate_response(response)
+                try:
+                    self.validate_response(response)
+                except AgentError as validation_error:
+                    # Give the agent another chance to fix its response
+                    logger.info(f"Response validation failed: {validation_error}. Asking agent to fix it.")
+                    conversation.append(
+                        f"Your last response was invalid: {validation_error}. "
+                        "Please fix your response to match one of these formats:\n"
+                        "\nFormat for next action:\n"
+                        "{\n"
+                        '    "observation": "Your understanding of the current state",\n'
+                        '    "thought": "Your reasoning about what to do next",\n'
+                        '    "action": {\n'
+                        '        "name": "tool_name",\n'
+                        '        "input": "tool_input"\n'
+                        '    }\n'
+                        "}\n"
+                        "\nFormat for final answer (only after completing all workflow steps):\n"
+                        "{\n"
+                        '    "observation": "Your understanding of the current state",\n'
+                        '    "thought": "Your reasoning about why you are done",\n'
+                        '    "final_answer": {\n'
+                        '        "article": {\n'
+                        '            "title": "Article title",\n'
+                        '            "english": "Simplified English text",\n'
+                        '            "japanese": "Japanese translation"\n'
+                        '        },\n'
+                        '        "vocabulary": [\n'
+                        '            {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"}\n'
+                        '        ]\n'
+                        '    }\n'
+                        "}\n"
+                        "\nRemember to follow the workflow steps in order:\n"
+                        "1. search_wikipedia\n"
+                        "2. summarize_text\n"
+                        "3. translate_to_japanese\n"
+                        "4. extract_vocabulary"
+                    )
+                    continue
                 
                 # Check for final answer
                 if "final_answer" in response:
