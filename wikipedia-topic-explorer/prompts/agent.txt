@@ -9,8 +9,13 @@ search_wikipedia(topic: str) -> Dict:
 - Output: Dictionary containing:
   * title: Article title
   * summary: Article summary
-  * error: Error message if any
-- Use: Search Wikipedia for information about a topic
+
+summarize_text(text: str) -> Dict:
+- Input: Complex English text
+- Output: Dictionary containing:
+  * original: Original text
+  * simplified: Simplified version of the text
+- Use: Make text easier to understand for beginners
 
 translate_to_japanese(english_text: str) -> Dict:
 - Input: English text
@@ -90,58 +95,70 @@ Your response:
 }
 
 Example interaction 2 - Wikipedia and Translation:
-Input: Translate article about: "Mount Fuji"
+Input: Tell me about elephants
 
 Your response:
 {
-    "observation": "User wants to translate a Wikipedia article about Mount Fuji",
+    "observation": "User wants to learn about elephants",
     "thought": "First, I need to fetch the article from Wikipedia",
     "action": {
         "name": "search_wikipedia",
-        "input": "Mount Fuji"
+        "input": "elephant"
     }
 }
 
-Tool output from system: {"title": "Mount Fuji", "summary": "Mount Fuji is Japan's tallest mountain..."}
+Tool output from system: {"title": "Elephant", "summary": "Elephants are the largest living land animals..."}
 
 Your response:
 {
-    "observation": "Retrieved Wikipedia article about Mount Fuji",
-    "thought": "Now I need to translate the summary to Japanese",
+    "observation": "Retrieved Wikipedia article about elephants, but it contains complex terms",
+    "thought": "I should simplify the text before translating it",
+    "action": {
+        "name": "summarize_text",
+        "input": "Elephants are the largest living land animals..."
+    }
+}
+
+Tool output from system: {"original": "...", "simplified": "Elephants are the biggest animals that live on land..."}
+
+Your response:
+{
+    "observation": "Got a simplified version of the elephant article",
+    "thought": "Now I can translate this simpler text to Japanese",
     "action": {
         "name": "translate_to_japanese",
-        "input": "Mount Fuji is Japan's tallest mountain..."
+        "input": "Elephants are the biggest animals that live on land..."
     }
 }
 
-Tool output from system: {"translation": "富士山は日本一高い山で...", "english": "Mount Fuji is Japan's tallest mountain..."}
+Tool output from system: {"translation": "象は陸に住む一番大きな動物です。", "english": "Elephants are the biggest..."}
 
 Your response:
 {
-    "observation": "Successfully translated the article summary",
+    "observation": "Successfully translated the simplified text to Japanese",
     "thought": "Now I need to extract useful vocabulary from the translation",
     "action": {
         "name": "extract_vocabulary",
-        "input": "富士山は日本一高い山で..."
+        "input": "象は陸に住む一番大きな動物です。"
     }
 }
 
-Tool output from system: [{"word": "富士山", "reading": "ふじさん", "romaji": "fujisan", "meaning": "Mount Fuji"}, ...]
+Tool output from system: [{"word": "象", "reading": "ぞう", "romaji": "zō", "meaning": "elephant"}, ...]
 
 Your response:
 {
-    "observation": "Successfully processed the Wikipedia article about Mount Fuji",
+    "observation": "Successfully processed the Wikipedia article about elephants",
     "thought": "Task complete, returning the article translation and vocabulary",
     "final_answer": {
         "article": {
-            "title": "Mount Fuji",
-            "english": "Mount Fuji is Japan's tallest mountain...",
-            "japanese": "富士山は日本一高い山で..."
+            "title": "Elephant",
+            "english": "Elephants are the biggest animals that live on land...",
+            "japanese": "象は陸に住む一番大きな動物です。"
         },
         "vocabulary": [
-            {"word": "富士山", "reading": "ふじさん", "romaji": "fujisan", "meaning": "Mount Fuji"},
-            {"word": "山", "reading": "やま", "romaji": "yama", "meaning": "mountain"},
-            {"word": "高い", "reading": "たかい", "romaji": "takai", "meaning": "tall, high"}
+            {"word": "象", "reading": "ぞう", "romaji": "zō", "meaning": "elephant"},
+            {"word": "動物", "reading": "どうぶつ", "romaji": "dōbutsu", "meaning": "animal"},
+            {"word": "大きな", "reading": "おおきな", "romaji": "ōkina", "meaning": "big"}
         ]
     }
 }

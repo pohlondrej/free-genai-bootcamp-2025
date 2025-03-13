@@ -6,6 +6,7 @@ import requests
 from tools.extract_vocab import extract_vocabulary
 from tools.translate import translate_to_japanese
 from tools.search_wikipedia import search_wikipedia
+from tools.summarize_text import summarize_text
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -21,6 +22,7 @@ class TopicExplorerAgent:
         self.turn_count = 0
         self.tools = {
             "search_wikipedia": search_wikipedia,
+            "summarize_text": summarize_text,
             "translate_to_japanese": translate_to_japanese,
             "extract_vocabulary": extract_vocabulary
         }
