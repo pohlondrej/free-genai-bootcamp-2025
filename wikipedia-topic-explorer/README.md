@@ -8,6 +8,9 @@ This app is a demonstration of AI agentic workflow. It will create short, inform
 - Generate vocabulary lists of key terms used in the summary
 - Crawl the web for images related to the topic
 
+## Technical Documentation
+For detailed technical specifications and architecture, see [Project Documentation](docs/Project.md).
+
 ## Workflow
 
 1. User provides a topic in English

@@ -1,0 +1,7 @@
+fastapi
+streamlit
+wikipedia-api
+duckduckgo-search
+uvicorn
+httpx
+python-dotenv
