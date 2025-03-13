@@ -4,6 +4,7 @@ import logging
 from typing import Dict, List, Optional, Any
 import requests
 from tools.extract_vocab import extract_vocabulary
+from tools.translate import translate_to_japanese
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +19,8 @@ class TopicExplorerAgent:
         self.max_turns = max_turns
         self.turn_count = 0
         self.tools = {
-            "extract_vocabulary": extract_vocabulary
+            "extract_vocabulary": extract_vocabulary,
+            "translate_to_japanese": translate_to_japanese
         }
         self.load_prompt()
     
@@ -28,6 +30,37 @@ class TopicExplorerAgent:
                                  'prompts', 'agent.txt')
         with open(prompt_path, 'r', encoding='utf-8') as f:
             self.base_prompt = f.read()
+
+    def extract_json_from_response(self, text: str) -> Dict:
+        """Extract the last valid JSON object from text."""
+        # Find all potential JSON objects in the text
+        potential_jsons = []
+        stack = []
+        start = -1
+        
+        for i, char in enumerate(text):
+            if char == '{':
+                if not stack:
+                    start = i
+                stack.append(char)
+            elif char == '}':
+                if stack:
+                    stack.pop()
+                    if not stack and start != -1:
+                        potential_jsons.append(text[start:i+1])
+                        start = -1
+        
+        if not potential_jsons:
+            raise AgentError("No JSON object found in response")
+            
+        # Try to parse each potential JSON, starting from the last one
+        for json_str in reversed(potential_jsons):
+            try:
+                return json.loads(json_str)
+            except json.JSONDecodeError:
+                continue
+                
+        raise AgentError(f"Failed to parse any JSON from response: {text}")
 
     def call_llm(self, prompt: str) -> Dict:
         """Call Ollama with the given prompt and parse JSON response."""
@@ -43,17 +76,13 @@ class TopicExplorerAgent:
             
         try:
             llm_response = response.json()['response']
-            # Find the JSON object in the response
-            start = llm_response.find('{')
-            end = llm_response.rfind('}') + 1
-            if start == -1 or end == 0:
-                raise AgentError("No JSON object found in response")
+            logger.debug(f"Raw LLM response:\n{llm_response}")
             
-            response_json = json.loads(llm_response[start:end])
+            response_json = self.extract_json_from_response(llm_response)
             logger.info(f"Parsed LLM response: {json.dumps(response_json, indent=2, ensure_ascii=False)}")
             return response_json
-        except json.JSONDecodeError as e:
-            raise AgentError(f"Failed to parse LLM response as JSON: {str(e)}\nResponse: {llm_response}")
+        except Exception as e:
+            raise AgentError(f"Failed to parse LLM response: {str(e)}\nResponse: {llm_response}")
 
     def validate_response(self, response: Dict) -> None:
         """Validate the structure of the LLM response."""
@@ -89,12 +118,12 @@ class TopicExplorerAgent:
         except Exception as e:
             return {"error": str(e)}
 
-    def run(self, japanese_text: str) -> Dict:
-        """Run the ReAct loop."""
+    def run(self, english_text: str) -> Dict:
+        """Run the ReAct loop with English input text."""
         self.turn_count = 0
         conversation = [
             self.base_prompt,
-            f'Input: Process this Japanese text: "{japanese_text}"'
+            f'Input: Translate and analyze: "{english_text}"'
         ]
 
         while self.turn_count < self.max_turns:
@@ -132,7 +161,7 @@ class TopicExplorerAgent:
         return {"error": f"Exceeded maximum turns ({self.max_turns})"}
 
 if __name__ == "__main__":
-    # Test the agent
+    # Test the agent with English text
     agent = TopicExplorerAgent()
-    result = agent.run("ビール3本と弁当はいくらですか")
+    result = agent.run("I would like to eat sushi and drink green tea.")
     print(json.dumps(result, ensure_ascii=False, indent=2))
