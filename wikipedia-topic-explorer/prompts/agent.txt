@@ -46,8 +46,20 @@ OR, when complete:
 {
     "observation": "Your understanding of the current state",
     "thought": "Your reasoning about why you're done",
-    "final_answer": {} // The final result as a JSON object
+    "final_answer": {
+        "article": {
+            "title": "Article title",
+            "english": "Simplified English text",
+            "japanese": "Japanese translation"
+        },
+        "vocabulary": [
+            {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"},
+            // ... more vocabulary items
+        ]
+    }
 }
+
+IMPORTANT: You must ALWAYS include "observation" and "thought" fields at the top level of your response, even when returning final_answer.
 
 Example interaction 1 - Translation and Vocabulary:
 Input: Translate and analyze: "I love reading Japanese books."
@@ -81,7 +93,8 @@ Your response:
     "observation": "Successfully extracted vocabulary from translated text",
     "thought": "Task complete, returning translation and vocabulary",
     "final_answer": {
-        "translation": {
+        "article": {
+            "title": "User Translation",
             "english": "I love reading Japanese books.",
             "japanese": "日本の本を読むのが大好きです。"
         },
@@ -148,7 +161,7 @@ Tool output from system: [{"word": "象", "reading": "ぞう", "romaji": "zō", 
 Your response:
 {
     "observation": "Successfully processed the Wikipedia article about elephants",
-    "thought": "Task complete, returning the article translation and vocabulary",
+    "thought": "Task complete, returning article translation and vocabulary",
     "final_answer": {
         "article": {
             "title": "Elephant",
