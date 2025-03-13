@@ -170,10 +170,10 @@ class TopicExplorerAgent:
                         '    }\n'
                         "}\n"
                         "\nRemember to follow the workflow steps in order:\n"
-                        "1. search_wikipedia\n"
-                        "2. summarize_text\n"
-                        "3. translate_to_japanese\n"
-                        "4. extract_vocabulary"
+                        "1. search_wikipedia -> input: English topic name\n"
+                        "2. summarize_text -> input: English Wikipedia text\n"
+                        "3. translate_to_japanese -> input: Simplified English text\n"
+                        "4. extract_vocabulary -> input: Japanese translated text"
                     )
                     continue
                 
@@ -188,7 +188,15 @@ class TopicExplorerAgent:
                 if "error" in tool_result:
                     error_msg = f"Tool execution failed: {tool_result['error']}"
                     logger.error(error_msg)
-                    conversation.append(f"Error: {error_msg}")
+                    conversation.append(
+                        f"Error: {error_msg}\n"
+                        "Please try again with the correct input:\n"
+                        "- For search_wikipedia: Use English topic name\n"
+                        "- For summarize_text: Use English Wikipedia text\n"
+                        "- For translate_to_japanese: Use simplified English text\n"
+                        "- For extract_vocabulary: Use Japanese translated text (from translate_to_japanese output)\n"
+                        "\nNever skip steps or make up data - if a tool fails, try again with the correct input."
+                    )
                 else:
                     result_str = json.dumps(tool_result["result"], ensure_ascii=False)
                     conversation.append(f"Tool output: {result_str}")
