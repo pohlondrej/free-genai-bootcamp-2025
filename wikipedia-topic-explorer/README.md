@@ -22,7 +22,24 @@ For detailed technical specifications and architecture, see [Project Documentati
 7. App presents the summary, vocabulary list, kanji list, and images to the user in the frontend
 
 ## Setup
-TODO
+
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+2. Start the backend server:
+```bash
+uvicorn api:app --reload
+```
+
+3. Start the frontend server:
+```bash
+streamlit run frontend.py
+```
 
 ## Usage
-TODO
+
+1. Open your browser and navigate to http://localhost:8501
+2. Enter any topic in English
+3. Click "Generate" to see the Japanese summary and vocabulary
