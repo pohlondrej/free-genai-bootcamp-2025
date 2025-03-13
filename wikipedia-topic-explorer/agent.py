@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Any
 import requests
 from tools.extract_vocab import extract_vocabulary
 from tools.translate import translate_to_japanese
+from tools.search_wikipedia import search_wikipedia
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -19,8 +20,9 @@ class TopicExplorerAgent:
         self.max_turns = max_turns
         self.turn_count = 0
         self.tools = {
-            "extract_vocabulary": extract_vocabulary,
-            "translate_to_japanese": translate_to_japanese
+            "search_wikipedia": search_wikipedia,
+            "translate_to_japanese": translate_to_japanese,
+            "extract_vocabulary": extract_vocabulary
         }
         self.load_prompt()
     
@@ -118,12 +120,12 @@ class TopicExplorerAgent:
         except Exception as e:
             return {"error": str(e)}
 
-    def run(self, english_text: str) -> Dict:
-        """Run the ReAct loop with English input text."""
+    def run(self, input_text: str) -> Dict:
+        """Run the ReAct loop with input text."""
         self.turn_count = 0
         conversation = [
             self.base_prompt,
-            f'Input: Translate and analyze: "{english_text}"'
+            f'Input: {input_text}'
         ]
 
         while self.turn_count < self.max_turns:

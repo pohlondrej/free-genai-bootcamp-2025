@@ -4,6 +4,14 @@ IMPORTANT: Only respond with a single JSON object. Never include tool outputs or
 
 Available tools:
 
+search_wikipedia(topic: str) -> Dict:
+- Input: Topic to search for
+- Output: Dictionary containing:
+  * title: Article title
+  * summary: Article summary
+  * error: Error message if any
+- Use: Search Wikipedia for information about a topic
+
 translate_to_japanese(english_text: str) -> Dict:
 - Input: English text
 - Output: Dictionary containing:
@@ -77,6 +85,63 @@ Your response:
             {"word": "本", "reading": "ほん", "romaji": "hon", "meaning": "book"},
             {"word": "読む", "reading": "よむ", "romaji": "yomu", "meaning": "to read"},
             {"word": "大好き", "reading": "だいすき", "romaji": "daisuki", "meaning": "to love, to like very much"}
+        ]
+    }
+}
+
+Example interaction 2 - Wikipedia and Translation:
+Input: Translate article about: "Mount Fuji"
+
+Your response:
+{
+    "observation": "User wants to translate a Wikipedia article about Mount Fuji",
+    "thought": "First, I need to fetch the article from Wikipedia",
+    "action": {
+        "name": "search_wikipedia",
+        "input": "Mount Fuji"
+    }
+}
+
+Tool output from system: {"title": "Mount Fuji", "summary": "Mount Fuji is Japan's tallest mountain..."}
+
+Your response:
+{
+    "observation": "Retrieved Wikipedia article about Mount Fuji",
+    "thought": "Now I need to translate the summary to Japanese",
+    "action": {
+        "name": "translate_to_japanese",
+        "input": "Mount Fuji is Japan's tallest mountain..."
+    }
+}
+
+Tool output from system: {"translation": "富士山は日本一高い山で...", "english": "Mount Fuji is Japan's tallest mountain..."}
+
+Your response:
+{
+    "observation": "Successfully translated the article summary",
+    "thought": "Now I need to extract useful vocabulary from the translation",
+    "action": {
+        "name": "extract_vocabulary",
+        "input": "富士山は日本一高い山で..."
+    }
+}
+
+Tool output from system: [{"word": "富士山", "reading": "ふじさん", "romaji": "fujisan", "meaning": "Mount Fuji"}, ...]
+
+Your response:
+{
+    "observation": "Successfully processed the Wikipedia article about Mount Fuji",
+    "thought": "Task complete, returning the article translation and vocabulary",
+    "final_answer": {
+        "article": {
+            "title": "Mount Fuji",
+            "english": "Mount Fuji is Japan's tallest mountain...",
+            "japanese": "富士山は日本一高い山で..."
+        },
+        "vocabulary": [
+            {"word": "富士山", "reading": "ふじさん", "romaji": "fujisan", "meaning": "Mount Fuji"},
+            {"word": "山", "reading": "やま", "romaji": "yama", "meaning": "mountain"},
+            {"word": "高い", "reading": "たかい", "romaji": "takai", "meaning": "tall, high"}
         ]
     }
 }
