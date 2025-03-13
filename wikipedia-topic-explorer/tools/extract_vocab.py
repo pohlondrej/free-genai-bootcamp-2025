@@ -9,6 +9,25 @@ def load_prompt() -> str:
     with open(prompt_path, 'r', encoding='utf-8') as f:
         return f.read()
 
+def validate_vocab_entry(entry: Dict) -> bool:
+    """Validate a vocabulary entry."""
+    # All fields must be present and non-empty
+    required_fields = ["word", "reading", "romaji", "meaning"]
+    if not all(field in entry and entry[field] for field in required_fields):
+        return False
+        
+    # Don't include particles unless they're part of a compound
+    if entry["word"] in ["は", "が", "の", "に", "を", "で", "へ"]:
+        return False
+        
+    # Don't include entries with spaces or invalid characters
+    if any(c in entry["reading"] for c in [" ", "_", "-"]):
+        return False
+    if any(c in entry["romaji"] for c in [" ", "_"]):
+        return False
+        
+    return True
+
 def extract_vocabulary(text: str) -> List[Dict[str, str]]:
     """Extract vocabulary from Japanese text using Ollama."""
     import requests
@@ -38,7 +57,22 @@ def extract_vocabulary(text: str) -> List[Dict[str, str]]:
         if start == -1 or end == 0:
             raise ValueError("No JSON array found in response")
         vocab_json = result[start:end]
-        return json.loads(vocab_json)
+        vocab_list = json.loads(vocab_json)
+        
+        # Filter and validate entries
+        valid_entries = [entry for entry in vocab_list if validate_vocab_entry(entry)]
+        
+        # Remove duplicates while preserving order
+        seen = set()
+        unique_entries = []
+        for entry in valid_entries:
+            key = entry["word"]
+            if key not in seen:
+                seen.add(key)
+                unique_entries.append(entry)
+        
+        return unique_entries
+        
     except (json.JSONDecodeError, KeyError, ValueError) as e:
         raise Exception(f"Failed to parse vocabulary: {str(e)}")
 

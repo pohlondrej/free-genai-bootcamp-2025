@@ -8,16 +8,15 @@ translate_to_japanese(english_text: str) -> Dict:
 - Input: English text
 - Output: Dictionary containing:
   * translation: Japanese translation
-  * notes: Translation notes and context
-- Use: Translate English text to natural, polite Japanese
+  * english: Original English text
 
 extract_vocabulary(japanese_text: str) -> List[Dict]:
 - Input: Japanese text
 - Output: List of dictionaries containing:
   * word: Japanese word (kanji/kana)
   * reading: Hiragana reading
-  * romaji: Romaji reading
-  * meaning: English meaning
+  * romaji: Hepburn romanization
+  * meaning: Simple English meaning
 - Use: Extract beginner-friendly (JLPT N5) vocabulary from Japanese text
 
 Your response MUST be a single JSON object with these fields:
@@ -50,7 +49,7 @@ Your response:
     }
 }
 
-Tool output from system: {"translation": "日本の本を読むのが大好きです。", "notes": "Polite form using が大好きです to express strong liking"}
+Tool output from system: {"translation": "日本の本を読むのが大好きです。", "english": "I love reading Japanese books."}
 
 Your response:
 {
@@ -71,8 +70,7 @@ Your response:
     "final_answer": {
         "translation": {
             "english": "I love reading Japanese books.",
-            "japanese": "日本の本を読むのが大好きです。",
-            "notes": "Polite form using が大好きです to express strong liking"
+            "japanese": "日本の本を読むのが大好きです。"
         },
         "vocabulary": [
             {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"},

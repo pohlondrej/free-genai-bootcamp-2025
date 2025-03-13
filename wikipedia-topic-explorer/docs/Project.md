@@ -5,10 +5,11 @@ wikipedia-topic-explorer/
 ├── tools/                    # ReAct framework tools
 │   ├── search_wikipedia.py   # Wikipedia article search and fetch
 │   ├── summarize_text.py     # Text simplification
-│   ├── translate_text.py     # Japanese translation
+│   ├── translate.py         # Japanese translation
 │   ├── extract_vocab.py      # Vocabulary extraction
 │   └── search_images.py      # DuckDuckGo image search
 ├── prompts/                  # LLM prompt templates
+│   ├── agent.txt           # Main ReAct agent prompt
 │   ├── simplify.txt         # Text simplification prompt
 │   ├── translate.txt        # Japanese translation prompt
 │   └── vocabulary.txt       # Vocabulary extraction prompt
@@ -33,7 +34,7 @@ wikipedia-topic-explorer/
 ### Tools
 - `search_wikipedia`: Fetch and parse Wikipedia articles
 - `summarize_text`: Simplify English to 9-year-old level
-- `translate_text`: Convert to N5-level Japanese
+- `translate`: Convert to N5-level Japanese
 - `extract_vocab`: Generate vocabulary and kanji lists
 - `search_images`: Find relevant topic images
 
@@ -65,14 +66,35 @@ wikipedia-topic-explorer/
 ## API Endpoints
 
 ### `/api/v1/topic`
-- POST: New topic submission
+- POST: Create translation job
+  ```json
+  {
+    "english_text": "Text to translate"
+  }
+  ```
 - Returns: Job ID
 
-### `/api/v1/status/<job_id>`
-- GET: Processing status
-
-### `/api/v1/result/<job_id>`
-- GET: Final results
+### `/api/v1/topic/<job_id>`
+- GET: Get job status and results
+  ```json
+  {
+    "status": "complete",
+    "result": {
+      "translation": {
+        "english": "Original text",
+        "japanese": "Japanese translation"
+      },
+      "vocabulary": [
+        {
+          "word": "単語",
+          "reading": "たんご",
+          "romaji": "tango",
+          "meaning": "word"
+        }
+      ]
+    }
+  }
+  ```
 
 ## Development Steps
 1. Set up Ollama with GPU support
