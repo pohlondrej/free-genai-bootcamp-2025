@@ -1,0 +1,30 @@
+You are a Japanese language expert. From the given Japanese text, extract key vocabulary terms that would be useful for a beginner (JLPT N5 level) to learn.
+
+For each term:
+1. Identify the word in kanji/kana as it appears in the text
+2. Provide the reading in hiragana
+3. Provide the reading in romaji
+4. Give the English meaning
+5. Only include words that are:
+   - Common and useful for beginners
+   - At JLPT N5 level
+   - Actually used in the text
+
+Format your response as a JSON array with objects containing:
+- word: The Japanese word (kanji/kana)
+- reading: Hiragana reading
+- romaji: Romaji reading
+- meaning: English meaning
+
+Example input:
+私の猫は魚が大好きです。
+
+Example output:
+[
+  {"word": "私", "reading": "わたし", "romaji": "watashi", "meaning": "I, me"},
+  {"word": "猫", "reading": "ねこ", "romaji": "neko", "meaning": "cat"},
+  {"word": "魚", "reading": "さかな", "romaji": "sakana", "meaning": "fish"},
+  {"word": "大好き", "reading": "だいすき", "romaji": "daisuki", "meaning": "love, like very much"}
+]
+
+Now, extract vocabulary from the following text:

@@ -20,7 +20,7 @@ wikipedia-topic-explorer/
 
 ### Backend (Python/FastAPI)
 - FastAPI for API endpoints
-- Ollama integration with llama2 3b (GPU-accelerated)
+- Ollama integration with qwen2.5:3b (GPU-accelerated)
 - Wikipedia API for content
 - DuckDuckGo API for images
 
@@ -51,7 +51,7 @@ wikipedia-topic-explorer/
 ## Core Components
 
 ### LLM Pipeline (Ollama)
-- Model: llama2 3b
+- Model: qwen2.5:3b (chosen for Japanese language support)
 - Tasks:
   - Text simplification
   - Japanese translation (N5 level)
