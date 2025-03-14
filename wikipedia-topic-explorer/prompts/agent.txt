@@ -73,12 +73,14 @@ OR, when complete:
     "final_answer": {
         "article": {
             "title": "Article title",
-            "english": "Simplified English text",  // Must be simplified
-            "japanese": "Japanese translation"     // Must be from simplified text
+            "english": "Simplified English text",
+            "japanese": "Japanese translation"
         },
         "vocabulary": [
             {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"},
-            // ... more vocabulary items
+            {"word": "象", "reading": "ぞう", "romaji": "zō", "meaning": "elephant"},
+            {"word": "動物", "reading": "どうぶつ", "romaji": "dōbutsu", "meaning": "animal"},
+            {"word": "大きな", "reading": "おおきな", "romaji": "ōkina", "meaning": "big"}
         ]
     }
 }
@@ -86,7 +88,7 @@ OR, when complete:
 IMPORTANT: You must ALWAYS include "observation" and "thought" fields at the top level of your response, even when returning final_answer.
 
 Example interaction:
-Input: Tell me about elephants
+Input: elephant
 
 Your response:
 {
@@ -117,7 +119,7 @@ Your response:
     "observation": "Got a simplified version of the text",
     "thought": "Following workflow step 3: Translate simplified text to Japanese",
     "action": {
-        "name": "translate_to_japanese",
+        "name": "translate",
         "input": "Elephants are the biggest animals that live on land..."
     }
 }
