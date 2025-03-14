@@ -1,20 +1,22 @@
 # Technical Specification
 
 ## Project Structure
+```
 wikipedia-topic-explorer/
 ├── tools/                    # ReAct framework tools
 │   ├── search_wikipedia.py   # Wikipedia article search and fetch
 │   ├── summarize_text.py     # Text simplification
-│   ├── translate.py         # Japanese translation
+│   ├── translate.py          # Japanese translation
 │   └── extract_vocab.py      # Vocabulary extraction
 ├── prompts/                  # LLM prompt templates
-│   ├── agent.txt           # Main ReAct agent prompt
-│   ├── simplify.txt         # Text simplification prompt
-│   ├── translate.txt        # Japanese translation prompt
-│   └── vocabulary.txt       # Vocabulary extraction prompt
-├── agent.py                 # Main ReAct agent implementation
-├── api.py                   # FastAPI application
-└── frontend.py             # Streamlit interface
+│   ├── agent.txt             # Main ReAct agent prompt
+│   ├── simplify.txt          # Text simplification prompt
+│   ├── translate.txt         # Japanese translation prompt
+│   └── vocabulary.txt        # Vocabulary extraction prompt
+├── agent.py                  # Main ReAct agent implementation
+├── api.py                    # FastAPI application
+└── frontend.py               # Streamlit interface
+```
 
 ## Architecture
 
