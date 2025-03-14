@@ -1,0 +1,40 @@
+Your last response was invalid: {error}. 
+Please fix your response to match one of these formats:
+
+Format for next action:
+{
+    "observation": "Your understanding of the current state",
+    "thought": "Your reasoning about what to do next",
+    "action": {
+        "name": "tool_name",  // Must be EXACTLY one of: search_wikipedia, summarize_text, translate_to_japanese, extract_vocabulary
+        "input": "tool_input"  // Must be a string matching the tool's expected input type
+    }
+}
+
+Format for final answer:
+{
+    "observation": "Your understanding of the current state",
+    "thought": "Your reasoning about why you are done",
+    "final_answer": {
+        "article": {
+            "title": "Article title",
+            "english": "Simplified English text",
+            "japanese": "Japanese translation"
+        },
+        "vocabulary": [
+            {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"}
+        ]
+    }
+}
+
+Remember:
+1. For ambiguous topics, acknowledge the ambiguity and choose the most common meaning
+2. Follow the workflow steps in EXACT order with EXACT tool names:
+   - search_wikipedia -> input: English topic name
+   - summarize_text -> input: English Wikipedia text  
+   - translate_to_japanese -> input: Simplified English text
+   - extract_vocabulary -> input: Japanese translated text
+3. Never skip steps or go backwards
+4. Never make up data
+5. Always include both "observation" and "thought" fields
+6. Action must be a dictionary with both "name" and "input" fields

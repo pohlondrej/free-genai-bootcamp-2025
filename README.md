@@ -12,3 +12,4 @@
 - [Kana Writing Practice](kana-writing/README.md)
 ## Week 3
 - [OPEA MegaService](opea-megaservice/README.md)
+- [Wikipedia Japanese Vocabulary Builder](wikipedia-topic-explorer/README.md)
