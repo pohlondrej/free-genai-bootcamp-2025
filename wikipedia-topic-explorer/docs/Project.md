@@ -6,8 +6,7 @@ wikipedia-topic-explorer/
 │   ├── search_wikipedia.py   # Wikipedia article search and fetch
 │   ├── summarize_text.py     # Text simplification
 │   ├── translate.py         # Japanese translation
-│   ├── extract_vocab.py      # Vocabulary extraction
-│   └── search_images.py      # DuckDuckGo image search
+│   └── extract_vocab.py      # Vocabulary extraction
 ├── prompts/                  # LLM prompt templates
 │   ├── agent.txt           # Main ReAct agent prompt
 │   ├── simplify.txt         # Text simplification prompt
@@ -23,7 +22,6 @@ wikipedia-topic-explorer/
 - FastAPI for API endpoints
 - Ollama integration with qwen2.5:7b (GPU-accelerated)
 - Wikipedia API for content
-- DuckDuckGo API for images
 
 ### Frontend (Streamlit)
 - Simple web interface
@@ -36,7 +34,6 @@ wikipedia-topic-explorer/
 - `summarize_text`: Simplify English to 9-year-old level
 - `translate`: Convert to N5-level Japanese
 - `extract_vocab`: Generate vocabulary and kanji lists
-- `search_images`: Find relevant topic images
 
 ### Agent Workflow
 1. Observe: Get user topic input
@@ -61,7 +58,6 @@ wikipedia-topic-explorer/
 
 ### External Services
 - Wikipedia API: Article fetching
-- DuckDuckGo API: Image search
 
 ## API Endpoints
 
@@ -100,5 +96,4 @@ wikipedia-topic-explorer/
 1. Set up Ollama with GPU support
 2. Implement FastAPI backend
 3. Create Streamlit frontend
-4. Integrate external APIs
-5. Connect components
+4. Connect components
