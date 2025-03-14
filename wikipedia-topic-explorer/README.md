@@ -2,6 +2,8 @@
 
 This app is a demonstration of AI agentic workflow. It will create short, informative summaries about any given topic in Japanese, along with a vocabulary list of key terms used in the summary.
 
+<img src="docs/image.png" alt="Wikipedia Topic Explorer" height="800"/>
+
 ## Features
 
 - Generate summaries of Wikipedia articles in Japanese
