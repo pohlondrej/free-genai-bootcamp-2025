@@ -26,14 +26,23 @@ class TopicExplorerAgent:
             "translate_to_japanese": translate_to_japanese,
             "extract_vocabulary": extract_vocabulary
         }
-        self.load_prompt()
+        self.load_prompts()
     
-    def load_prompt(self) -> None:
-        """Load the main agent prompt."""
-        prompt_path = os.path.join(os.path.dirname(__file__), 
-                                 'prompts', 'agent.txt')
-        with open(prompt_path, 'r', encoding='utf-8') as f:
+    def load_prompts(self) -> None:
+        """Load all prompt templates."""
+        prompts_dir = os.path.join(os.path.dirname(__file__), 'prompts')
+        
+        # Load base prompt
+        with open(os.path.join(prompts_dir, 'agent.txt'), 'r', encoding='utf-8') as f:
             self.base_prompt = f.read()
+            
+        # Load validation error prompt
+        with open(os.path.join(prompts_dir, 'validation_error.txt'), 'r', encoding='utf-8') as f:
+            self.validation_error_prompt = f.read()
+            
+        # Load tool error prompt
+        with open(os.path.join(prompts_dir, 'tool_error.txt'), 'r', encoding='utf-8') as f:
+            self.tool_error_prompt = f.read()
 
     def extract_json_from_response(self, text: str) -> Dict:
         """Extract the last valid JSON object from text."""
@@ -70,7 +79,7 @@ class TopicExplorerAgent:
         """Call Ollama with the given prompt and parse JSON response."""
         response = requests.post('http://localhost:11434/api/generate',
                                json={
-                                   'model': 'qwen2.5:3b',
+                                   'model': 'qwen2.5:7b',
                                    'prompt': prompt,
                                    'stream': False,
                                    'temperature': 0.1
@@ -142,39 +151,7 @@ class TopicExplorerAgent:
                 except AgentError as validation_error:
                     # Give the agent another chance to fix its response
                     logger.info(f"Response validation failed: {validation_error}. Asking agent to fix it.")
-                    conversation.append(
-                        f"Your last response was invalid: {validation_error}. "
-                        "Please fix your response to match one of these formats:\n"
-                        "\nFormat for next action:\n"
-                        "{\n"
-                        '    "observation": "Your understanding of the current state",\n'
-                        '    "thought": "Your reasoning about what to do next",\n'
-                        '    "action": {\n'
-                        '        "name": "tool_name",\n'
-                        '        "input": "tool_input"\n'
-                        '    }\n'
-                        "}\n"
-                        "\nFormat for final answer (only after completing all workflow steps):\n"
-                        "{\n"
-                        '    "observation": "Your understanding of the current state",\n'
-                        '    "thought": "Your reasoning about why you are done",\n'
-                        '    "final_answer": {\n'
-                        '        "article": {\n'
-                        '            "title": "Article title",\n'
-                        '            "english": "Simplified English text",\n'
-                        '            "japanese": "Japanese translation"\n'
-                        '        },\n'
-                        '        "vocabulary": [\n'
-                        '            {"word": "日本", "reading": "にほん", "romaji": "nihon", "meaning": "Japan"}\n'
-                        '        ]\n'
-                        '    }\n'
-                        "}\n"
-                        "\nRemember to follow the workflow steps in order:\n"
-                        "1. search_wikipedia -> input: English topic name\n"
-                        "2. summarize_text -> input: English Wikipedia text\n"
-                        "3. translate_to_japanese -> input: Simplified English text\n"
-                        "4. extract_vocabulary -> input: Japanese translated text"
-                    )
+                    conversation.append(self.validation_error_prompt.format(error=str(validation_error)))
                     continue
                 
                 # Check for final answer
@@ -188,15 +165,7 @@ class TopicExplorerAgent:
                 if "error" in tool_result:
                     error_msg = f"Tool execution failed: {tool_result['error']}"
                     logger.error(error_msg)
-                    conversation.append(
-                        f"Error: {error_msg}\n"
-                        "Please try again with the correct input:\n"
-                        "- For search_wikipedia: Use English topic name\n"
-                        "- For summarize_text: Use English Wikipedia text\n"
-                        "- For translate_to_japanese: Use simplified English text\n"
-                        "- For extract_vocabulary: Use Japanese translated text (from translate_to_japanese output)\n"
-                        "\nNever skip steps or make up data - if a tool fails, try again with the correct input."
-                    )
+                    conversation.append(self.tool_error_prompt.format(error=error_msg))
                 else:
                     result_str = json.dumps(tool_result["result"], ensure_ascii=False)
                     conversation.append(f"Tool output: {result_str}")

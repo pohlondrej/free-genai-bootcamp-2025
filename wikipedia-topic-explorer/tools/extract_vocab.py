@@ -39,7 +39,7 @@ def extract_vocabulary(text: str) -> List[Dict[str, str]]:
     # Call Ollama API
     response = requests.post('http://localhost:11434/api/generate',
                            json={
-                               'model': 'qwen2.5:3b',
+                               'model': 'qwen2.5:7b',
                                'prompt': full_prompt,
                                'stream': False,
                                'temperature': 0.1  # Low temperature for consistent output

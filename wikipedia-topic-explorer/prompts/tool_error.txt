@@ -1,0 +1,28 @@
+The tool execution failed with error: {error}
+
+When a tool fails, consider these strategies:
+1. For search_wikipedia:
+   - Try a simpler search term (e.g. "crown" instead of "crown (royalty)")
+   - If redirected, use the redirected page title
+   - Make sure to use English terms only
+
+2. For summarize_text:
+   - Make sure you have valid Wikipedia text to summarize
+   - Keep the summary concise but informative
+   - Focus on the most important points
+
+3. For translate_to_japanese:
+   - Ensure the English text is clear and simple
+   - Avoid complex technical terms
+   - Keep sentences short
+
+4. For extract_vocabulary:
+   - Make sure you have Japanese text to extract from
+   - Focus on common, useful words
+   - Include all required fields (word, reading, romaji, meaning)
+
+Remember:
+1. Always include both "observation" and "thought" in your response
+2. Follow the workflow steps in order
+3. Never skip steps or go backwards
+4. Never make up data
