@@ -32,3 +32,33 @@ class DataProcessor:
         print(f"Vocabulary: {vocab_count}")
         
         return filtered
+
+    def transform_kanji(self, kanji: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform a kanji subject into the format needed for SQL generation.
+        
+        Args:
+            kanji: A kanji subject from Wanikani API
+            
+        Returns:
+            Dictionary with only the needed fields in the correct format
+        """
+        # Find primary meaning
+        primary_meaning = next(
+            meaning["meaning"] for meaning in kanji["data"]["meanings"]
+            if meaning["primary"]
+        )
+        
+        # Find primary reading and its type
+        primary_reading = next(
+            reading for reading in kanji["data"]["readings"]
+            if reading["primary"]
+        )
+        
+        return {
+            "id": kanji["id"],
+            "kanji_level": f"WK_{kanji['data']['level']}",
+            "symbol": kanji["data"]["characters"],
+            "meanings": primary_meaning,
+            "primary_reading": primary_reading["reading"],
+            "primary_reading_type": primary_reading["type"]
+        }
