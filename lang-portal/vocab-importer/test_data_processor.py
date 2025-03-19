@@ -1,4 +1,6 @@
 import pytest
+import json
+from textwrap import dedent
 from data_processor import DataProcessor
 
 def test_filter_by_level():
@@ -53,7 +55,8 @@ def test_transform_kanji():
     processor = DataProcessor(user_level=60)  # Level doesn't matter for transformation
     
     # Test kanji with actual Wanikani API response
-    test_kanji = {
+    test_kanji_json = dedent(r"""
+    {
         "id": 440,
         "object": "kanji",
         "url": "https://api.wanikani.com/v2/subjects/440",
@@ -62,51 +65,49 @@ def test_transform_kanji():
             "created_at": "2012-02-27T19:55:19.000000Z",
             "level": 1,
             "slug": "一",
-            "hidden_at": None,  
+            "hidden_at": null,
             "document_url": "https://www.wanikani.com/kanji/%E4%B8%80",
             "characters": "一",
             "meanings": [
                 {
                     "meaning": "One",
-                    "primary": True,
-                    "accepted_answer": True
+                    "primary": true,
+                    "accepted_answer": true
                 }
             ],
             "auxiliary_meanings": [
-            {
-                "meaning": "1",
-                "type": "whitelist"
+                {
+                    "meaning": "1",
+                    "type": "whitelist"
                 }
             ],
             "readings": [
                 {
                     "reading": "いち",
-                    "primary": True,
-                    "accepted_answer": True,
+                    "primary": true,
+                    "accepted_answer": true,
                     "type": "onyomi"
                 },
                 {
                     "reading": "いつ",
-                    "primary": False,
-                    "accepted_answer": True,
+                    "primary": false,
+                    "accepted_answer": true,
                     "type": "onyomi"
                 },
                 {
                     "reading": "ひと",
-                    "primary": False,
-                    "accepted_answer": False,
+                    "primary": false,
+                    "accepted_answer": false,
                     "type": "kunyomi"
                 },
                 {
                     "reading": "かず",
-                    "primary": False,
-                    "accepted_answer": False,
+                    "primary": false,
+                    "accepted_answer": false,
                     "type": "nanori"
                 }
             ],
-            "component_subject_ids": [
-                1
-            ],
+            "component_subject_ids": [1],
             "amalgamation_subject_ids": [
                 2467, 2468, 2477, 2510, 2544, 2588, 2627, 2660, 2665, 2672,
                 2679, 2721, 2730, 2751, 2959, 3048, 3256, 3335, 3348, 3349,
@@ -121,13 +122,14 @@ def test_transform_kanji():
             "meaning_mnemonic": "Lying on the <radical>ground</radical> is something that looks just like the ground, the number <kanji>One</kanji>. Why is this One lying down? It's been shot by the number two. It's lying there, bleeding out and dying. The number One doesn't have long to live.",
             "meaning_hint": "To remember the meaning of <kanji>One</kanji>, imagine yourself there at the scene of the crime. You grab <kanji>One</kanji> in your arms, trying to prop it up, trying to hear its last words. Instead, it just splatters some blood on your face. \"Who did this to you?\" you ask. The number One points weakly, and you see number Two running off into an alleyway. He's always been jealous of number One and knows he can be number one now that he's taken the real number one out.",
             "reading_mnemonic": "As you're sitting there next to <kanji>One</kanji>, holding him up, you start feeling a weird sensation all over your skin. From the wound comes a fine powder (obviously coming from the special bullet used to kill One) that causes the person it touches to get extremely <reading>itchy</reading> (いち).",
-            "reading_mnemonic": "As you're sitting there next to <kanji>One</kanji>, holding him up, you start feeling a weird sensation all over your skin. From the wound comes a fine powder (obviously coming from the special bullet used to kill One) that causes the person it touches to get extremely <reading>itchy</reading> (いち).",
             "reading_hint": "Make sure you feel the ridiculously <reading>itchy</reading> sensation covering your body. It climbs from your hands, where you're holding the number <kanji>One</kanji> up, and then goes through your arms, crawls up your neck, goes down your body, and then covers everything. It becomes uncontrollable, and you're scratching everywhere, writhing on the ground. It's so itchy that it's the most painful thing you've ever experienced (you should imagine this vividly, so you remember the reading of this kanji).",
             "lesson_position": 25,
             "spaced_repetition_system_id": 2
         }
     }
+    """)
     
+    test_kanji = json.loads(test_kanji_json)
     transformed = processor.transform_kanji(test_kanji)
     
     assert transformed["id"] == 440, "Should preserve the original ID"
