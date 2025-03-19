@@ -138,3 +138,66 @@ def test_transform_kanji():
     assert transformed["meanings"] == "One", "Should only include primary meaning"
     assert transformed["primary_reading"] == "いち", "Should use primary reading"
     assert transformed["primary_reading_type"] == "onyomi", "Should preserve reading type"
+
+def test_transform_vocabulary():
+    processor = DataProcessor(user_level=60)  # Level doesn't matter for transformation
+    
+    # Test vocabulary with actual Wanikani API response
+    test_vocab_json = dedent(r"""
+    {
+        "id": 2467,
+        "object": "vocabulary",
+        "url": "https://api.wanikani.com/v2/subjects/2467",
+        "data_updated_at": "2023-06-26T22:54:13.669641Z",
+        "data": {
+            "created_at": "2012-02-28T08:04:47.000000Z",
+            "level": 1,
+            "slug": "一つ",
+            "hidden_at": null,
+            "document_url": "https://www.wanikani.com/vocabulary/一つ",
+            "characters": "一つ",
+            "meanings": [
+                {
+                    "meaning": "One Thing",
+                    "primary": true,
+                    "accepted_answer": true
+                }
+            ],
+            "readings": [
+                {
+                    "reading": "ひとつ",
+                    "primary": true,
+                    "accepted_answer": true
+                }
+            ],
+            "parts_of_speech": [
+                "numeral"
+            ],
+            "component_subject_ids": [
+                440
+            ],
+            "meaning_mnemonic": "This word consists of <kanji>One</kanji> and つ, which is the counter for things. Put them together and you get <vocabulary>One Thing</vocabulary>.",
+            "reading_mnemonic": "When you see the つ after <kanji>One</kanji> you know it's going to be the つ-counter word for one, which is <reading>ひとつ</reading>.",
+            "context_sentences": [
+                {
+                    "en": "Please give me one.",
+                    "ja": "一つください。"
+                },
+                {
+                    "en": "There's one more thing.",
+                    "ja": "もう一つあります。"
+                }
+            ]
+        }
+    }
+    """)
+    
+    test_vocab = json.loads(test_vocab_json)
+    transformed = processor.transform_vocabulary(test_vocab)
+    
+    assert transformed["id"] == 2467, "Should preserve the original ID"
+    assert transformed["word_level"] == "WK_1", "Should format level as WK_1"
+    assert transformed["japanese"] == "一つ", "Should preserve the vocabulary"
+    assert transformed["kana"] == "ひとつ", "Should use primary reading"
+    assert transformed["english"] == "One Thing", "Should use primary meaning"
+    assert transformed["romaji"] == "", "Romaji should be empty for now"

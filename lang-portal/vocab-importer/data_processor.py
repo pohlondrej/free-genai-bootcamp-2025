@@ -62,3 +62,33 @@ class DataProcessor:
             "primary_reading": primary_reading["reading"],
             "primary_reading_type": primary_reading["type"]
         }
+
+    def transform_vocabulary(self, vocabulary: Dict[str, Any]) -> Dict[str, Any]:
+        """Transform a vocabulary subject into the format needed for SQL generation.
+        
+        Args:
+            vocabulary: A vocabulary subject from Wanikani API
+            
+        Returns:
+            Dictionary with only the needed fields in the correct format
+        """
+        # Find primary meaning (english)
+        primary_meaning = next(
+            meaning["meaning"] for meaning in vocabulary["data"]["meanings"]
+            if meaning["primary"]
+        )
+        
+        # Find primary reading (kana)
+        primary_reading = next(
+            reading for reading in vocabulary["data"]["readings"]
+            if reading["primary"]
+        )
+        
+        return {
+            "id": vocabulary["id"],
+            "word_level": f"WK_{vocabulary['data']['level']}",
+            "japanese": vocabulary["data"]["characters"],
+            "kana": primary_reading["reading"],
+            "romaji": "",  # We'll need to implement romaji conversion
+            "english": primary_meaning
+        }
