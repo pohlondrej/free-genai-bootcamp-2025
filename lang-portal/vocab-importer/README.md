@@ -44,12 +44,29 @@ result = import_vocabulary(
     output_dir='/path/to/output'
 )
 
+# Track import progress
+def progress_callback(message: str, percentage: float):
+    print(f"{message} - {percentage:.0f}%")
+
+result = import_vocabulary(
+    api_key='your-api-key-here',
+    progress_callback=progress_callback
+)
+
 # The result contains import statistics
 print(f"Imported {result['kanji_count']} kanji")
 print(f"Imported {result['vocab_count']} vocabulary items")
 print(f"User level: {result['user_level']}")
 print(f"Migration file: {result['output_file']}")
 ```
+
+The importer provides progress updates during the import process:
+- Initial check (0%)
+- User level found (20%)
+- Fetching data from Wanikani (20-80%)
+- Processing data (80%)
+- Generating SQL (90%)
+- Import complete with statistics (100%)
 
 ## Development
 
