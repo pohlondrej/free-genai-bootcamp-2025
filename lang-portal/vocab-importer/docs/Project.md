@@ -1,5 +1,14 @@
 # Project Specification
 
+## Project Structure
+- `main.py` - Main script to run the importer
+- `wanikani_client.py` - Client for Wanikani API
+- `data_processor.py` - Processes and filters the data
+- `sql_generator.py` - Generates SQL migration scripts
+- `test/` - Test files
+  - `test_data_processor.py` - Tests for data processing
+  - `test_sql_generator.py` - Tests for SQL generation
+
 ## Wanikani API
 [API Reference](https://docs.api.wanikani.com/20170710/)
 ### Get All Subjects
