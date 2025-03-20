@@ -5,7 +5,7 @@
 ## Week 1
 - [Lang Portal Backend (Ktor)](lang-portal/backend-ktor/README.md)
 - [Lang Portal Frontend (React)](lang-portal/frontend/README.md)
-- [Vocab Importer](lang-portal/vocab-importer/Readme.md) // work in progress
+- [Vocab Importer](lang-portal/vocab-importer/README.md)
 - [OPEA Comps](opea-comps/Readme.md)
 ## Week 2
 - [Language Learning Assistant](language-learning-assistant/Readme.md)
