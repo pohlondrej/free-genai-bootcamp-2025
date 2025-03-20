@@ -24,13 +24,6 @@ class DataProcessor:
                 and subject["data"]["hidden_at"] is None)
         ]
         
-        # Print summary for debugging
-        kanji_count = sum(1 for s in filtered if s["object"] == "kanji")
-        vocab_count = sum(1 for s in filtered if s["object"] == "vocabulary")
-        print(f"\nFiltered subjects summary (level <= {self.user_level}):")
-        print(f"Kanji: {kanji_count}")
-        print(f"Vocabulary: {vocab_count}")
-        
         return filtered
 
     def transform_kanji(self, kanji: Dict[str, Any]) -> Dict[str, Any]:
