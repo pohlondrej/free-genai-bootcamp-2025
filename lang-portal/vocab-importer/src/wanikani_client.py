@@ -51,7 +51,7 @@ class WanikaniClient:
         total_count = data["total_count"]
         
         # Get total pages from headers
-        total_pages = int(total_count / 1000)
+        total_pages = max(1, int(total_count / 1000))
         current_page = 1
         
         # Report initial progress

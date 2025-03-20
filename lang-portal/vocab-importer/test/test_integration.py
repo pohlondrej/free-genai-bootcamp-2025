@@ -150,18 +150,20 @@ def test_import_vocabulary_progress_reporting(
     # Check some subject updates happened between 20-80%
     subject_updates = [
         update for update in progress_updates 
-        if update[0] == "Fetching kanji and vocabulary..."
+        if update[0] == "Fetching data from Wanikani..."
     ]
     assert len(subject_updates) > 0
     for _, percentage in subject_updates:
         assert 20 <= percentage <= 80
+        assert percentage % 5 == 0  # Should be rounded to nearest 5%
     
-    # Check processing update
-    processing_update = next(
+    # Check processing updates
+    processing_updates = [
         update for update in progress_updates 
         if update[0] == "Processing data..."
-    )
-    assert processing_update[1] == 80
+    ]
+    assert len(processing_updates) > 0
+    assert all(update[1] in [80, 85, 90] for update in processing_updates)
     
     # Check SQL generation
     sql_update = next(

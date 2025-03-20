@@ -29,12 +29,8 @@ def mock_subjects():
     """Mock paginated subjects response."""
     # First page response
     response1 = MagicMock()
-    response1.headers = {
-        'X-Total-Count': '2',
-        'X-Per-Page': '1',
-        'X-Current-Page': '1'
-    }
     response1.json.return_value = {
+        "total_count": 2000,  # Total items, each page has 1000 items
         "data": [{
             "id": 1,
             "object": "kanji",
@@ -53,12 +49,8 @@ def mock_subjects():
     
     # Second page response
     response2 = MagicMock()
-    response2.headers = {
-        'X-Total-Count': '2',
-        'X-Per-Page': '1',
-        'X-Current-Page': '2'
-    }
     response2.json.return_value = {
+        "total_count": 2000,  # Keep same total_count
         "data": [{
             "id": 2467,
             "object": "vocabulary",

@@ -90,8 +90,8 @@ def import_vocabulary(
         elif processed_items == total_items:  # Report at 100%
             report_progress("Processing data...", 90)
     
-    # Generate SQL (95-100%)
-    report_progress("Generating SQL migration...", 95)
+    # Generate SQL (90-100%)
+    report_progress("Generating SQL migration...", 90)
     generator = SQLGenerator()
     output_file = output_path / "migration.sql"
     
