@@ -1,7 +1,7 @@
 import os
-from wanikani_client import WanikaniClient
-from data_processor import DataProcessor
-from sql_generator import SQLGenerator
+from src.wanikani_client import WanikaniClient
+from src.data_processor import DataProcessor
+from src.sql_generator import SQLGenerator
 
 def main():
     # Get API key from environment

@@ -1,7 +1,7 @@
 import pytest
 import json
 from textwrap import dedent
-from data_processor import DataProcessor
+from src.data_processor import DataProcessor
 
 def test_filter_by_level():
     # Sample test data

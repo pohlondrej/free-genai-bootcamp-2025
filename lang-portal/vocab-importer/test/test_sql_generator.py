@@ -1,5 +1,5 @@
 import pytest
-from sql_generator import SQLGenerator
+from src.sql_generator import SQLGenerator
 
 def test_generate_kanji_insert():
     generator = SQLGenerator()
