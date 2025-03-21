@@ -50,12 +50,14 @@ project/
 └── README.md
 ```
 
-Each plugin should have a self-contained backend and frontend, allowing for easy deployment and extensibility.
+- Each plugin should have a self-contained backend and frontend, allowing for easy deployment and extensibility.
+- A "plugin" is essentially a study activity.
 
 ## Technology Stack
 ### Backend
 - Python
 - FastAPI
+- SQLite
 
 ### Frontend
 - Angular
