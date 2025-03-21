@@ -1,7 +1,7 @@
 # Project Specification
 
 ## Business Overview
-// TODO
+The language learning school wants to provide a platform for their students to practice their Japanese language skills. To keep things interesting and engaging, the school wants to use AI/LLM to generate random Japanese sentences and provide feedback on their performance. The school is planning to make the platform public and allow other schools to use it as well, which requires a modular, scalable, and extensible architecture.
 
 ## Design Overview
 Project should follow a modular architecture:
