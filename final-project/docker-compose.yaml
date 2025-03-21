@@ -5,3 +5,22 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+
+  frontend:
+    build:
+      context: ./core/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: ./modules/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
