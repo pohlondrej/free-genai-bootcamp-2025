@@ -98,7 +98,7 @@
     {
       "id": 1,
       "name": "Basic Greetings",
-      "word_count": 20
+      "item_count": 20
     }
   ],
   "pagination": {
@@ -116,11 +116,11 @@
   "id": 1,
   "name": "Basic Greetings",
   "stats": {
-    "total_word_count": 20
+    "total_item_count": 20
   }
 }
 ```
-## GET `/api/groups/:id/words`
+## GET `/api/groups/:id/items`
 - pagination with 100 items per page
 ### JSON Response
 ```json
@@ -128,11 +128,19 @@
   "items": [
     {
       "id": 1,
+      "type": "word",
       "japanese": "こんにちは",
-      "romaji": "konnichiwa",
       "english": "hello",
       "correct_count": 5,
       "wrong_count": 3
+    },
+    {
+      "id": 32,
+      "type": "kanji",
+      "japanese": "大",
+      "english": "big",
+      "correct_count": 2,
+      "wrong_count": 10
     }
   ],
   "pagination": {
@@ -276,7 +284,7 @@
   "review_items_count": 20
 }
 ```
-## GET `/api/study_sessions/:id/words`
+## GET `/api/study_sessions/:id/items`
 - pagination with 100 items per page
 ### JSON Response
 ```json
@@ -284,11 +292,19 @@
   "items": [
     {
       "id": 1,
+      "type": "word",
       "japanese": "こんにちは",
-      "romaji": "konnichiwa",
       "english": "hello",
       "correct_count": 5,
       "wrong_count": 3
+    },
+    {
+      "id": 32,
+      "type": "kanji",
+      "japanese": "大",
+      "english": "big",
+      "correct_count": 2,
+      "wrong_count": 10
     }
   ],
   "pagination": {
@@ -334,26 +350,5 @@
 {
   "success": true,
   "message": "System has been fully reset"
-}
-```
-## POST `/api/study_sessions/:id/words/:word_id/review`
-### Request params:
-- id (study session id) integer
-- word_id integer
-- correct boolean
-### Request Payload
-```json
-{
-  "correct": true
-}
-```
-### JSON Response
-```json
-{
-  "success": true,
-  "word_id": 1,
-  "study_session_id": 23,
-  "correct": true,
-  "created_at": "2022-01-01T00:20:00Z"
 }
 ```
