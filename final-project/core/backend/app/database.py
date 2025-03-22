@@ -3,15 +3,39 @@ from sqlalchemy.orm import sessionmaker
 import os
 import logging
 from pathlib import Path
+from models import Base
+from sqlalchemy import text
 
 logger = logging.getLogger(__name__)
 
-# Database configuration
+# Database configuration - path from docker volume mapping
 DB_DIR = "/app/data/db"
 DB_FILE = "waniduokani.db"
 DB_PATH = os.path.join(DB_DIR, DB_FILE)
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 ASYNC_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
+
+async def run_migrations(db):
+    """Run SQL migration scripts"""
+    try:
+        # Get all .sql files from the database directory in sorted order
+        migrations_dir = os.path.join(os.path.dirname(__file__), "database")
+        migration_files = sorted([f for f in os.listdir(migrations_dir) if f.endswith('.sql')])
+        
+        for migration_file in migration_files:
+            logger.info(f"Running migration: {migration_file}")
+            with open(os.path.join(migrations_dir, migration_file)) as f:
+                sql = f.read()
+                # Split on semicolon to handle multiple statements
+                statements = [s.strip() for s in sql.split(';') if s.strip()]
+                for statement in statements:
+                    if statement:  # Only execute non-empty statements
+                        await db.execute(text(statement))
+        await db.commit()
+        logger.info("Database migrations completed successfully")
+    except Exception as e:
+        logger.error(f"Failed to run migrations: {e}")
+        raise
 
 async def init_db():
     """Initialize database directory and check access"""
@@ -34,6 +58,19 @@ async def init_db():
             ASYNC_DATABASE_URL,
             echo=True  # Set to False in production
         )
+
+        # Run migrations if database file doesn't exist
+        if not os.path.exists(DB_PATH):
+            logger.info("Database file not found, running migrations...")
+            async with AsyncSession(engine) as session:
+                await run_migrations(session)
+                await session.commit()
+        else:
+            # Always run migrations to ensure schema is up to date
+            logger.info("Running migrations to ensure schema is up to date...")
+            async with AsyncSession(engine) as session:
+                await run_migrations(session)
+                await session.commit()
         
         return engine
     except Exception as e:

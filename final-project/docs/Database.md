@@ -33,6 +33,5 @@ There will be the following tables:
     - correct boolean
     - created_at datetime
 - user - user account information
-    - wanikani_api_key string
-    - target_jlpt_level string
-    
+    - key string
+    - value string
