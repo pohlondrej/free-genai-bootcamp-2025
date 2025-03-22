@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import datetime
 
 class PaginationResponse(BaseModel):
@@ -59,12 +59,12 @@ class KanjiListResponse(BaseModel):
     pagination: PaginationResponse
 
 class GroupStats(BaseModel):
-    total_word_count: int
+    total_item_count: int
 
 class GroupInList(BaseModel):
     id: int
     name: str
-    word_count: int
+    item_count: int
 
 class GroupListResponse(BaseModel):
     items: List[GroupInList]
@@ -74,6 +74,18 @@ class GroupDetail(BaseModel):
     id: int
     name: str
     stats: GroupStats
+
+class UnifiedItemBase(BaseModel):
+    id: int
+    type: Literal["word", "kanji"]
+    japanese: str
+    english: str
+    correct_count: int
+    wrong_count: int
+
+class UnifiedItemListResponse(BaseModel):
+    items: List[UnifiedItemBase]
+    pagination: PaginationResponse
 
 class StudySessionBase(BaseModel):
     id: int
@@ -96,8 +108,8 @@ class LastStudySession(BaseModel):
     wrong_count: int
 
 class StudyProgress(BaseModel):
-    total_words_studied: int
-    total_available_words: int
+    total_items_studied: int
+    total_available_items: int
 
 class QuickStats(BaseModel):
     success_rate: float

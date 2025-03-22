@@ -4,7 +4,7 @@ from sqlalchemy import text
 from database import get_db
 from models import User
 import logging
-from routers import words, kanji
+from routers import words, kanji, groups
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +22,7 @@ app = FastAPI(
 # Include routers
 app.include_router(words.router)
 app.include_router(kanji.router)
+app.include_router(groups.router)
 
 @app.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db)):
