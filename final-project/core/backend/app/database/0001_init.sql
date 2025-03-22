@@ -3,16 +3,20 @@
 -- Independent tables first
 CREATE TABLE IF NOT EXISTS words (
     id INTEGER PRIMARY KEY,
+    word_level TEXT NOT NULL,
     japanese TEXT NOT NULL,
-    romaji TEXT NOT NULL,
+    kana TEXT NOT NULL,
+    romaji TEXT,
     english TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS kanji (
     id INTEGER PRIMARY KEY,
-    kanji TEXT NOT NULL,
+    kanji_level TEXT NOT NULL,
+    symbol TEXT NOT NULL,
+    primary_meaning TEXT NOT NULL,
     primary_reading TEXT NOT NULL,
-    primary_meaning TEXT NOT NULL
+    primary_reading_type TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS groups (

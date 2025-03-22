@@ -9,8 +9,9 @@ class PaginationResponse(BaseModel):
     items_per_page: int = 100
 
 class WordBase(BaseModel):
+    word_level: str
+    kana: str
     japanese: str
-    romaji: str
     english: str
 
 class WordStats(BaseModel):
@@ -26,6 +27,7 @@ class WordInList(WordBase, WordStats):
 
 class WordDetail(WordBase):
     id: int
+    romaji: str
     stats: WordStats
     groups: List[GroupBase]
 
@@ -34,7 +36,8 @@ class WordListResponse(BaseModel):
     pagination: PaginationResponse
 
 class KanjiBase(BaseModel):
-    kanji: str
+    symbol: str
+    kanji_level: str
     primary_reading: str
     primary_meaning: str
 

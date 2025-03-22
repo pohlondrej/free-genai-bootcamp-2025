@@ -2,14 +2,18 @@
 There will be the following tables:
 - words - stored vocabulary words
     - id integer
+    - word_level string
     - japanese string
+    - kana string
     - romaji string
     - english string
 - kanji - stored kanji characters
     - id integer
-    - kanji string
-    - primary_reading string
+    - kanji_level string
+    - symbol string
     - primary_meaning string
+    - primary_reading string
+    - primary_reading_type string
 - word_groups - join table for words and groups, many-to-many
     - id integer
     - word_id integer

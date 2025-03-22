@@ -6,7 +6,9 @@
 {
   "items": [
     {
+      "word_level": "N1",
       "japanese": "こんにちは",
+      "kana": "こんにちは",
       "romaji": "konnichiwa",
       "english": "hello",
       "correct_count": 3,
@@ -26,7 +28,9 @@
 ```json
 {
   "id": 1,
+  "word_level": "N1",
   "japanese": "こんにちは",
+  "kana": "こんにちは",
   "romaji": "konnichiwa",
   "english": "hello",
   "stats": {
@@ -47,7 +51,8 @@
 {
   "items": [
     {
-      "kanji": "大",
+      "kanji_level": "N1",
+      "symbol": "大",
       "primary_reading": "たい",
       "primary_meaning": "big",
       "correct_count": 3,
@@ -67,7 +72,8 @@
 ```json
 {
   "id": 1,
-  "kanji": "大",
+  "symbol": "大",
+  "kanji_level": "N1",
   "primary_reading": "たい",
   "primary_reading_type": "onyomi",
   "primary_meaning": "big",

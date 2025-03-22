@@ -9,8 +9,10 @@ class Word(Base):
     __tablename__ = "words"
     
     id = Column(Integer, primary_key=True)
+    word_level = Column(String, nullable=False)
+    kana = Column(String, nullable=False)
     japanese = Column(String, nullable=False)
-    romaji = Column(String, nullable=False)
+    romaji = Column(String)
     english = Column(String, nullable=False)
     groups = relationship("Group", secondary="word_groups", back_populates="words")
     reviews = relationship("WordReviewItem", back_populates="word")
@@ -19,9 +21,11 @@ class Kanji(Base):
     __tablename__ = "kanji"
     
     id = Column(Integer, primary_key=True)
-    kanji = Column(String, nullable=False)
-    primary_reading = Column(String, nullable=False)
+    symbol = Column(String, nullable=False)
+    kanji_level = Column(Integer, nullable=False)
     primary_meaning = Column(String, nullable=False)
+    primary_reading = Column(String, nullable=False)
+    primary_reading_type = Column(String, nullable=False)
 
 class WordGroup(Base):
     __tablename__ = "word_groups"

@@ -34,7 +34,9 @@ async def list_words(
     # Convert to response model
     items = [
         WordInList(
+            word_level=word.word_level,
             japanese=word.japanese,
+            kana=word.kana,
             romaji=word.romaji,
             english=word.english,
             correct_count=correct or 0,
@@ -80,6 +82,8 @@ async def get_word(
     
     return WordDetail(
         id=word.id,
+        word_level=word.word_level,
+        kana=word.kana,
         japanese=word.japanese,
         romaji=word.romaji,
         english=word.english,
