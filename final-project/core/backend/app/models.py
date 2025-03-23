@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func, Table, select
-from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, and_, Text, func
+from sqlalchemy.orm import relationship, foreign
+from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
@@ -15,17 +16,18 @@ class Word(Base):
     kana = Column(String, nullable=False)
     romaji = Column(String)
     english = Column(String, nullable=False)
-
+    
     # Relationships
-    groups: Mapped[List["Group"]] = relationship(
-        "Group",
-        secondary="group_items",
-        primaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
-        secondaryjoin="Group.id == GroupItem.group_id",
-        back_populates="words",
-        overlaps="groups,kanji"
+    reviews = relationship(
+        "ReviewItem",
+        primaryjoin="and_(Word.id == foreign(ReviewItem.item_id), ReviewItem.item_type == 'word')",
+        back_populates="word"
     )
-    reviews: Mapped[List["WordReviewItem"]] = relationship("WordReviewItem", back_populates="word")
+    group_items = relationship(
+        "GroupItem",
+        primaryjoin="and_(Word.id == foreign(GroupItem.item_id), GroupItem.item_type == 'word')",
+        back_populates="word"
+    )
 
 class Kanji(Base):
     __tablename__ = "kanji"
@@ -35,99 +37,101 @@ class Kanji(Base):
     primary_meaning = Column(String, nullable=False)
     primary_reading = Column(String, nullable=False)
     primary_reading_type = Column(String, nullable=False)
-
+    
     # Relationships
-    groups: Mapped[List["Group"]] = relationship(
-        "Group",
-        secondary="group_items",
-        primaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
-        secondaryjoin="Group.id == GroupItem.group_id",
-        back_populates="kanji",
-        overlaps="groups,words"
+    reviews = relationship(
+        "ReviewItem",
+        primaryjoin="and_(Kanji.id == foreign(ReviewItem.item_id), ReviewItem.item_type == 'kanji')",
+        back_populates="kanji"
+    )
+    group_items = relationship(
+        "GroupItem",
+        primaryjoin="and_(Kanji.id == foreign(GroupItem.item_id), GroupItem.item_type == 'kanji')",
+        back_populates="kanji"
     )
 
 class Group(Base):
     __tablename__ = "groups"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-
+    
     # Relationships
-    words: Mapped[List[Word]] = relationship(
-        Word,
-        secondary="group_items",
-        primaryjoin="Group.id == GroupItem.group_id",
-        secondaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
-        back_populates="groups",
-        overlaps="groups,kanji"
-    )
-    kanji: Mapped[List[Kanji]] = relationship(
-        Kanji,
-        secondary="group_items",
-        primaryjoin="Group.id == GroupItem.group_id",
-        secondaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
-        back_populates="groups",
-        overlaps="groups,words"
-    )
-    study_sessions: Mapped[List["StudySession"]] = relationship("StudySession", back_populates="group")
+    items = relationship("GroupItem", back_populates="group")
+    study_sessions = relationship("StudySession", back_populates="group")
 
 class GroupItem(Base):
     __tablename__ = "group_items"
     id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    item_type = Column(String, nullable=False)
     item_id = Column(Integer, nullable=False)
+    item_type = Column(String, nullable=False)  # 'word' or 'kanji'
+    
+    # Relationships
+    group = relationship("Group", back_populates="items")
+    word = relationship(
+        "Word",
+        primaryjoin="and_(GroupItem.item_id == Word.id, GroupItem.item_type == 'word')",
+        foreign_keys=[item_id],
+        back_populates="group_items"
+    )
+    kanji = relationship(
+        "Kanji",
+        primaryjoin="and_(GroupItem.item_id == Kanji.id, GroupItem.item_type == 'kanji')",
+        foreign_keys=[item_id],
+        back_populates="group_items"
+    )
 
 class StudySession(Base):
     __tablename__ = "study_sessions"
     id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    activity_type = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    completed_at = Column(DateTime, nullable=True)
-
+    activity_type = Column(String, nullable=False)  # e.g. 'review', 'learn'
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True))
+    
     # Relationships
     group = relationship("Group", back_populates="study_sessions")
-    word_reviews: Mapped[List["WordReviewItem"]] = relationship("WordReviewItem", back_populates="study_session")
+    review_items = relationship("ReviewItem", back_populates="study_session")
 
-class WordReviewItem(Base):
-    __tablename__ = "word_review_items"
+class ReviewItem(Base):
+    __tablename__ = "review_items"
     id = Column(Integer, primary_key=True)
-    word_id = Column(Integer, ForeignKey("words.id"), nullable=False)
     study_session_id = Column(Integer, ForeignKey("study_sessions.id"), nullable=False)
+    item_id = Column(Integer, nullable=False)
+    item_type = Column(String, nullable=False)  # 'word' or 'kanji'
     correct = Column(Boolean, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
     # Relationships
-    study_session = relationship("StudySession", back_populates="word_reviews")
-    word = relationship("Word", back_populates="reviews")
+    study_session = relationship("StudySession", back_populates="review_items")
+    word = relationship(
+        "Word",
+        primaryjoin="and_(ReviewItem.item_id == Word.id, ReviewItem.item_type == 'word')",
+        foreign_keys=[item_id],
+        back_populates="reviews"
+    )
+    kanji = relationship(
+        "Kanji",
+        primaryjoin="and_(ReviewItem.item_id == Kanji.id, ReviewItem.item_type == 'kanji')",
+        foreign_keys=[item_id],
+        back_populates="reviews"
+    )
 
 class User(Base):
-    """Simple key-value store for user settings and configuration"""
     __tablename__ = "user"
     key = Column(String, primary_key=True)
     value = Column(String)
-    
+
     @classmethod
     async def get_setting(cls, db: AsyncSession, key: str) -> Optional[str]:
-        """Get a setting value by key"""
-        result = await db.execute(
-            select(cls).filter(cls.key == key)
-        )
+        """Get a user setting by key"""
+        result = await db.execute(select(cls).filter(cls.key == key))
         setting = result.scalar()
         return setting.value if setting else None
 
     @classmethod
-    async def set_setting(cls, db: AsyncSession, key: str, value: str) -> None:
-        """Set a setting value by key"""
-        setting = await db.execute(
-            select(cls).filter(cls.key == key)
-        )
-        existing = setting.scalar()
-        
-        if existing:
-            existing.value = value
-        else:
-            new_setting = cls(key=key, value=value)
-            db.add(new_setting)
-        
+    async def set_setting(cls, db: AsyncSession, key: str, value: str):
+        """Set a user setting"""
+        setting = cls(key=key, value=value)
+        db.add(setting)
         await db.commit()

@@ -1,10 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
-from typing import Optional
+from sqlalchemy import select, func, case, and_
 from database import get_db
-from models import Word, WordReviewItem, GroupItem, Group
-from schemas import WordListResponse, WordDetail, PaginationResponse, WordInList, WordStats, GroupBase
+from models import Word, ReviewItem, GroupItem, Group
+from schemas import (
+    WordListResponse,
+    WordDetail,
+    WordCreate,
+    WordInList,
+    WordStats,
+    PaginationResponse,
+    UnifiedItemListResponse,
+    UnifiedItemBase,
+    GroupBase
+)
+from typing import List, Optional
 
 router = APIRouter(prefix="/words", tags=["words"])
 
@@ -15,7 +25,7 @@ async def list_words(
     page: int = 1,
     db: AsyncSession = Depends(get_db)
 ):
-    """Get paginated list of words with their stats"""
+    """Get paginated list of words"""
     # Calculate offset
     offset = (page - 1) * ITEMS_PER_PAGE
     
@@ -24,11 +34,17 @@ async def list_words(
     total_count = result.scalar()
     
     # Get words with their stats
-    query = select(
-        Word,
-        func.count(WordReviewItem.id).filter(WordReviewItem.correct == True).label("correct_count"),
-        func.count(WordReviewItem.id).filter(WordReviewItem.correct == False).label("wrong_count")
-    ).outerjoin(WordReviewItem).group_by(Word.id).offset(offset).limit(ITEMS_PER_PAGE)
+    query = (
+        select(
+            Word,
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
+        )
+        .outerjoin(ReviewItem, and_(ReviewItem.item_id == Word.id, ReviewItem.item_type == 'word'))
+        .group_by(Word.id)
+        .offset(offset)
+        .limit(ITEMS_PER_PAGE)
+    )
     
     result = await db.execute(query)
     words = result.all()
@@ -38,16 +54,17 @@ async def list_words(
         WordInList(
             id=word.id,
             word_level=word.word_level,
-            kana=word.kana,
             japanese=word.japanese,
-            english=word.english,
+            kana=word.kana,
             romaji=word.romaji,
+            english=word.english,
             stats=WordStats(
-                correct_count=correct or 0,
-                wrong_count=wrong or 0
+                total_reviews=total_reviews or 0,
+                correct_reviews=correct_reviews or 0,
+                wrong_reviews=(total_reviews or 0) - (correct_reviews or 0)
             )
         )
-        for word, correct, wrong in words
+        for word, total_reviews, correct_reviews in words
     ]
     
     return WordListResponse(
@@ -61,25 +78,26 @@ async def list_words(
     )
 
 @router.get("/{word_id}", response_model=WordDetail)
-async def get_word(
-    word_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """Get detailed information about a specific word"""
-    # Get word with stats
-    query = select(
-        Word,
-        func.count(WordReviewItem.id).filter(WordReviewItem.correct == True).label("correct_count"),
-        func.count(WordReviewItem.id).filter(WordReviewItem.correct == False).label("wrong_count")
-    ).outerjoin(WordReviewItem).filter(Word.id == word_id).group_by(Word.id)
-    
+async def get_word(word_id: int, db: AsyncSession = Depends(get_db)):
+    """Get details of a specific word"""
+    query = select(Word).filter(Word.id == word_id)
     result = await db.execute(query)
-    word_data = result.first()
+    word = result.scalar()
     
-    if not word_data:
+    if not word:
         raise HTTPException(status_code=404, detail="Word not found")
     
-    word, correct, wrong = word_data
+    # Get review stats
+    stats_query = (
+        select(
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
+        )
+        .select_from(ReviewItem)
+        .filter(ReviewItem.item_id == word_id, ReviewItem.item_type == 'word')
+    )
+    result = await db.execute(stats_query)
+    total_reviews, correct_reviews = result.first()
     
     # Get groups for this word
     query = select(Group).join(GroupItem).filter(
@@ -94,13 +112,14 @@ async def get_word(
     return WordDetail(
         id=word.id,
         word_level=word.word_level,
-        kana=word.kana,
         japanese=word.japanese,
+        kana=word.kana,
         romaji=word.romaji,
         english=word.english,
         stats=WordStats(
-            correct_count=correct or 0,
-            wrong_count=wrong or 0
+            total_reviews=total_reviews or 0,
+            correct_reviews=correct_reviews or 0,
+            wrong_reviews=(total_reviews or 0) - (correct_reviews or 0)
         ),
         groups=[GroupBase(id=g.id, name=g.name) for g in groups]
     )

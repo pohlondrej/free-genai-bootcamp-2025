@@ -1,10 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_
-from typing import Optional
+from sqlalchemy import select, func, case, and_
 from database import get_db
-from models import Kanji, Group, GroupItem
-from schemas import KanjiListResponse, KanjiDetail, PaginationResponse, KanjiInList, KanjiStats, GroupBase
+from models import Kanji, ReviewItem, GroupItem, Group
+from schemas import (
+    KanjiListResponse,
+    KanjiDetail,
+    KanjiCreate,
+    KanjiInList,
+    KanjiStats,
+    PaginationResponse,
+    GroupBase
+)
+from typing import List, Optional
 
 router = APIRouter(prefix="/kanji", tags=["kanji"])
 
@@ -15,7 +23,7 @@ async def list_kanji(
     page: int = 1,
     db: AsyncSession = Depends(get_db)
 ):
-    """Get paginated list of kanji with their stats"""
+    """Get paginated list of kanji"""
     # Calculate offset
     offset = (page - 1) * ITEMS_PER_PAGE
     
@@ -24,28 +32,37 @@ async def list_kanji(
     total_count = result.scalar()
     
     # Get kanji with their stats
-    # Note: In the future, we'll add KanjiReviewItem table for tracking stats
-    query = select(Kanji).offset(offset).limit(ITEMS_PER_PAGE)
+    query = (
+        select(
+            Kanji,
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
+        )
+        .outerjoin(ReviewItem, and_(ReviewItem.item_id == Kanji.id, ReviewItem.item_type == 'kanji'))
+        .group_by(Kanji.id)
+        .offset(offset)
+        .limit(ITEMS_PER_PAGE)
+    )
     
     result = await db.execute(query)
-    kanji_list = result.scalars().all()
+    kanji_list = result.all()
     
     # Convert to response model
-    # Note: Currently returning 0 for stats as we haven't implemented review tracking yet
     items = [
         KanjiInList(
-            id=k.id,
-            symbol=k.symbol,
-            kanji_level=k.kanji_level,
-            primary_reading=k.primary_reading,
-            primary_meaning=k.primary_meaning,
-            primary_reading_type=k.primary_reading_type,
+            id=kanji.id,
+            kanji_level=kanji.kanji_level,
+            symbol=kanji.symbol,
+            primary_meaning=kanji.primary_meaning,
+            primary_reading=kanji.primary_reading,
+            primary_reading_type=kanji.primary_reading_type,
             stats=KanjiStats(
-                correct_count=0,  # To be implemented with review tracking
-                wrong_count=0     # To be implemented with review tracking
+                total_reviews=total_reviews or 0,
+                correct_reviews=correct_reviews or 0,
+                wrong_reviews=(total_reviews or 0) - (correct_reviews or 0)
             )
         )
-        for k in kanji_list
+        for kanji, total_reviews, correct_reviews in kanji_list
     ]
     
     return KanjiListResponse(
@@ -59,18 +76,26 @@ async def list_kanji(
     )
 
 @router.get("/{kanji_id}", response_model=KanjiDetail)
-async def get_kanji(
-    kanji_id: int,
-    db: AsyncSession = Depends(get_db)
-):
-    """Get detailed information about a specific kanji"""
-    # Get kanji
+async def get_kanji(kanji_id: int, db: AsyncSession = Depends(get_db)):
+    """Get details of a specific kanji"""
     query = select(Kanji).filter(Kanji.id == kanji_id)
     result = await db.execute(query)
     kanji = result.scalar()
     
     if not kanji:
         raise HTTPException(status_code=404, detail="Kanji not found")
+    
+    # Get review stats
+    stats_query = (
+        select(
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
+        )
+        .select_from(ReviewItem)
+        .filter(ReviewItem.item_id == kanji_id, ReviewItem.item_type == 'kanji')
+    )
+    result = await db.execute(stats_query)
+    total_reviews, correct_reviews = result.first()
     
     # Get groups for this kanji
     query = select(Group).join(GroupItem).filter(
@@ -84,14 +109,15 @@ async def get_kanji(
     
     return KanjiDetail(
         id=kanji.id,
-        symbol=kanji.symbol,
         kanji_level=kanji.kanji_level,
+        symbol=kanji.symbol,
+        primary_meaning=kanji.primary_meaning,
         primary_reading=kanji.primary_reading,
         primary_reading_type=kanji.primary_reading_type,
-        primary_meaning=kanji.primary_meaning,
         stats=KanjiStats(
-            correct_count=0,  # To be implemented with review tracking
-            wrong_count=0     # To be implemented with review tracking
+            total_reviews=total_reviews or 0,
+            correct_reviews=correct_reviews or 0,
+            wrong_reviews=(total_reviews or 0) - (correct_reviews or 0)
         ),
         groups=[GroupBase(id=g.id, name=g.name) for g in groups]
     )
