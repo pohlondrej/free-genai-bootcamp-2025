@@ -28,7 +28,7 @@ class GroupInList(BaseModel):
     name: str
     word_count: int
     kanji_count: int
-    stats: GroupStats
+    total_items: int
 
     class Config:
         from_attributes = True
@@ -37,8 +37,6 @@ class GroupDetail(BaseModel):
     id: int
     name: str
     stats: GroupStats
-    words: List['WordInList']
-    kanji: List['KanjiInList']
 
     class Config:
         from_attributes = True
