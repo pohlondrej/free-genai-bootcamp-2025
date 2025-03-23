@@ -8,6 +8,8 @@ from schemas import WordListResponse, WordDetail, PaginationResponse, WordInList
 
 router = APIRouter(prefix="/words", tags=["words"])
 
+ITEMS_PER_PAGE = 100
+
 @router.get("", response_model=WordListResponse)
 async def list_words(
     page: int = 1,
@@ -15,7 +17,7 @@ async def list_words(
 ):
     """Get paginated list of words with their stats"""
     # Calculate offset
-    offset = (page - 1) * 100
+    offset = (page - 1) * ITEMS_PER_PAGE
     
     # Get total count
     result = await db.execute(select(func.count()).select_from(Word))
@@ -26,7 +28,7 @@ async def list_words(
         Word,
         func.count(WordReviewItem.id).filter(WordReviewItem.correct == True).label("correct_count"),
         func.count(WordReviewItem.id).filter(WordReviewItem.correct == False).label("wrong_count")
-    ).outerjoin(WordReviewItem).group_by(Word.id).offset(offset).limit(100)
+    ).outerjoin(WordReviewItem).group_by(Word.id).offset(offset).limit(ITEMS_PER_PAGE)
     
     result = await db.execute(query)
     words = result.all()
@@ -39,8 +41,11 @@ async def list_words(
             kana=word.kana,
             japanese=word.japanese,
             english=word.english,
-            correct_count=correct or 0,
-            wrong_count=wrong or 0
+            romaji=word.romaji,
+            stats=WordStats(
+                correct_count=correct or 0,
+                wrong_count=wrong or 0
+            )
         )
         for word, correct, wrong in words
     ]
@@ -49,8 +54,9 @@ async def list_words(
         items=items,
         pagination=PaginationResponse(
             current_page=page,
-            total_pages=(total_count + 99) // 100,
-            total_items=total_count
+            total_pages=(total_count + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE,
+            total_items=total_count,
+            items_per_page=ITEMS_PER_PAGE
         )
     )
 

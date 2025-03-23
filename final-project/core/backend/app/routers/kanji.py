@@ -8,6 +8,8 @@ from schemas import KanjiListResponse, KanjiDetail, PaginationResponse, KanjiInL
 
 router = APIRouter(prefix="/kanji", tags=["kanji"])
 
+ITEMS_PER_PAGE = 100
+
 @router.get("", response_model=KanjiListResponse)
 async def list_kanji(
     page: int = 1,
@@ -15,7 +17,7 @@ async def list_kanji(
 ):
     """Get paginated list of kanji with their stats"""
     # Calculate offset
-    offset = (page - 1) * 100
+    offset = (page - 1) * ITEMS_PER_PAGE
     
     # Get total count
     result = await db.execute(select(func.count()).select_from(Kanji))
@@ -23,7 +25,7 @@ async def list_kanji(
     
     # Get kanji with their stats
     # Note: In the future, we'll add KanjiReviewItem table for tracking stats
-    query = select(Kanji).offset(offset).limit(100)
+    query = select(Kanji).offset(offset).limit(ITEMS_PER_PAGE)
     
     result = await db.execute(query)
     kanji_list = result.scalars().all()
@@ -32,13 +34,16 @@ async def list_kanji(
     # Note: Currently returning 0 for stats as we haven't implemented review tracking yet
     items = [
         KanjiInList(
+            id=k.id,
             symbol=k.symbol,
             kanji_level=k.kanji_level,
             primary_reading=k.primary_reading,
             primary_meaning=k.primary_meaning,
             primary_reading_type=k.primary_reading_type,
-            correct_count=0,  # To be implemented with review tracking
-            wrong_count=0     # To be implemented with review tracking
+            stats=KanjiStats(
+                correct_count=0,  # To be implemented with review tracking
+                wrong_count=0     # To be implemented with review tracking
+            )
         )
         for k in kanji_list
     ]
@@ -47,8 +52,9 @@ async def list_kanji(
         items=items,
         pagination=PaginationResponse(
             current_page=page,
-            total_pages=(total_count + 99) // 100,
-            total_items=total_count
+            total_pages=(total_count + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE,
+            total_items=total_count,
+            items_per_page=ITEMS_PER_PAGE
         )
     )
 

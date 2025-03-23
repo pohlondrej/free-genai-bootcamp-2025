@@ -22,8 +22,10 @@ class Word(Base):
         secondary="group_items",
         primaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
         secondaryjoin="Group.id == GroupItem.group_id",
-        overlaps="words,kanji"
+        back_populates="words",
+        overlaps="groups,kanji"
     )
+    reviews: Mapped[List["WordReviewItem"]] = relationship("WordReviewItem", back_populates="word")
 
 class Kanji(Base):
     __tablename__ = "kanji"
@@ -40,7 +42,8 @@ class Kanji(Base):
         secondary="group_items",
         primaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
         secondaryjoin="Group.id == GroupItem.group_id",
-        overlaps="words,kanji"
+        back_populates="kanji",
+        overlaps="groups,words"
     )
 
 class Group(Base):
@@ -54,14 +57,16 @@ class Group(Base):
         secondary="group_items",
         primaryjoin="Group.id == GroupItem.group_id",
         secondaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
-        overlaps="groups"
+        back_populates="groups",
+        overlaps="groups,kanji"
     )
     kanji: Mapped[List[Kanji]] = relationship(
         Kanji,
         secondary="group_items",
         primaryjoin="Group.id == GroupItem.group_id",
         secondaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
-        overlaps="groups"
+        back_populates="groups",
+        overlaps="groups,words"
     )
     study_sessions: Mapped[List["StudySession"]] = relationship("StudySession", back_populates="group")
 
@@ -94,7 +99,7 @@ class WordReviewItem(Base):
 
     # Relationships
     study_session = relationship("StudySession", back_populates="word_reviews")
-    word = relationship("Word")
+    word = relationship("Word", back_populates="reviews")
 
 class User(Base):
     """Simple key-value store for user settings and configuration"""

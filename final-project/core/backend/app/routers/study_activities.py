@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, case
 from database import get_db
 from models import StudySession, Group, WordReviewItem
 from schemas import (
@@ -18,6 +18,8 @@ router = APIRouter(
     tags=["study_sessions"]
 )
 
+ITEMS_PER_PAGE = 20
+
 @router.get("", response_model=StudySessionListResponse)
 async def list_study_sessions(
     activity_type: Optional[str] = None,
@@ -30,8 +32,8 @@ async def list_study_sessions(
         query = query.filter(StudySession.activity_type == activity_type)
     
     # Add pagination
-    offset = (page - 1) * 20
-    query = query.order_by(StudySession.created_at.desc()).offset(offset).limit(20)
+    offset = (page - 1) * ITEMS_PER_PAGE
+    query = query.order_by(StudySession.created_at.desc()).offset(offset).limit(ITEMS_PER_PAGE)
     
     # Get total count for pagination
     count_query = select(func.count()).select_from(StudySession)
@@ -70,9 +72,9 @@ async def list_study_sessions(
         items=items,
         pagination=PaginationResponse(
             current_page=page,
-            total_pages=(total_count + 19) // 20,  # Ceiling division
+            total_pages=(total_count + ITEMS_PER_PAGE - 1) // ITEMS_PER_PAGE,
             total_items=total_count,
-            items_per_page=20
+            items_per_page=ITEMS_PER_PAGE
         )
     )
 
@@ -94,12 +96,13 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
     review_stats_query = (
         select(
             func.count().label("total"),
-            func.sum(WordReviewItem.correct.cast(func.int)).label("correct")
+            func.sum(case((WordReviewItem.correct == True, 1), else_=0)).label("correct")
         )
         .select_from(WordReviewItem)
         .filter(WordReviewItem.study_session_id == session_id)
     )
-    stats = (await db.execute(review_stats_query)).first()
+    result = await db.execute(review_stats_query)
+    total, correct = result.first()
     
     return StudySessionDetail(
         id=session.id,
@@ -108,8 +111,8 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
         group_name=group.name if group else "Unknown Group",
         start_time=session.created_at,
         end_time=session.completed_at,
-        total_items=stats.total or 0,
-        correct_items=stats.correct or 0
+        total_items=total or 0,
+        correct_items=correct or 0
     )
 
 @router.post("", response_model=dict)
