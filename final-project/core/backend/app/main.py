@@ -36,13 +36,15 @@ async def health_check(db: AsyncSession = Depends(get_db)):
     Health check endpoint that verifies API and database availability
     """
     try:
-        # Test database connection with a simple model query
+        # Test database connection with a simple query
         await db.execute(text("SELECT COUNT(*) FROM user"))
         
         # Test configuration store
         test_key = "health_check"
-        await User.set_setting(db, test_key, "ok")
-        value = await User.get_setting(db, test_key)
+        await db.execute(text("INSERT OR REPLACE INTO user (key, value) VALUES (:key, :value)"), 
+                        {"key": test_key, "value": "ok"})
+        result = await db.execute(text("SELECT value FROM user WHERE key = :key"), {"key": test_key})
+        value = result.scalar()
         await db.execute(text("DELETE FROM user WHERE key = :key"), {"key": test_key})
         await db.commit()
         
@@ -52,7 +54,7 @@ async def health_check(db: AsyncSession = Depends(get_db)):
             "config_store": "working" if value == "ok" else "error"
         }
     except Exception as e:
-        logger.error(f"Health check failed: {e}")
+        logger.error(f"Health check failed: {str(e)}")
         return {
             "status": "unhealthy",
             "database": "disconnected",
