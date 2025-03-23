@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
-from database import get_db
+from database import get_db, init_db
 from models import User
 import logging
 from routers import words, kanji, groups
@@ -18,6 +18,11 @@ app = FastAPI(
     openapi_url="/openapi.json",
     root_path="/api"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize database on startup"""
+    await init_db()
 
 # Include routers
 app.include_router(words.router)

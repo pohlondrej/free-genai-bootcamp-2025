@@ -15,6 +15,9 @@ DB_PATH = os.path.join(DB_DIR, DB_FILE)
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 ASYNC_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"
 
+# Module level engine instance
+engine = None
+
 async def run_migrations(db):
     """Run SQL migration scripts"""
     try:
@@ -38,7 +41,9 @@ async def run_migrations(db):
         raise
 
 async def init_db():
-    """Initialize database directory and check access"""
+    """Initialize database directory and check access. Should only be called once on startup."""
+    global engine
+    
     try:
         # Ensure database directory exists
         Path(DB_DIR).mkdir(parents=True, exist_ok=True)
@@ -53,21 +58,14 @@ async def init_db():
             logger.error(f"Database directory {DB_DIR} is not writable: {e}")
             raise
 
-        # Initialize engine
-        engine = create_async_engine(
-            ASYNC_DATABASE_URL,
-            echo=True  # Set to False in production
-        )
+        # Initialize engine if not already created
+        if engine is None:
+            engine = create_async_engine(
+                ASYNC_DATABASE_URL,
+                echo=True  # Set to False in production
+            )
 
-        # Run migrations if database file doesn't exist
-        if not os.path.exists(DB_PATH):
-            logger.info("Database file not found, running migrations...")
-            async with AsyncSession(engine) as session:
-                await run_migrations(session)
-                await session.commit()
-        else:
-            # Always run migrations to ensure schema is up to date
-            logger.info("Running migrations to ensure schema is up to date...")
+            # Run migrations if database file doesn't exist or to ensure schema is up to date
             async with AsyncSession(engine) as session:
                 await run_migrations(session)
                 await session.commit()
@@ -77,10 +75,17 @@ async def init_db():
         logger.error(f"Failed to initialize database: {e}")
         raise
 
+async def get_engine():
+    """Get the SQLAlchemy engine instance, initializing it if necessary"""
+    global engine
+    if engine is None:
+        engine = await init_db()
+    return engine
+
 async def get_db():
     """Get database session"""
     try:
-        engine = await init_db()
+        engine = await get_engine()
         async_session = sessionmaker(
             engine, 
             class_=AsyncSession, 
