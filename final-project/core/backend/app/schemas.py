@@ -139,22 +139,18 @@ class UnifiedItemListResponse(BaseModel):
 
 # Study session schemas
 class StudySessionBase(BaseModel):
-    group_id: int
+    id: int
     activity_type: str
+    group_name: Optional[str] = None
+    created_at: datetime
+    completed_at: Optional[datetime] = None
+    review_items_count: Optional[int] = None
 
 class StudySessionCreate(StudySessionBase):
     pass
 
-class StudySessionInList(BaseModel):
-    id: int
-    activity_type: str
-    group_name: str
-    start_time: datetime
-    end_time: Optional[datetime]
-    review_items_count: int
-
-    class Config:
-        from_attributes = True
+class StudySessionInList(StudySessionBase):
+    pass
 
 class ReviewItemBase(BaseModel):
     id: int
@@ -171,15 +167,8 @@ class ReviewItem(ReviewItemBase):
     class Config:
         from_attributes = True
 
-class StudySessionDetail(BaseModel):
-    id: int
-    activity_type: str
-    group_name: str
-    start_time: datetime
-    end_time: Optional[datetime]
-    total_items: int
-    correct_items: int
-    wrong_items: int
+class StudySessionDetail(StudySessionBase):
+    group_id: int
     review_items: List[ReviewItem]
 
     class Config:

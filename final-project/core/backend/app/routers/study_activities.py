@@ -56,8 +56,8 @@ async def list_study_sessions(
             id=session.id,
             activity_type=session.activity_type,
             group_name=group_name,
-            start_time=session.start_time,
-            end_time=session.end_time,
+            created_at=session.created_at,
+            completed_at=session.completed_at,
             review_items_count=review_items_count or 0
         )
         for session, group_name, review_items_count in sessions
@@ -104,11 +104,7 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
     review_items_data = result.all()
     
     review_items = []
-    correct_count = 0
     for review_item, word, kanji in review_items_data:
-        if review_item.correct:
-            correct_count += 1
-        
         word_data = None
         if word:
             word_data = WordBase(
@@ -144,16 +140,13 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
             )
         )
     
-    total_items = len(review_items)
     return StudySessionDetail(
         id=session.id,
         activity_type=session.activity_type,
         group_name=group_name,
-        start_time=session.start_time,
-        end_time=session.end_time,
-        total_items=total_items,
-        correct_items=correct_count,
-        wrong_items=total_items - correct_count,
+        group_id=session.group_id,
+        created_at=session.created_at,
+        completed_at=session.completed_at,
         review_items=review_items
     )
 
@@ -174,8 +167,7 @@ async def create_study_session(
     # Create new session
     new_session = StudySession(
         group_id=session_data.group_id,
-        activity_type=session_data.activity_type,
-        start_time=datetime.utcnow()
+        activity_type=session_data.activity_type
     )
     
     db.add(new_session)
@@ -186,10 +178,8 @@ async def create_study_session(
         id=new_session.id,
         activity_type=new_session.activity_type,
         group_name=group.name,
-        start_time=new_session.start_time,
-        end_time=new_session.end_time,
-        total_items=0,
-        correct_items=0,
-        wrong_items=0,
+        group_id=new_session.group_id,
+        created_at=new_session.created_at,
+        completed_at=new_session.completed_at,
         review_items=[]
     )

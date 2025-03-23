@@ -1,14 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case, and_, union, literal_column
-from typing import Optional, List, Union
+from sqlalchemy import select, func, case, and_, literal
 from database import get_db
 from models import Group, Word, Kanji, GroupItem, ReviewItem, StudySession
 from schemas import (
-    GroupListResponse, GroupDetail, GroupInList, 
-    PaginationResponse, GroupStats, UnifiedItemListResponse,
-    UnifiedItemBase, WordInList, KanjiInList, WordStats, KanjiStats
+    GroupListResponse,
+    GroupDetail,
+    GroupCreate,
+    GroupInList,
+    GroupStats,
+    PaginationResponse,
+    WordInList,
+    KanjiInList,
+    WordStats,
+    KanjiStats,
+    UnifiedItemBase,
+    UnifiedItemListResponse
 )
+from typing import List, Optional
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
@@ -185,27 +194,26 @@ async def list_group_items(
     page: int = 1,
     db: AsyncSession = Depends(get_db)
 ):
-    """Get paginated list of all items (words and kanji) in a group with their review stats"""
-    # Get total count
-    count_query = (
-        select(func.count())
-        .select_from(GroupItem)
-        .filter(GroupItem.group_id == group_id)
-    )
-    total_count = (await db.execute(count_query)).scalar()
+    """Get paginated list of items (words and kanji) in a group"""
+    # Check if group exists
+    result = await db.execute(select(func.count()).select_from(GroupItem).filter(GroupItem.group_id == group_id))
+    total_count = result.scalar()
+    
+    if total_count == 0:
+        raise HTTPException(status_code=404, detail="Group not found or empty")
     
     # Calculate offset
     offset = (page - 1) * ITEMS_PER_PAGE
     
-    # Get word stats
-    word_query = (
+    # Get unified list of words and kanji with their stats
+    words_query = (
         select(
             Word.id,
-            literal_column("'word'").label("type"),
-            Word.japanese.label("japanese"),
-            Word.english.label("english"),
-            func.count(ReviewItem.id).label("total_count"),
-            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_count")
+            Word.word_level.label("level"),
+            Word.japanese.label("name"),
+            literal('word').label("item_type"),
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
         )
         .join(GroupItem, and_(GroupItem.item_id == Word.id, GroupItem.item_type == 'word'))
         .outerjoin(ReviewItem, and_(ReviewItem.item_id == Word.id, ReviewItem.item_type == 'word'))
@@ -213,15 +221,14 @@ async def list_group_items(
         .group_by(Word.id)
     )
     
-    # Get kanji stats
     kanji_query = (
         select(
             Kanji.id,
-            literal_column("'kanji'").label("type"),
-            Kanji.symbol.label("japanese"),
-            Kanji.primary_meaning.label("english"),
-            func.count(ReviewItem.id).label("total_count"),
-            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_count")
+            Kanji.kanji_level.label("level"),
+            Kanji.symbol.label("name"),
+            literal('kanji').label("item_type"),
+            func.count(ReviewItem.id).label("total_reviews"),
+            func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
         )
         .join(GroupItem, and_(GroupItem.item_id == Kanji.id, GroupItem.item_type == 'kanji'))
         .outerjoin(ReviewItem, and_(ReviewItem.item_id == Kanji.id, ReviewItem.item_type == 'kanji'))
@@ -229,27 +236,23 @@ async def list_group_items(
         .group_by(Kanji.id)
     )
     
-    # Combine queries with union and add pagination
-    query = (
-        word_query.union(kanji_query)
-        .offset(offset)
-        .limit(ITEMS_PER_PAGE)
-    )
-    
-    result = await db.execute(query)
-    items = result.all()
+    # Combine queries with UNION
+    unified_query = words_query.union(kanji_query).offset(offset).limit(ITEMS_PER_PAGE)
+    result = await db.execute(unified_query)
+    items_data = result.all()
     
     # Convert to response model
     unified_items = [
         UnifiedItemBase(
             id=item.id,
-            type=item.type,
-            japanese=item.japanese,
-            english=item.english,
-            correct_count=item.correct_count or 0,
-            wrong_count=(item.total_count or 0) - (item.correct_count or 0)
+            item_type=item.item_type,
+            name=item.name,
+            level=item.level,
+            total_reviews=item.total_reviews or 0,
+            correct_reviews=item.correct_reviews or 0,
+            wrong_reviews=(item.total_reviews or 0) - (item.correct_reviews or 0)
         )
-        for item in items
+        for item in items_data
     ]
     
     return UnifiedItemListResponse(
