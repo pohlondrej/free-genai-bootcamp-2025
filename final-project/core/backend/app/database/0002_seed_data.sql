@@ -1,28 +1,33 @@
 -- migrations/0002_seed_data.sql
 
--- Insert sample words
-INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
-('N5', 'こんにちは', 'こんにちは', 'Konnichiwa', 'Hello'),
-('N5', '私', 'わたし', 'Watashi', 'I'),
-('N5', 'さようなら', 'さようなら', 'Sayounara', 'Goodbye');
+-- Insert or update sample words
+INSERT OR REPLACE INTO words (id, word_level, japanese, kana, romaji, english) VALUES
+(1, 'N5', 'こんにちは', 'こんにちは', 'Konnichiwa', 'Hello'),
+(2, 'N5', '私', 'わたし', 'Watashi', 'I'),
+(3, 'N5', 'さようなら', 'さようなら', 'Sayounara', 'Goodbye');
 
--- Insert sample kanji
-INSERT INTO kanji (kanji_level, symbol, primary_meaning, primary_reading, primary_reading_type) VALUES
-('N5', '大', 'Big', 'たい', 'onyomi'),
-('N3', '菜', 'Vegetable', 'さい', 'onyomi');
+-- Insert or update sample kanji
+INSERT OR REPLACE INTO kanji (id, kanji_level, symbol, primary_meaning, primary_reading, primary_reading_type) VALUES
+(1, 'N5', '大', 'Big', 'たい', 'onyomi'),
+(2, 'N3', '菜', 'Vegetable', 'さい', 'onyomi');
 
--- Insert sample groups
-INSERT INTO groups (name) VALUES
-('Basic Greetings'),      -- id 1
-('JLPT N5 Essential'),    -- id 2
-('Common Kanji'),         -- id 3
-('Daily Vocabulary');     -- id 4
+-- Insert or update sample groups
+INSERT OR REPLACE INTO groups (id, name) VALUES
+(1, 'Basic Greetings'),
+(2, 'JLPT N5 Essential'),
+(3, 'Common Kanji'),
+(4, 'Daily Vocabulary');
 
--- Link words to groups
-INSERT INTO word_groups (word_id, group_id) VALUES
-(1, 1),  -- こんにちは -> Basic Greetings
-(1, 2),  -- こんにちは -> JLPT N5 Essential
-(2, 2),  -- 私 -> JLPT N5 Essential
-(2, 4),  -- 私 -> Daily Vocabulary
-(3, 1),  -- さようなら -> Basic Greetings
-(3, 2);  -- さようなら -> JLPT N5 Essential
+-- Link items to groups (using INSERT OR IGNORE since we have a UNIQUE constraint)
+INSERT OR IGNORE INTO group_items (group_id, item_type, item_id) VALUES
+-- Words in groups
+(1, 'word', 1),  -- こんにちは -> Basic Greetings
+(2, 'word', 1),  -- こんにちは -> JLPT N5 Essential
+(2, 'word', 2),  -- 私 -> JLPT N5 Essential
+(4, 'word', 2),  -- 私 -> Daily Vocabulary
+(1, 'word', 3),  -- さようなら -> Basic Greetings
+(2, 'word', 3),  -- さようなら -> JLPT N5 Essential
+-- Kanji in groups
+(2, 'kanji', 1), -- 大 -> JLPT N5 Essential
+(3, 'kanji', 1), -- 大 -> Common Kanji
+(3, 'kanji', 2); -- 菜 -> Common Kanji

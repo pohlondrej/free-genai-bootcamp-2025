@@ -14,9 +14,10 @@ There will be the following tables:
     - primary_meaning string
     - primary_reading string
     - primary_reading_type string
-- word_groups - join table for words and groups, many-to-many
+- group_items - join table for words and groups, many-to-many
     - id integer
-    - word_id integer
+    - item_id integer
+    - item_type string
     - group_id integer
 - groups - thematic groups of words
     - id integer

@@ -1,6 +1,7 @@
 from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, text
 from sqlalchemy.orm import relationship, DeclarativeBase
 from sqlalchemy.sql import func
+from typing import List
 
 class Base(DeclarativeBase):
     pass
@@ -14,7 +15,10 @@ class Word(Base):
     japanese = Column(String, nullable=False)
     romaji = Column(String)
     english = Column(String, nullable=False)
-    groups = relationship("Group", secondary="word_groups", back_populates="words")
+    groups = relationship("Group", secondary="group_items", 
+                        primaryjoin="and_(Word.id==group_items.c.item_id, "
+                                  "group_items.c.item_type=='word')",
+                        back_populates="words")
     reviews = relationship("WordReviewItem", back_populates="word")
 
 class Kanji(Base):
@@ -22,24 +26,36 @@ class Kanji(Base):
     
     id = Column(Integer, primary_key=True)
     symbol = Column(String, nullable=False)
-    kanji_level = Column(Integer, nullable=False)
+    kanji_level = Column(String, nullable=False)
     primary_meaning = Column(String, nullable=False)
     primary_reading = Column(String, nullable=False)
     primary_reading_type = Column(String, nullable=False)
+    groups = relationship("Group", secondary="group_items",
+                        primaryjoin="and_(Kanji.id==group_items.c.item_id, "
+                                  "group_items.c.item_type=='kanji')",
+                        back_populates="kanji")
 
-class WordGroup(Base):
-    __tablename__ = "word_groups"
+class GroupItem(Base):
+    __tablename__ = "group_items"
     
     id = Column(Integer, primary_key=True)
-    word_id = Column(Integer, ForeignKey("words.id"), nullable=False)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
+    item_type = Column(String, nullable=False)
+    item_id = Column(Integer, nullable=False)
 
 class Group(Base):
     __tablename__ = "groups"
     
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    words = relationship("Word", secondary="word_groups", back_populates="groups")
+    words = relationship("Word", secondary="group_items",
+                      secondaryjoin="and_(Group.id==group_items.c.group_id, "
+                                  "group_items.c.item_type=='word')",
+                      back_populates="groups")
+    kanji = relationship("Kanji", secondary="group_items",
+                      secondaryjoin="and_(Group.id==group_items.c.group_id, "
+                                  "group_items.c.item_type=='kanji')",
+                      back_populates="groups")
     study_sessions = relationship("StudySession", back_populates="group")
     study_activities = relationship("StudyActivity", back_populates="group")
 

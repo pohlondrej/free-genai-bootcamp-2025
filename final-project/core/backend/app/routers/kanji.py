@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from typing import Optional
 from database import get_db
-from models import Kanji, Group
+from models import Kanji, Group, GroupItem
 from schemas import KanjiListResponse, KanjiDetail, PaginationResponse, KanjiInList, KanjiStats, GroupBase
 
 router = APIRouter(prefix="/kanji", tags=["kanji"])
@@ -35,8 +35,8 @@ async def list_kanji(
             symbol=k.symbol,
             kanji_level=k.kanji_level,
             primary_reading=k.primary_reading,
-            primary_reading_type=k.primary_reading_type,
             primary_meaning=k.primary_meaning,
+            primary_reading_type=k.primary_reading_type,
             correct_count=0,  # To be implemented with review tracking
             wrong_count=0     # To be implemented with review tracking
         )
@@ -47,7 +47,7 @@ async def list_kanji(
         items=items,
         pagination=PaginationResponse(
             current_page=page,
-            total_pages=(total_count + 99) // 100,  # ceiling division
+            total_pages=(total_count + 99) // 100,
             total_items=total_count
         )
     )
@@ -66,10 +66,15 @@ async def get_kanji(
     if not kanji:
         raise HTTPException(status_code=404, detail="Kanji not found")
     
-    # Note: In the future, we'll add:
-    # 1. KanjiReviewItem table for tracking stats
-    # 2. KanjiGroup table for managing kanji groups
-    # For now, returning empty stats and groups
+    # Get groups for this kanji
+    query = select(Group).join(GroupItem).filter(
+        and_(
+            GroupItem.item_id == kanji_id,
+            GroupItem.item_type == 'kanji'
+        )
+    )
+    result = await db.execute(query)
+    groups = result.scalars().all()
     
     return KanjiDetail(
         id=kanji.id,
@@ -82,5 +87,5 @@ async def get_kanji(
             correct_count=0,  # To be implemented with review tracking
             wrong_count=0     # To be implemented with review tracking
         ),
-        groups=[]  # To be implemented with KanjiGroup table
+        groups=[GroupBase(id=g.id, name=g.name) for g in groups]
     )

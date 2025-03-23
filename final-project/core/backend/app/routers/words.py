@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select, func, and_
 from typing import Optional
 from database import get_db
-from models import Word, WordReviewItem, WordGroup, Group
+from models import Word, WordReviewItem, GroupItem, Group
 from schemas import WordListResponse, WordDetail, PaginationResponse, WordInList, WordStats, GroupBase
 
 router = APIRouter(prefix="/words", tags=["words"])
@@ -21,7 +21,7 @@ async def list_words(
     result = await db.execute(select(func.count()).select_from(Word))
     total_count = result.scalar()
     
-    # Get words with their review stats
+    # Get words with their stats
     query = select(
         Word,
         func.count(WordReviewItem.id).filter(WordReviewItem.correct == True).label("correct_count"),
@@ -34,10 +34,10 @@ async def list_words(
     # Convert to response model
     items = [
         WordInList(
+            id=word.id,
             word_level=word.word_level,
-            japanese=word.japanese,
             kana=word.kana,
-            romaji=word.romaji,
+            japanese=word.japanese,
             english=word.english,
             correct_count=correct or 0,
             wrong_count=wrong or 0
@@ -49,7 +49,7 @@ async def list_words(
         items=items,
         pagination=PaginationResponse(
             current_page=page,
-            total_pages=(total_count + 99) // 100,  # ceiling division
+            total_pages=(total_count + 99) // 100,
             total_items=total_count
         )
     )
@@ -60,7 +60,7 @@ async def get_word(
     db: AsyncSession = Depends(get_db)
 ):
     """Get detailed information about a specific word"""
-    # Get word with its review stats and groups
+    # Get word with stats
     query = select(
         Word,
         func.count(WordReviewItem.id).filter(WordReviewItem.correct == True).label("correct_count"),
@@ -76,7 +76,12 @@ async def get_word(
     word, correct, wrong = word_data
     
     # Get groups for this word
-    query = select(Group).join(WordGroup).filter(WordGroup.word_id == word_id)
+    query = select(Group).join(GroupItem).filter(
+        and_(
+            GroupItem.item_id == word_id,
+            GroupItem.item_type == 'word'
+        )
+    )
     result = await db.execute(query)
     groups = result.scalars().all()
     
