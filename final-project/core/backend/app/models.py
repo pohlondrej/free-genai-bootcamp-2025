@@ -1,7 +1,9 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, func, Text
-from sqlalchemy.orm import relationship, declarative_base
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean, func, Table, select
+from sqlalchemy.orm import relationship, Mapped
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import Optional
+from datetime import datetime
+from typing import List, Optional
 
 Base = declarative_base()
 
@@ -13,16 +15,15 @@ class Word(Base):
     kana = Column(String, nullable=False)
     romaji = Column(String)
     english = Column(String, nullable=False)
-    
+
     # Relationships
-    groups = relationship(
+    groups: Mapped[List["Group"]] = relationship(
         "Group",
         secondary="group_items",
         primaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
-        back_populates="words",
-        overlaps="groups,kanji"
+        secondaryjoin="Group.id == GroupItem.group_id",
+        overlaps="words,kanji"
     )
-    reviews = relationship("WordReviewItem", back_populates="word")
 
 class Kanji(Base):
     __tablename__ = "kanji"
@@ -32,69 +33,56 @@ class Kanji(Base):
     primary_meaning = Column(String, nullable=False)
     primary_reading = Column(String, nullable=False)
     primary_reading_type = Column(String, nullable=False)
-    
+
     # Relationships
-    groups = relationship(
+    groups: Mapped[List["Group"]] = relationship(
         "Group",
         secondary="group_items",
         primaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
-        back_populates="kanji",
-        overlaps="groups,words"
+        secondaryjoin="Group.id == GroupItem.group_id",
+        overlaps="words,kanji"
     )
 
 class Group(Base):
     __tablename__ = "groups"
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    
-    # Relationships with proper overlaps parameters
-    words = relationship(
-        "Word",
+
+    # Relationships
+    words: Mapped[List[Word]] = relationship(
+        Word,
         secondary="group_items",
-        primaryjoin="and_(Group.id == GroupItem.group_id, GroupItem.item_type == 'word')",
-        secondaryjoin="Word.id == GroupItem.item_id",
-        back_populates="groups",
-        overlaps="kanji,groups"
+        primaryjoin="Group.id == GroupItem.group_id",
+        secondaryjoin="and_(Word.id == GroupItem.item_id, GroupItem.item_type == 'word')",
+        overlaps="groups"
     )
-    kanji = relationship(
-        "Kanji",
+    kanji: Mapped[List[Kanji]] = relationship(
+        Kanji,
         secondary="group_items",
-        primaryjoin="and_(Group.id == GroupItem.group_id, GroupItem.item_type == 'kanji')",
-        secondaryjoin="Kanji.id == GroupItem.item_id",
-        back_populates="groups",
-        overlaps="words,groups"
+        primaryjoin="Group.id == GroupItem.group_id",
+        secondaryjoin="and_(Kanji.id == GroupItem.item_id, GroupItem.item_type == 'kanji')",
+        overlaps="groups"
     )
-    study_sessions = relationship("StudySession", back_populates="group")
-    study_activities = relationship("StudyActivity", back_populates="group")
+    study_sessions: Mapped[List["StudySession"]] = relationship("StudySession", back_populates="group")
 
 class GroupItem(Base):
     __tablename__ = "group_items"
     id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    item_type = Column(String, nullable=False)  # 'word' or 'kanji'
+    item_type = Column(String, nullable=False)
     item_id = Column(Integer, nullable=False)
 
 class StudySession(Base):
     __tablename__ = "study_sessions"
     id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
-    
+    activity_type = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    completed_at = Column(DateTime, nullable=True)
+
     # Relationships
     group = relationship("Group", back_populates="study_sessions")
-    activities = relationship("StudyActivity", back_populates="study_session")
-    word_reviews = relationship("WordReviewItem", back_populates="study_session")
-
-class StudyActivity(Base):
-    __tablename__ = "study_activities"
-    id = Column(Integer, primary_key=True)
-    study_session_id = Column(Integer, ForeignKey("study_sessions.id"), nullable=False)
-    group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
-    
-    # Relationships
-    study_session = relationship("StudySession", back_populates="activities")
-    group = relationship("Group", back_populates="study_activities")
+    word_reviews: Mapped[List["WordReviewItem"]] = relationship("WordReviewItem", back_populates="study_session")
 
 class WordReviewItem(Base):
     __tablename__ = "word_review_items"
@@ -102,31 +90,39 @@ class WordReviewItem(Base):
     word_id = Column(Integer, ForeignKey("words.id"), nullable=False)
     study_session_id = Column(Integer, ForeignKey("study_sessions.id"), nullable=False)
     correct = Column(Boolean, nullable=False)
-    created_at = Column(DateTime, server_default=func.now())
-    
+    created_at = Column(DateTime, default=datetime.utcnow)
+
     # Relationships
-    word = relationship("Word", back_populates="reviews")
     study_session = relationship("StudySession", back_populates="word_reviews")
+    word = relationship("Word")
 
 class User(Base):
     """Simple key-value store for user settings and configuration"""
     __tablename__ = "user"
     key = Column(String, primary_key=True)
-    value = Column(Text)
+    value = Column(String)
     
     @classmethod
     async def get_setting(cls, db: AsyncSession, key: str) -> Optional[str]:
         """Get a setting value by key"""
-        result = await db.get(cls, key)
-        return result.value if result else None
-    
+        result = await db.execute(
+            select(cls).filter(cls.key == key)
+        )
+        setting = result.scalar()
+        return setting.value if setting else None
+
     @classmethod
-    async def set_setting(cls, db: AsyncSession, key: str, value: str):
-        """Set a setting value"""
-        setting = await db.get(cls, key)
-        if setting:
-            setting.value = value
+    async def set_setting(cls, db: AsyncSession, key: str, value: str) -> None:
+        """Set a setting value by key"""
+        setting = await db.execute(
+            select(cls).filter(cls.key == key)
+        )
+        existing = setting.scalar()
+        
+        if existing:
+            existing.value = value
         else:
-            setting = cls(key=key, value=value)
-            db.add(setting)
+            new_setting = cls(key=key, value=value)
+            db.add(new_setting)
+        
         await db.commit()

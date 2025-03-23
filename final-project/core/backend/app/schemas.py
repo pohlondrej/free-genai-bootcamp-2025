@@ -1,118 +1,181 @@
 from pydantic import BaseModel
-from typing import List, Optional, Literal
 from datetime import datetime
+from typing import List, Optional
 
 class PaginationResponse(BaseModel):
     current_page: int
     total_pages: int
     total_items: int
-    items_per_page: int = 100
+    items_per_page: int
+
+# Word schemas
+class WordStats(BaseModel):
+    correct_count: int = 0
+    wrong_count: int = 0
 
 class WordBase(BaseModel):
-    word_level: str
-    kana: str
     japanese: str
+    kana: str
+    romaji: Optional[str] = None
     english: str
+    word_level: str
 
-class WordStats(BaseModel):
-    correct_count: int
-    wrong_count: int
-
-class GroupBase(BaseModel):
-    id: int
-    name: str
-
-class WordInList(WordBase, WordStats):
+class WordCreate(WordBase):
     pass
+
+class WordInList(WordBase):
+    id: int
+    stats: Optional[WordStats] = None
+
+    class Config:
+        from_attributes = True
 
 class WordDetail(WordBase):
     id: int
-    romaji: str
     stats: WordStats
-    groups: List[GroupBase]
+    groups: List["GroupBase"]
+
+    class Config:
+        from_attributes = True
 
 class WordListResponse(BaseModel):
     items: List[WordInList]
     pagination: PaginationResponse
 
+# Kanji schemas
+class KanjiStats(BaseModel):
+    correct_count: int = 0
+    wrong_count: int = 0
+
 class KanjiBase(BaseModel):
     symbol: str
-    kanji_level: str
-    primary_reading: str
     primary_meaning: str
+    primary_reading: str
+    primary_reading_type: str
+    kanji_level: str
 
-class KanjiStats(BaseModel):
-    correct_count: int
-    wrong_count: int
-
-class KanjiInList(KanjiBase, KanjiStats):
+class KanjiCreate(KanjiBase):
     pass
+
+class KanjiInList(KanjiBase):
+    id: int
+    stats: Optional[KanjiStats] = None
+
+    class Config:
+        from_attributes = True
 
 class KanjiDetail(KanjiBase):
     id: int
-    primary_reading_type: str
     stats: KanjiStats
-    groups: List[GroupBase]
+    groups: List["GroupBase"]
+
+    class Config:
+        from_attributes = True
 
 class KanjiListResponse(BaseModel):
     items: List[KanjiInList]
     pagination: PaginationResponse
 
-class GroupStats(BaseModel):
-    total_item_count: int
-
-class GroupInList(BaseModel):
-    id: int
-    name: str
-    item_count: int
-
-class GroupListResponse(BaseModel):
-    items: List[GroupInList]
-    pagination: PaginationResponse
-
-class GroupDetail(BaseModel):
-    id: int
-    name: str
-    stats: GroupStats
-
+# Unified item schemas for group items
 class UnifiedItemBase(BaseModel):
     id: int
-    type: Literal["word", "kanji"]
-    japanese: str
-    english: str
-    correct_count: int
-    wrong_count: int
+    type: str  # 'word' or 'kanji'
+    japanese: str  # word.japanese or kanji.symbol
+    english: str   # word.english or kanji.primary_meaning
+    correct_count: int = 0
+    wrong_count: int = 0
+
+    class Config:
+        from_attributes = True
 
 class UnifiedItemListResponse(BaseModel):
     items: List[UnifiedItemBase]
     pagination: PaginationResponse
 
-class StudySessionBase(BaseModel):
-    id: int
-    activity_name: str
-    group_name: str
-    start_time: datetime
-    end_time: datetime
-    review_items_count: int
+# Group schemas
+class GroupStats(BaseModel):
+    total_items: int = 0
+    word_count: int = 0
+    kanji_count: int = 0
+    completed_sessions: int = 0
+    active_sessions: int = 0
 
-class StudySessionListResponse(BaseModel):
-    items: List[StudySessionBase]
+class GroupBase(BaseModel):
+    name: str
+
+class GroupCreate(GroupBase):
+    pass
+
+class GroupInList(GroupBase):
+    id: int
+    word_count: int = 0
+    kanji_count: int = 0
+    stats: Optional[GroupStats] = None
+
+    class Config:
+        from_attributes = True
+
+class GroupDetail(GroupBase):
+    id: int
+    words: List[WordInList]
+    kanji: List[KanjiInList]
+    stats: GroupStats
+
+    class Config:
+        from_attributes = True
+
+class GroupListResponse(BaseModel):
+    items: List[GroupInList]
     pagination: PaginationResponse
 
-class LastStudySession(BaseModel):
-    id: int
+# Study session schemas
+class StudySessionBase(BaseModel):
     group_id: int
-    activity_name: str
+    activity_type: str
+
+class StudySessionCreate(StudySessionBase):
+    pass
+
+class StudySessionInList(BaseModel):
+    id: int
+    activity_type: str
+    group_name: str
+    start_time: datetime
+    end_time: Optional[datetime]
+    review_items_count: int
+
+    class Config:
+        from_attributes = True
+
+class StudySessionDetail(BaseModel):
+    id: int
+    activity_type: str
+    group_id: int
+    group_name: str
+    start_time: datetime
+    end_time: Optional[datetime]
+    total_items: int
+    correct_items: int
+
+    class Config:
+        from_attributes = True
+
+class StudySessionListResponse(BaseModel):
+    items: List[StudySessionInList]
+    pagination: PaginationResponse
+
+# Review item schemas
+class WordReviewItemBase(BaseModel):
+    word_id: int
+    study_session_id: int
+    correct: bool
+
+class WordReviewItemCreate(WordReviewItemBase):
+    pass
+
+class WordReviewItemInList(WordReviewItemBase):
+    id: int
     created_at: datetime
-    correct_count: int
-    wrong_count: int
 
-class StudyProgress(BaseModel):
-    total_items_studied: int
-    total_available_items: int
-
-class QuickStats(BaseModel):
-    success_rate: float
-    total_study_sessions: int
-    total_active_groups: int
-    study_streak_days: int
+    class Config:
+        from_attributes = True

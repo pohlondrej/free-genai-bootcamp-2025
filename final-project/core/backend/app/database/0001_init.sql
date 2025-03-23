@@ -44,16 +44,9 @@ CREATE TABLE IF NOT EXISTS group_items (
 CREATE TABLE IF NOT EXISTS study_sessions (
     id INTEGER PRIMARY KEY,
     group_id INTEGER NOT NULL,
+    activity_type TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES groups (id)
-);
-
-CREATE TABLE IF NOT EXISTS study_activities (
-    id INTEGER PRIMARY KEY,
-    study_session_id INTEGER NOT NULL,
-    group_id INTEGER NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (study_session_id) REFERENCES study_sessions (id),
+    completed_at TIMESTAMP,
     FOREIGN KEY (group_id) REFERENCES groups (id)
 );
 
@@ -71,3 +64,5 @@ CREATE TABLE IF NOT EXISTS word_review_items (
 CREATE INDEX IF NOT EXISTS idx_group_items_lookup ON group_items(item_type, item_id);
 CREATE INDEX IF NOT EXISTS idx_word_reviews_word ON word_review_items(word_id);
 CREATE INDEX IF NOT EXISTS idx_word_reviews_session ON word_review_items(study_session_id);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_group ON study_sessions(group_id);
+CREATE INDEX IF NOT EXISTS idx_study_sessions_activity ON study_sessions(activity_type);

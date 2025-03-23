@@ -22,16 +22,12 @@ There will be the following tables:
 - groups - thematic groups of words
     - id integer
     - name string
-- study_sessions - records of study sessions grouping word_review_items
+- study_sessions - records of study sessions, mapping group to an an activity_type (e.g., "vocab_quiz", "kanji_practice")
     - id integer
     - group_id integer
+    - activity_type string
     - created_at datetime
-    - study_activity_id integer
-- study_activities - a specific study activity, linking a study session to group
-    - id integer
-    - study_session_id integer
-    - group_id integer
-    - created_at datetime
+    - completed_at datetime
 - word_review_items - a record of word practice, determining if the word was correct or not
     - word_id integer
     - study_session_id integer
