@@ -8,7 +8,7 @@ from schemas import (
     StudySessionDetail,
     StudySessionCreate,
     StudySessionInList,
-    ReviewItem as ReviewItemSchema,
+    ReviewItemInSession,
     PaginationResponse,
     WordBase,
     KanjiBase
@@ -58,7 +58,7 @@ async def list_study_sessions(
             group_name=group_name,
             created_at=session.created_at,
             completed_at=session.completed_at,
-            review_items_count=review_items_count or 0
+            review_items_count=review_items_count if review_items_count else 0
         )
         for session, group_name, review_items_count in sessions
     ]
@@ -105,9 +105,9 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
     
     review_items = []
     for review_item, word, kanji in review_items_data:
-        word_data = None
+        item_data = None
         if word:
-            word_data = WordBase(
+            item_data = WordBase(
                 id=word.id,
                 word_level=word.word_level,
                 japanese=word.japanese,
@@ -115,10 +115,8 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
                 romaji=word.romaji,
                 english=word.english
             )
-        
-        kanji_data = None
-        if kanji:
-            kanji_data = KanjiBase(
+        elif kanji:
+            item_data = KanjiBase(
                 id=kanji.id,
                 kanji_level=kanji.kanji_level,
                 symbol=kanji.symbol,
@@ -127,18 +125,16 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
                 primary_reading_type=kanji.primary_reading_type
             )
         
-        review_items.append(
-            ReviewItemSchema(
-                id=review_item.id,
-                item_type=review_item.item_type,
-                item_id=review_item.item_id,
-                study_session_id=review_item.study_session_id,
-                correct=review_item.correct,
-                created_at=review_item.created_at,
-                word=word_data,
-                kanji=kanji_data
+        if item_data:
+            review_items.append(
+                ReviewItemInSession(
+                    id=review_item.id,
+                    item_type=review_item.item_type,
+                    correct=review_item.correct,
+                    created_at=review_item.created_at,
+                    item=item_data
+                )
             )
-        )
     
     return StudySessionDetail(
         id=session.id,
@@ -147,6 +143,7 @@ async def get_study_session(session_id: int, db: AsyncSession = Depends(get_db))
         group_id=session.group_id,
         created_at=session.created_at,
         completed_at=session.completed_at,
+        review_items_count=len(review_items),
         review_items=review_items
     )
 
@@ -181,5 +178,6 @@ async def create_study_session(
         group_id=new_session.group_id,
         created_at=new_session.created_at,
         completed_at=new_session.completed_at,
+        review_items_count=0,
         review_items=[]
     )

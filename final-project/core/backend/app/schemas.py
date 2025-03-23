@@ -142,7 +142,7 @@ class StudySessionBase(BaseModel):
     group_name: Optional[str] = None
     created_at: datetime
     completed_at: Optional[datetime] = None
-    review_items_count: Optional[int] = None
+    review_items_count: int
 
     class Config:
         from_attributes = True
@@ -169,9 +169,19 @@ class ReviewItem(ReviewItemBase):
     class Config:
         from_attributes = True
 
+class ReviewItemInSession(BaseModel):
+    id: int
+    item_type: str  # 'word' or 'kanji'
+    correct: bool
+    created_at: datetime
+    item: Union[WordBase, KanjiBase]
+
+    class Config:
+        from_attributes = True
+
 class StudySessionDetail(StudySessionBase):
     group_id: int
-    review_items: List[ReviewItem]
+    review_items: List[ReviewItemInSession]
 
     class Config:
         from_attributes = True
