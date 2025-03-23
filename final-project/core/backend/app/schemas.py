@@ -146,8 +146,12 @@ class StudySessionBase(BaseModel):
     completed_at: Optional[datetime] = None
     review_items_count: Optional[int] = None
 
-class StudySessionCreate(StudySessionBase):
-    pass
+    class Config:
+        from_attributes = True
+
+class StudySessionCreate(BaseModel):
+    group_id: int
+    activity_type: str
 
 class StudySessionInList(StudySessionBase):
     pass
