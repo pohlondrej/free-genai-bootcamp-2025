@@ -1,0 +1,148 @@
+.kanji-detail-page {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+
+  .back-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 1rem;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}
+
+.kanji-detail {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.kanji-main {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+
+  .character {
+    font-size: 6rem;
+    color: var(--text-color);
+    font-family: "Noto Sans JP", sans-serif;
+  }
+
+  .info {
+    flex: 1;
+
+    .meaning {
+      font-size: 2rem;
+      margin: 0 0 1rem;
+      color: var(--text-color);
+    }
+
+    .reading {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+    }
+
+    .level {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: var(--primary-color);
+      color: white;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+  }
+}
+
+.stats {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+
+  h2 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    color: var(--text-color);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+
+    .stat {
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface-color-alt);
+      border-radius: 8px;
+
+      .label {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+      }
+
+      .value {
+        font-size: 1.5rem;
+        font-weight: 500;
+        color: var(--text-color);
+
+        &.correct {
+          color: #28a745;
+        }
+
+        &.wrong {
+          color: #dc3545;
+        }
+      }
+    }
+  }
+}
+
+.groups {
+  h2 {
+    font-size: 1.5rem;
+    margin: 0 0 1rem;
+    color: var(--text-color);
+  }
+
+  .group-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    .group {
+      padding: 0.5rem 1rem;
+      background: var(--surface-color-alt);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+  }
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-muted);
+}
+
+.error {
+  color: #dc3545;
+}

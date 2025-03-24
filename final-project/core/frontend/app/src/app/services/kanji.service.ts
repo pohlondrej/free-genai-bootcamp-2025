@@ -8,6 +8,11 @@ export interface KanjiStats {
   wrong_reviews: number;
 }
 
+export interface KanjiGroup {
+  id: number;
+  name: string;
+}
+
 export interface Kanji {
   id: number;
   kanji_level: string;
@@ -16,6 +21,7 @@ export interface Kanji {
   primary_reading: string;
   primary_reading_type: 'on' | 'kun';
   stats: KanjiStats;
+  groups?: KanjiGroup[];
 }
 
 export interface PaginationInfo {
@@ -45,6 +51,12 @@ export class KanjiService {
     
     return firstValueFrom(
       this.http.get<KanjiListResponse>(`${this.apiUrl}/kanji?${params}`)
+    );
+  }
+
+  async getKanjiById(id: number): Promise<Kanji> {
+    return firstValueFrom(
+      this.http.get<Kanji>(`${this.apiUrl}/kanji/${id}`)
     );
   }
 }

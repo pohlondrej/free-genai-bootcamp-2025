@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { KanjiService, Kanji } from '../../services/kanji.service';
 
 @Component({
   selector: 'app-kanji',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="kanji-page">
       <header class="page-header">
@@ -13,7 +14,9 @@ import { KanjiService, Kanji } from '../../services/kanji.service';
       </header>
 
       <div class="kanji-grid" *ngIf="!loading && !error">
-        <div class="kanji-card" *ngFor="let kanji of kanjiList">
+        <div class="kanji-card" 
+          *ngFor="let kanji of kanjiList"
+          [routerLink]="['/kanji', kanji.id]">
           <div class="character">{{ kanji.symbol }}</div>
           <div class="details">
             <div class="meaning">{{ kanji.primary_meaning }}</div>

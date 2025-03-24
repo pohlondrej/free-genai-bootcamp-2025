@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { KanjiDetailComponent } from './components/kanji/kanji-detail.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent },
@@ -10,6 +11,10 @@ export const routes: Routes = [
   { 
     path: 'kanji',
     loadComponent: () => import('./components/kanji/kanji.component').then(m => m.KanjiComponent)
+  },
+  { 
+    path: 'kanji/:id',
+    loadComponent: () => import('./components/kanji/kanji-detail.component').then(m => m.KanjiDetailComponent)
   },
   { 
     path: 'groups',
