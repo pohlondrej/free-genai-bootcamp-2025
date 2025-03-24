@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding-top: 60px; /* Added padding-top to account for fixed navigation */
+}
+
+.content {
+  padding: 5rem 2rem 2rem;
+  max-width: 1200px; /* Added max-width */
+  margin: 0 auto; /* Centered content */
+}
+
+.status-container {
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.status-healthy {
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+.status-error {
+  color: #e74c3c;
+  font-weight: bold;
+}

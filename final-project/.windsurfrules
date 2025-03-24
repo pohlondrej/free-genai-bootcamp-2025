@@ -13,5 +13,6 @@
 - Do not use more than 3 turns per user prompt.
 - If I repeatedly don't understand a given concept, break it down into simpler terms, as if you were explaining it to a child.
 - When working with Python, do not use specific versions of packages in requirements.txt.
-- When working with Python, always use Python 3.10
-- When creating YAML files, always give them a .yaml extension
+- When working with Python, always use Python 3.10.
+- When creating YAML files, always give them a .yaml extension.
+- When working with Angular, always leverage SCSS.
