@@ -20,6 +20,26 @@ nav {
     }
   }
 
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+
+    .bar {
+      width: 100%;
+      height: 3px;
+      background-color: #333;
+      transition: all 0.3s ease-in-out;
+    }
+  }
+
   .nav-links {
     display: flex;
     gap: 2rem;
@@ -47,13 +67,51 @@ nav {
   }
 }
 
-// Responsive design
 @media (max-width: 768px) {
   nav {
-    padding: 1rem;
+    .menu-toggle {
+      display: flex;
+
+      &[aria-expanded="true"] {
+        .bar:nth-child(1) {
+          transform: translateY(9px) rotate(45deg);
+        }
+        .bar:nth-child(2) {
+          opacity: 0;
+        }
+        .bar:nth-child(3) {
+          transform: translateY(-9px) rotate(-45deg);
+        }
+      }
+    }
 
     .nav-links {
-      gap: 1rem;
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 5rem 2rem 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      &.open {
+        display: flex;
+      }
+
+      li {
+        a {
+          display: block;
+          padding: 1rem;
+          border-radius: 0;
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+        }
+      }
     }
   }
 }
