@@ -9,6 +9,10 @@ export const routes: Routes = [
     loadComponent: () => import('./components/vocabulary/vocabulary.component').then(m => m.VocabularyComponent)
   },
   { 
+    path: 'vocabulary/:id',
+    loadComponent: () => import('./components/vocabulary/vocabulary-detail.component').then(m => m.VocabularyDetailComponent)
+  },
+  { 
     path: 'kanji',
     loadComponent: () => import('./components/kanji/kanji.component').then(m => m.KanjiComponent)
   },
