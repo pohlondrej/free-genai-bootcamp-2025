@@ -5,6 +5,7 @@ from database import get_db, init_db
 from models import User
 import logging
 from routers import words, kanji, groups, study_activities
+from onboarding import create_router, SettingsStore
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -29,6 +30,10 @@ app.include_router(words.router)
 app.include_router(kanji.router)
 app.include_router(groups.router)
 app.include_router(study_activities.router)
+
+# Initialize onboarding module
+onboarding_router = create_router(get_db, User)
+app.include_router(onboarding_router)
 
 @app.get("/health")
 async def health_check(db: AsyncSession = Depends(get_db)):
