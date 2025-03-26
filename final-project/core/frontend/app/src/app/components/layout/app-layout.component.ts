@@ -13,11 +13,6 @@ import { NavigationComponent } from '../navigation/navigation.component';
       <router-outlet></router-outlet>
     </main>
   `,
-  styles: [`
-    .content {
-      margin-left: 250px;
-      padding: 20px;
-    }
-  `]
+  styleUrls: ['./app-layout.component.scss']
 })
 export class AppLayoutComponent {}
