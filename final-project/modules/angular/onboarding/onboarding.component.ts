@@ -4,14 +4,19 @@ import { OnboardingService } from './onboarding.service';
 
 @Component({
   selector: 'app-onboarding',
-  template: '<router-outlet></router-outlet>',
+  template: `
+    <div class="onboarding-container">
+      <router-outlet></router-outlet>
+    </div>
+  `,
+  styleUrls: ['./onboarding.component.scss'],
   standalone: true,
   imports: [RouterOutlet]
 })
 export class OnboardingComponent implements OnInit {
   constructor(
-    private onboardingService: OnboardingService,
-    private router: Router
+    private router: Router,
+    private onboardingService: OnboardingService
   ) { }
 
   ngOnInit(): void {
