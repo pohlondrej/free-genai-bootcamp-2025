@@ -13,8 +13,11 @@ services:
 
   frontend:
     build:
-      context: ./core/frontend
-      dockerfile: Dockerfile
+      args:
+        APP_DIR: /core/frontend/app
+        MODULES_DIR: /modules/angular
+      context: .
+      dockerfile: core/frontend/Dockerfile
     ports:
       - "4200:4200"
     depends_on:

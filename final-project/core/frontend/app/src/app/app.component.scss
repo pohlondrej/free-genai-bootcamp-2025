@@ -10,6 +10,13 @@
   margin: 0 auto; /* Centered content */
 }
 
+main {
+  &.content {
+    margin-left: 250px; // Width of the navigation sidebar
+    padding: 2rem;
+  }
+}
+
 .status-container {
   background: #f8f9fa;
   padding: 1rem;

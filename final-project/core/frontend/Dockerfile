@@ -1,12 +1,16 @@
 # Build stage
 FROM node:18
 
+ARG APP_DIR
+ARG MODULES_DIR
+
 WORKDIR /app
 
-COPY app/package*.json ./
+COPY $APP_DIR/package*.json ./
 RUN npm install
 
-COPY app/ .
+COPY $APP_DIR/ .
+COPY $MODULES_DIR/ ./src/app/
 
 EXPOSE 4200
 

@@ -1,0 +1,41 @@
+<div class="wizard-container">
+  <div class="wizard-content">
+    <h2>Connect to WaniKani</h2>
+    <p>To get started, we need your WaniKani API key. You can find this in your WaniKani account settings.</p>
+
+    <form (ngSubmit)="onSubmit()" #form="ngForm">
+      <div class="form-group">
+        <label for="apiKey">WaniKani API Key</label>
+        <input
+          type="text"
+          id="apiKey"
+          name="apiKey"
+          [(ngModel)]="apiKey"
+          [disabled]="isSubmitting"
+          required
+          placeholder="Enter your API key"
+        >
+      </div>
+
+      <div class="error" *ngIf="error">{{ error }}</div>
+
+      <div class="actions">
+        <button
+          type="button"
+          [routerLink]="['/onboarding']"
+          [disabled]="isSubmitting"
+        >
+          Back
+        </button>
+        
+        <button
+          type="submit"
+          [disabled]="isSubmitting || !apiKey"
+        >
+          <span *ngIf="!isSubmitting">Connect</span>
+          <span *ngIf="isSubmitting">Connecting...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
