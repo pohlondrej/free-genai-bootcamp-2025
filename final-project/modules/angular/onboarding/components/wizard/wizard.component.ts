@@ -1,14 +1,16 @@
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 import { OnboardingService } from '../../onboarding.service';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-wizard',
   templateUrl: './wizard.component.html',
   styleUrls: ['./wizard.component.scss'],
   standalone: true,
-  imports: [FormsModule]
+  imports: [FormsModule, CommonModule, RouterModule]
 })
 export class WizardComponent {
   apiKey = '';
@@ -30,10 +32,18 @@ export class WizardComponent {
     this.error = '';
 
     try {
-      await this.onboardingService.initialize({ api_key: this.apiKey }).toPromise();
-      this.router.navigate(['/']);
-    } catch (err) {
-      this.error = 'Failed to initialize with the provided API key';
+      const initResult = await firstValueFrom(
+        this.onboardingService.initialize({ api_key: this.apiKey })
+      );
+      
+      if (initResult.is_initialized) {
+        await this.router.navigate(['/dashboard']);
+      } else {
+        this.error = initResult.message || 'Failed to initialize with the provided API key';
+      }
+    } catch (err: any) {
+      console.error('Initialization error:', err);
+      this.error = err.error?.detail || err.message || 'Failed to initialize with the provided API key';
     } finally {
       this.isSubmitting = false;
     }

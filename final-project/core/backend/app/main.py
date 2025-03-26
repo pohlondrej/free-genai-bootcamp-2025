@@ -6,6 +6,7 @@ from models import User
 import logging
 from routers import words, kanji, groups, study_activities
 from onboarding import create_router, SettingsStore
+from fastapi.middleware.cors import CORSMiddleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +19,15 @@ app = FastAPI(
     docs_url="/docs",
     openapi_url="/openapi.json",
     root_path="/api"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.on_event("startup")

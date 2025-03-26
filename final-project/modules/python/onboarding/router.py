@@ -11,6 +11,7 @@ class InitializeRequest(BaseModel):
 class OnboardingResponse(BaseModel):
     success: bool
     message: Optional[str] = None
+    is_initialized: bool = False
 
 def create_router(
     get_db,
@@ -28,6 +29,7 @@ def create_router(
         is_initialized = await settings_store.get_setting(db, "is_initialized")
         return OnboardingResponse(
             success=True,
+            is_initialized=is_initialized == "true",
             message="initialized" if is_initialized == "true" else "not_initialized"
         )
 
@@ -58,6 +60,7 @@ def create_router(
             
             return OnboardingResponse(
                 success=True,
+                is_initialized=True,
                 message="Application initialized successfully"
             )
         except Exception as e:

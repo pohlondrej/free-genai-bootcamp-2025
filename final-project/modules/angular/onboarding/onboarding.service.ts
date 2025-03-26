@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@env/environment';
 
 export interface OnboardingStatus {
   is_initialized: boolean;
+  message?: string;
 }
 
 export interface OnboardingConfig {
