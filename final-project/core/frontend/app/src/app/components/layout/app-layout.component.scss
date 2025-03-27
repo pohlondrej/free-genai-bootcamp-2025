@@ -14,7 +14,6 @@
   margin: 0 auto;
   
   @media (min-width: 768px) {
-    margin-left: 250px;
     padding: 1.5rem;
     max-width: min(calc(100vw - 250px - 3rem), 1200px); // Responsive max-width
   }
