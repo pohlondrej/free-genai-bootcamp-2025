@@ -19,6 +19,7 @@ export class WizardComponent implements OnDestroy {
   error = '';
   progress = 0;
   progressMessage = '';
+  isImportComplete = false;
   private progressSubscription?: Subscription;
 
   constructor(
@@ -48,6 +49,12 @@ export class WizardComponent implements OnDestroy {
       next: (progress) => {
         this.progress = progress.percentage;
         this.progressMessage = progress.message;
+        if (progress.percentage === 100) {
+          setTimeout(() => {
+            this.isImportComplete = true;
+            this.isSubmitting = false;
+          }, 1000);
+        }
       },
       error: (err) => {
         console.error('WebSocket error:', err);
@@ -60,17 +67,17 @@ export class WizardComponent implements OnDestroy {
         this.onboardingService.initialize({ api_key: this.apiKey })
       );
 
-      if (result.is_initialized) {
-        await this.router.navigate(['/']);
-      } else {
+      if (!result.is_initialized) {
         this.error = result.message || 'Failed to initialize application';
+        this.isSubmitting = false;
       }
     } catch (err: any) {
       this.error = err.error?.detail || 'Failed to initialize application';
-    } finally {
       this.isSubmitting = false;
-      this.progressSubscription?.unsubscribe();
-      this.webSocketService.disconnect();
     }
+  }
+
+  goToApp(): void {
+    this.router.navigate(['/']);
   }
 }

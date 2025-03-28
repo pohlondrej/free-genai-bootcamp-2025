@@ -1,49 +1,69 @@
 <div class="wizard-container">
   <div class="wizard-content">
-    <h2>Connect to WaniKani</h2>
-    <p>To get started, we need your WaniKani API key. You can find this in your WaniKani account settings.</p>
+    <!-- API Key Input Step -->
+    <div *ngIf="!isImportComplete">
+      <h2>Connect to WaniKani</h2>
+      <p>To get started, we need your WaniKani API key. You can find this in your WaniKani account settings.</p>
 
-    <form (ngSubmit)="onSubmit()" #form="ngForm">
-      <div class="form-group">
-        <label for="apiKey">WaniKani API Key</label>
-        <input
-          type="text"
-          id="apiKey"
-          name="apiKey"
-          [(ngModel)]="apiKey"
-          [disabled]="isSubmitting"
-          required
-          placeholder="Enter your API key"
-        >
-      </div>
-
-      <div class="error" *ngIf="error">{{ error }}</div>
-
-      <!-- Progress indicator -->
-      <div class="progress-container" *ngIf="isSubmitting">
-        <div class="progress-bar">
-          <div class="progress-fill" [style.width.%]="progress"></div>
+      <form (ngSubmit)="onSubmit()" #form="ngForm">
+        <div class="form-group">
+          <label for="apiKey">WaniKani API Key</label>
+          <input
+            type="text"
+            id="apiKey"
+            name="apiKey"
+            [(ngModel)]="apiKey"
+            [disabled]="isSubmitting"
+            required
+            placeholder="Enter your API key"
+          >
         </div>
-        <div class="progress-text">{{ progressMessage }}</div>
-      </div>
 
+        <div class="error" *ngIf="error">{{ error }}</div>
+
+        <!-- Progress indicator -->
+        <div class="progress-container" *ngIf="isSubmitting">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+          </div>
+          <div class="progress-text">{{ progressMessage }}</div>
+        </div>
+
+        <div class="button-group">
+          <button
+            type="button"
+            [routerLink]="['/onboarding']"
+            [disabled]="isSubmitting"
+          >
+            Back
+          </button>
+          
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting || !apiKey"
+          >
+            {{ isSubmitting ? 'Importing...' : 'Connect' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success Step -->
+    <div *ngIf="isImportComplete" class="success-step">
+      <div class="success-icon">✓</div>
+      <h2>Your App is Ready!</h2>
+      <p>Your WaniKani data has been successfully imported.</p>
+      <p>You can now start using WaniDuoKani to enhance your Japanese learning journey!</p>
+      
       <div class="button-group">
         <button
-          type="button"
-          [routerLink]="['/onboarding']"
-          [disabled]="isSubmitting"
-        >
-          Back
-        </button>
-        
-        <button
-          type="submit"
           class="submit-button"
-          [disabled]="isSubmitting || !apiKey"
+          (click)="goToApp()"
         >
-          {{ isSubmitting ? 'Importing...' : 'Connect' }}
+          Start Using WaniDuoKani
         </button>
       </div>
-    </form>
+    </div>
   </div>
 </div>
