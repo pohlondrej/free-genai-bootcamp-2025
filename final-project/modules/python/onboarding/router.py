@@ -1,12 +1,19 @@
 """Onboarding router for handling application initialization."""
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, WebSocket, WebSocketDisconnect
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import BaseModel
-from typing import Optional, Type
+from typing import Optional, Type, Tuple
 from .dependencies import SettingsStore, WanikaniImporter
+from .websockets import manager
 import os
 from pathlib import Path
 from database import run_migrations
+import asyncio
+from functools import partial
+from queue import Queue
+
+# Sentinel value to signal end of progress updates
+PROGRESS_END = (None, None)
 
 class InitializeRequest(BaseModel):
     api_key: str
@@ -27,6 +34,17 @@ def create_router(
         tags=["onboarding"]
     )
 
+    @router.websocket("/progress")
+    async def progress_endpoint(websocket: WebSocket):
+        """WebSocket endpoint for progress updates."""
+        await manager.connect(websocket)
+        try:
+            # Just keep the connection alive
+            while True:
+                await websocket.receive_text()
+        except WebSocketDisconnect:
+            manager.disconnect(websocket)
+
     @router.get("/status")
     async def get_status(db: AsyncSession = Depends(get_db)) -> OnboardingResponse:
         """Check if the application has been initialized."""
@@ -40,8 +58,7 @@ def create_router(
     @router.post("/initialize")
     async def initialize(
         request: InitializeRequest,
-        db: AsyncSession = Depends(get_db),
-        importer: WanikaniImporter = Depends(wanikani_importer)
+        db: AsyncSession = Depends(get_db)
     ) -> OnboardingResponse:
         """Initialize the application with WaniKani API key."""
         # Check if already initialized
@@ -58,10 +75,45 @@ def create_router(
             
             # Import data from WaniKani
             migrations_dir = Path("/app/database")  # Docker path
-            result = importer.import_vocabulary(
+            
+            # Create a queue for progress updates
+            progress_queue: Queue[Tuple[Optional[str], Optional[float]]] = Queue()
+            
+            # Create a background task to process progress updates
+            async def process_progress_updates():
+                while True:
+                    try:
+                        message, percentage = progress_queue.get_nowait()
+                        if (message, percentage) == PROGRESS_END:
+                            break
+                        await manager.broadcast({
+                            "type": "import_progress",
+                            "message": message,
+                            "percentage": percentage
+                        })
+                    except:  # Queue empty
+                        await asyncio.sleep(0.1)  # Short sleep to prevent CPU spin
+            
+            # Start progress processor task
+            progress_task = asyncio.create_task(process_progress_updates())
+            
+            def progress_handler(message: str, percentage: float):
+                """Handle progress updates by putting them in the queue."""
+                progress_queue.put((message, percentage))
+            
+            # Run the import in a thread pool since it's CPU-bound
+            loop = asyncio.get_event_loop()
+            import_fn = partial(
+                wanikani_importer.import_vocabulary,
                 api_key=request.api_key,
-                output_dir=str(migrations_dir)
+                output_dir=str(migrations_dir),
+                progress_callback=progress_handler
             )
+            result = await loop.run_in_executor(None, import_fn)
+            
+            # Signal end of progress updates and wait for processor to finish
+            progress_queue.put(PROGRESS_END)
+            await progress_task
             
             # Run migrations to import the data
             await run_migrations(db)
@@ -78,13 +130,10 @@ def create_router(
             
             return OnboardingResponse(
                 success=True,
-                is_initialized=True,
-                message=f"Application initialized successfully. Imported {result['kanji_count']} kanji and {result['vocab_count']} vocabulary items."
+                message="Application initialized successfully",
+                is_initialized=True
             )
         except Exception as e:
-            # Cleanup on failure
-            await settings_store.delete_setting(db, "wanikani_api_key")
-            await settings_store.delete_setting(db, "is_initialized")
             raise HTTPException(
                 status_code=500,
                 detail=f"Failed to initialize application: {str(e)}"

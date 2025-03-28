@@ -19,6 +19,14 @@
 
       <div class="error" *ngIf="error">{{ error }}</div>
 
+      <!-- Progress indicator -->
+      <div class="progress-container" *ngIf="isSubmitting">
+        <div class="progress-bar">
+          <div class="progress-fill" [style.width.%]="progress"></div>
+        </div>
+        <div class="progress-text">{{ progressMessage }}</div>
+      </div>
+
       <div class="button-group">
         <button
           type="button"
@@ -33,8 +41,7 @@
           class="submit-button"
           [disabled]="isSubmitting || !apiKey"
         >
-          <span *ngIf="!isSubmitting">Connect</span>
-          <span *ngIf="isSubmitting">Connecting...</span>
+          {{ isSubmitting ? 'Importing...' : 'Connect' }}
         </button>
       </div>
     </form>

@@ -46,6 +46,7 @@ app.include_router(study_activities.router)
 class WanikaniImporter:
     @classmethod
     def import_vocabulary(cls, api_key, output_dir, progress_callback=None):
+        """Synchronous import method to match the protocol."""
         return import_vocabulary(api_key, output_dir, progress_callback)
 
 # Initialize onboarding module with dependencies

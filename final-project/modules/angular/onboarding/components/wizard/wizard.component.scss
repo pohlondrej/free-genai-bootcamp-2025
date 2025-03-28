@@ -6,11 +6,11 @@
 }
 
 .wizard-content {
+  max-width: 500px;
   background: #1a1a1a;
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  max-width: 500px;
   width: 90%;
   
   h2 {
@@ -68,6 +68,30 @@
   background-color: rgba(231, 76, 60, 0.2);
   border-radius: 0.25rem;
   font-size: 0.9rem;
+}
+
+.progress-container {
+  margin: 1.5rem 0;
+
+  .progress-bar {
+    height: 8px;
+    background-color: #333;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background-color: #3498db;
+    transition: width 0.3s ease;
+  }
+
+  .progress-text {
+    margin-top: 0.5rem;
+    text-align: center;
+    color: #ccc;
+    font-size: 0.875rem;
+  }
 }
 
 .button-group {

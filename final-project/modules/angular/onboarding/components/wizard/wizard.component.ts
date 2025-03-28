@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { OnboardingService } from '../../onboarding.service';
-import { firstValueFrom } from 'rxjs';
+import { WebSocketService } from '../../services/websocket.service';
+import { firstValueFrom, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-wizard',
@@ -12,15 +13,24 @@ import { firstValueFrom } from 'rxjs';
   standalone: true,
   imports: [FormsModule, CommonModule, RouterModule]
 })
-export class WizardComponent {
+export class WizardComponent implements OnDestroy {
   apiKey = '';
   isSubmitting = false;
   error = '';
+  progress = 0;
+  progressMessage = '';
+  private progressSubscription?: Subscription;
 
   constructor(
     private onboardingService: OnboardingService,
+    private webSocketService: WebSocketService,
     private router: Router
   ) { }
+
+  ngOnDestroy() {
+    this.progressSubscription?.unsubscribe();
+    this.webSocketService.disconnect();
+  }
 
   async onSubmit(): Promise<void> {
     if (!this.apiKey) {
@@ -30,22 +40,37 @@ export class WizardComponent {
 
     this.isSubmitting = true;
     this.error = '';
+    this.progress = 0;
+    this.progressMessage = 'Starting import...';
+
+    // Connect to WebSocket for progress updates
+    this.progressSubscription = this.webSocketService.connect().subscribe({
+      next: (progress) => {
+        this.progress = progress.percentage;
+        this.progressMessage = progress.message;
+      },
+      error: (err) => {
+        console.error('WebSocket error:', err);
+        // Don't fail the import if progress updates fail
+      }
+    });
 
     try {
-      const initResult = await firstValueFrom(
+      const result = await firstValueFrom(
         this.onboardingService.initialize({ api_key: this.apiKey })
       );
-      
-      if (initResult.is_initialized) {
-        await this.router.navigate(['/dashboard']);
+
+      if (result.is_initialized) {
+        await this.router.navigate(['/']);
       } else {
-        this.error = initResult.message || 'Failed to initialize with the provided API key';
+        this.error = result.message || 'Failed to initialize application';
       }
     } catch (err: any) {
-      console.error('Initialization error:', err);
-      this.error = err.error?.detail || err.message || 'Failed to initialize with the provided API key';
+      this.error = err.error?.detail || 'Failed to initialize application';
     } finally {
       this.isSubmitting = false;
+      this.progressSubscription?.unsubscribe();
+      this.webSocketService.disconnect();
     }
   }
 }

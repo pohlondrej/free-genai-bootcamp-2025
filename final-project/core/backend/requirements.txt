@@ -5,3 +5,4 @@ aiosqlite
 alembic
 tdqm
 requests
+websockets
