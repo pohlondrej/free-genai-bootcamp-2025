@@ -51,7 +51,7 @@ class DataProcessor:
             "id": kanji["id"],
             "kanji_level": f"WK_{kanji['data']['level']}",
             "symbol": kanji["data"]["characters"],
-            "meanings": primary_meaning,
+            "primary_meaning": primary_meaning,
             "primary_reading": primary_reading["reading"],
             "primary_reading_type": primary_reading["type"]
         }

@@ -26,9 +26,9 @@ class SQLGenerator:
             SQL INSERT statement as a string
         """
         return (
-            "INSERT INTO kanji (id, kanji_level, symbol, meanings, primary_reading, primary_reading_type) "
+            "INSERT INTO kanji (id, kanji_level, symbol, primary_meaning, primary_reading, primary_reading_type) "
             f"VALUES ({kanji_data['id']}, '{self._escape_sql_string(kanji_data['kanji_level'])}', "
-            f"'{self._escape_sql_string(kanji_data['symbol'])}', '{self._escape_sql_string(kanji_data['meanings'])}', "
+            f"'{self._escape_sql_string(kanji_data['symbol'])}', '{self._escape_sql_string(kanji_data['primary_meaning'])}', "
             f"'{self._escape_sql_string(kanji_data['primary_reading'])}', '{self._escape_sql_string(kanji_data['primary_reading_type'])}')"
         )
 
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS kanji (
     id INTEGER PRIMARY KEY,
     kanji_level TEXT NOT NULL,
     symbol TEXT NOT NULL,
-    meanings TEXT NOT NULL,
+    primary_meaning TEXT NOT NULL,
     primary_reading TEXT NOT NULL,
     primary_reading_type TEXT NOT NULL
 );

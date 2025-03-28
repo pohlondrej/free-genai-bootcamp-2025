@@ -3,9 +3,9 @@ from typing import Dict, Any, Optional, Callable
 from pathlib import Path
 from tqdm import tqdm
 
-from src.wanikani_client import WanikaniClient
-from src.data_processor import DataProcessor
-from src.sql_generator import SQLGenerator
+from .src.wanikani_client import WanikaniClient
+from .src.data_processor import DataProcessor
+from .src.sql_generator import SQLGenerator
 
 def import_vocabulary(
     api_key: Optional[str] = None,
