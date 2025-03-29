@@ -1,4 +1,7 @@
--- Insert JLPT N5 adjectives into the words table
+-- JLPT N5 Adjective Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '危ない', 'あぶない', 'abunai', 'dangerous'),
 ('N5', '赤い', 'あかい', 'akai', 'red'),
@@ -75,3 +78,5 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '良い', 'よい', 'yoi', 'good'),
 ('N5', '弱い', 'よわい', 'yowai', 'weak'),
 ('N5', '有名', 'ゆうめい', 'yuumei', 'famous');
+
+COMMIT;

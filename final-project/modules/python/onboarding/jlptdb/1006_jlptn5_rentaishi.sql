@@ -1,4 +1,7 @@
--- Insert JLPT N5 rentaishi into the words table
+-- JLPT N5 Rentaishi Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'あの', 'あの', 'ano', 'that'),
 ('N5', '小さな', 'ちいさな', 'chiisana', 'small'),
@@ -8,3 +11,5 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'この', 'この', 'kono', 'this'),
 ('N5', '大きな', 'おおきな', 'ookina', 'big'),
 ('N5', 'その', 'その', 'sono', 'that');
+
+COMMIT;

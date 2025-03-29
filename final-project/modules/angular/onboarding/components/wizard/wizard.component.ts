@@ -33,16 +33,11 @@ export class WizardComponent implements OnDestroy {
     this.webSocketService.disconnect();
   }
 
-  async onSubmit(): Promise<void> {
-    if (!this.apiKey) {
-      this.error = 'Please enter your WaniKani API key';
-      return;
-    }
-
+  async initializeWithJLPT(): Promise<void> {
     this.isSubmitting = true;
     this.error = '';
     this.progress = 0;
-    this.progressMessage = 'Starting import...';
+    this.progressMessage = 'Starting JLPT N5 import...';
 
     // Connect to WebSocket for progress updates
     this.progressSubscription = this.webSocketService.connect().subscribe({
@@ -58,13 +53,55 @@ export class WizardComponent implements OnDestroy {
       },
       error: (err) => {
         console.error('WebSocket error:', err);
-        // Don't fail the import if progress updates fail
       }
     });
 
     try {
       const result = await firstValueFrom(
-        this.onboardingService.initialize({ api_key: this.apiKey })
+        this.onboardingService.initialize({ api_key: '', use_wanikani: false })
+      );
+
+      if (!result.is_initialized) {
+        this.error = result.message || 'Failed to initialize application';
+        this.isSubmitting = false;
+      }
+    } catch (err: any) {
+      this.error = err.error?.detail || 'Failed to initialize application';
+      this.isSubmitting = false;
+    }
+  }
+
+  async onSubmit(): Promise<void> {
+    if (!this.apiKey) {
+      this.error = 'Please enter your WaniKani API key';
+      return;
+    }
+
+    this.isSubmitting = true;
+    this.error = '';
+    this.progress = 0;
+    this.progressMessage = 'Starting WaniKani import...';
+
+    // Connect to WebSocket for progress updates
+    this.progressSubscription = this.webSocketService.connect().subscribe({
+      next: (progress) => {
+        this.progress = progress.percentage;
+        this.progressMessage = progress.message;
+        if (progress.percentage === 100) {
+          setTimeout(() => {
+            this.isImportComplete = true;
+            this.isSubmitting = false;
+          }, 1000);
+        }
+      },
+      error: (err) => {
+        console.error('WebSocket error:', err);
+      }
+    });
+
+    try {
+      const result = await firstValueFrom(
+        this.onboardingService.initialize({ api_key: this.apiKey, use_wanikani: true })
       );
 
       if (!result.is_initialized) {

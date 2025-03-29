@@ -1,4 +1,7 @@
--- Insert JLPT N5 katakana words into the words table
+-- JLPT N5 Katakana Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'アパート', 'あぱーと', 'apaato', 'apartment'),
 ('N5', 'バス', 'ばす', 'basu', 'bus'),
@@ -47,7 +50,7 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'シャワー', 'しゃわー', 'shawaa', 'shower'),
 ('N5', 'シャープペンシル', 'しゃーぷぺんしる', 'shaapupenshiru', 'propelling pencil'),
 ('N5', 'スカート', 'すかーと', 'sukaato', 'skirt'),
-('N5', 'スポーツ', 'すぽーつ', 'supootsu', 'sport; sports'),
+('N5', 'スポーツ', 'すぽーつ', 'supootsu', 'sport'),
 ('N5', 'スプーン', 'すぷーん', 'supuun', 'spoon'),
 ('N5', 'スリッパ', 'すりっぱ', 'surippa', 'slipper'),
 ('N5', 'ストーブ', 'すとーぶ', 'sutobu', 'stove'),
@@ -55,8 +58,10 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'テーブル', 'てーぶる', 'teeburu', 'table'),
 ('N5', 'テープ', 'てーぷ', 'teepu', 'tape'),
 ('N5', 'テープレコーダー', 'てーぷれこーだー', 'teepu rekoodaa', 'tape recorder'),
-('N5', 'テレビ', 'てれび', 'terebi', 'television; TV'),
-('N5', 'テスト', 'てすと', 'tesuto', 'examination; quiz; test'),
+('N5', 'テレビ', 'てれび', 'terebi', 'television'),
+('N5', 'テスト', 'てすと', 'tesuto', 'test'),
 ('N5', 'トイレ', 'といれ', 'toire', 'toilet'),
 ('N5', 'ワイシャツ', 'わいしゃつ', 'waishatsu', 'shirt'),
 ('N5', 'ゼロ', 'ぜろ', 'zero', 'zero');
+
+COMMIT;

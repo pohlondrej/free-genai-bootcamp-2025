@@ -2,8 +2,8 @@
   <div class="wizard-content">
     <!-- API Key Input Step -->
     <div *ngIf="!isImportComplete">
-      <h2>Connect to WaniKani</h2>
-      <p>To get started, we need your WaniKani API key. You can find this in your WaniKani account settings.</p>
+      <h2>Choose Your Learning Path</h2>
+      <p>You can either connect your WaniKani account or start with JLPT N5 vocabulary.</p>
 
       <form (ngSubmit)="onSubmit()" #form="ngForm">
         <div class="form-group">
@@ -39,11 +39,20 @@
           </button>
           
           <button
+            type="button"
+            class="jlpt-button"
+            (click)="initializeWithJLPT()"
+            [disabled]="isSubmitting"
+          >
+            Use JLPT N5
+          </button>
+          
+          <button
             type="submit"
             class="submit-button"
             [disabled]="isSubmitting || !apiKey"
           >
-            {{ isSubmitting ? 'Importing...' : 'Connect' }}
+            {{ isSubmitting ? 'Importing...' : 'Connect WaniKani' }}
           </button>
         </div>
       </form>
@@ -53,7 +62,7 @@
     <div *ngIf="isImportComplete" class="success-step">
       <div class="success-icon">✓</div>
       <h2>Your App is Ready!</h2>
-      <p>Your WaniKani data has been successfully imported.</p>
+      <p>Your vocabulary data has been successfully imported.</p>
       <p>You can now start using WaniDuoKani to enhance your Japanese learning journey!</p>
       
       <div class="button-group">

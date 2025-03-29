@@ -128,7 +128,7 @@
 
   button {
     min-width: 120px;
-    padding: 0.75rem 2rem;
+    padding: 0.75rem 1.5rem;
     border: 2px solid #3498db;
     border-radius: 0.5rem;
     font-size: 1rem;
@@ -137,6 +137,7 @@
     background-color: transparent;
     color: #3498db;
     transition: all 0.2s ease;
+    white-space: nowrap;
 
     &:hover:not(:disabled) {
       background-color: #3498db;
@@ -168,6 +169,21 @@
         background-color: #666;
         border-color: #666;
         color: #444;
+      }
+    }
+
+    &.jlpt-button {
+      border-color: #e67e22;
+      color: #e67e22;
+
+      &:hover:not(:disabled) {
+        background-color: #e67e22;
+        color: white;
+      }
+
+      &:disabled {
+        border-color: #666;
+        color: #666;
       }
     }
   }

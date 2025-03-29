@@ -1,4 +1,7 @@
--- Insert JLPT N5 nouns into the words table
+-- JLPT N5 Noun Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '赤', 'あか', 'aka', 'red'),
 ('N5', '秋', 'あき', 'aki', 'autumn'),
@@ -355,3 +358,5 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '雑誌', 'ざっし', 'zasshi', 'magazine'),
 ('N5', '全部', 'ぜんぶ', 'zenbu', 'all'),
 ('N5', 'ズボン', 'ずぼん', 'zubon', 'pants');
+
+COMMIT;

@@ -1,4 +1,7 @@
--- Insert JLPT N5 verbs into the words table
+-- JLPT N5 Verb Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '浴びる', 'あびる', 'abiru', 'to bathe'),
 ('N5', '上げる', 'あげる', 'ageru', 'to raise'),
@@ -93,7 +96,9 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', '座る', 'すわる', 'suwaru', 'to sit'),
 ('N5', '食べる', 'たべる', 'taberu', 'to eat'),
 ('N5', '頼む', 'たのむ', 'tanomu', 'to ask'),
-('N5', '立つ', 'たつ', 'tatsu', 'to stand')
+('N5', '立つ', 'たつ', 'tatsu', 'to stand'),
 ('N5', 'テスト', 'てすと', 'tesuto', 'to test'),
 ('N5', '飛ぶ', 'とぶ', 'tobu', 'to fly'),
 ('N5', '止まる', 'とまる', 'tomaru', 'to stop');
+
+COMMIT;

@@ -1,4 +1,7 @@
--- Insert JLPT N5 adverbs into the words table
+-- JLPT N5 Adverb Import Script
+
+BEGIN TRANSACTION;
+
 INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'ちょっと', 'ちょっと', 'chotto', 'a little'),
 ('N5', '丁度', 'ちょうど', 'choudo', 'exactly'),
@@ -30,3 +33,5 @@ INSERT INTO words (word_level, japanese, kana, romaji, english) VALUES
 ('N5', 'とても', 'とても', 'totemo', 'very'),
 ('N5', 'よく', 'よく', 'yoku', 'often'),
 ('N5', 'ゆっくり', 'ゆっくり', 'yukkuri', 'slowly');
+
+COMMIT;
