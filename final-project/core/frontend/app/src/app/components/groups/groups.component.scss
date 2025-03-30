@@ -3,3 +3,113 @@
     margin-bottom: 1.5rem;
   }
 }
+
+.groups-page {
+  padding: 2rem;
+
+  .page-header {
+    margin-bottom: 2rem;
+    h1 {
+      font-size: 2rem;
+      color: #333;
+    }
+  }
+
+  .groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .group-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .stat {
+        background: #f5f5f5;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+
+        &.total {
+          background: #e8f5e9;
+        }
+
+        .label {
+          color: #666;
+          margin-right: 0.5rem;
+        }
+
+        .value {
+          font-weight: 600;
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .loading {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+  }
+
+  .error {
+    text-align: center;
+    color: #d32f2f;
+    padding: 2rem;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+
+      &:hover:not(:disabled) {
+        background: #1565c0;
+      }
+
+      &:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+    }
+
+    span {
+      color: #666;
+    }
+  }
+}
