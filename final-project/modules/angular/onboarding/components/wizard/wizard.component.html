@@ -3,9 +3,27 @@
     <!-- API Key Input Step -->
     <div *ngIf="!isImportComplete">
       <h2>Choose Your Learning Path</h2>
-      <p>You can either connect your WaniKani account or start with JLPT N5 vocabulary.</p>
+      <p>You can either connect your WaniKani account or start with JLPT N5 kanji and vocabulary set.</p>
 
       <form (ngSubmit)="onSubmit()" #form="ngForm">
+        <!-- Gemini API Key -->
+        <div class="form-group">
+          <label for="geminiApiKey">Add Gemini API Key (Highly Recommended)</label>
+          <input
+            type="text"
+            id="geminiApiKey"
+            name="geminiApiKey"
+            [(ngModel)]="geminiApiKey"
+            [disabled]="isSubmitting"
+            placeholder="Enter your Gemini API key"
+          >
+          <div class="hint">
+            Get your API key <a href="https://aistudio.google.com/app/apikey" target="_blank">here</a>. 
+            This greatly enhances AI-powered features for better learning experience. If not added, local Ollama setup is assumed.
+          </div>
+        </div>
+
+        <!-- WaniKani API Key -->
         <div class="form-group">
           <label for="apiKey">WaniKani API Key</label>
           <input
@@ -62,15 +80,15 @@
     <div *ngIf="isImportComplete" class="success-step">
       <div class="success-icon">✓</div>
       <h2>Your App is Ready!</h2>
-      <p>Your vocabulary data has been successfully imported.</p>
-      <p>You can now start using WaniDuoKani to enhance your Japanese learning journey!</p>
+      <p>Your vocabulary and kanji data has been successfully imported.</p>
+      <p>You can now start using DuoKani to enhance your Japanese learning journey!</p>
       
       <div class="button-group">
         <button
           class="submit-button"
           (click)="goToApp()"
         >
-          Start Using WaniDuoKani
+          Start Using DuoKani
         </button>
       </div>
     </div>

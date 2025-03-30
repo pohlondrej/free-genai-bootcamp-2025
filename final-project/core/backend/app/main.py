@@ -14,7 +14,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(
-    title="DuoKani WaniLingo API",
+    title="DuoKani API",
     description="Japanese Language Learning Platform API",
     version="0.1.0",
     docs_url="/docs",

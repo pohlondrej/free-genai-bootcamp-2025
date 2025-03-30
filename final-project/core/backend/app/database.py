@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 # Database configuration - path from docker volume mapping
 DB_DIR = "/app/data/db"
-DB_FILE = "waniduokani.db"
+DB_FILE = "duokani.db"
 DB_PATH = os.path.join(DB_DIR, DB_FILE)
 DATABASE_URL = f"sqlite:///{DB_PATH}"
 ASYNC_DATABASE_URL = f"sqlite+aiosqlite:///{DB_PATH}"

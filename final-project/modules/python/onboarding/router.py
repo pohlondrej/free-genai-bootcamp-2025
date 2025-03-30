@@ -18,6 +18,7 @@ PROGRESS_END = (None, None)
 
 class InitializeRequest(BaseModel):
     api_key: str
+    gemini_api_key: Optional[str] = None
     use_wanikani: bool
 
 class OnboardingResponse(BaseModel):
@@ -74,6 +75,10 @@ def create_router(
         try:
             # Store whether we're using WaniKani
             await settings_store.set_setting(db, "use_wanikani", str(request.use_wanikani).lower())
+            
+            # Store Gemini API key if provided
+            if request.gemini_api_key:
+                await settings_store.set_setting(db, "gemini_api_key", request.gemini_api_key)
             
             # Create a queue for progress updates
             progress_queue: Queue[Tuple[Optional[str], Optional[float]]] = Queue()

@@ -15,6 +15,7 @@ import { firstValueFrom, Subscription } from 'rxjs';
 })
 export class WizardComponent implements OnDestroy {
   apiKey = '';
+  geminiApiKey = '';
   isSubmitting = false;
   error = '';
   progress = 0;
@@ -58,7 +59,11 @@ export class WizardComponent implements OnDestroy {
 
     try {
       const result = await firstValueFrom(
-        this.onboardingService.initialize({ api_key: '', use_wanikani: false })
+        this.onboardingService.initialize({
+          api_key: '',
+          gemini_api_key: this.geminiApiKey || undefined,
+          use_wanikani: false
+        })
       );
 
       if (!result.is_initialized) {
@@ -101,7 +106,11 @@ export class WizardComponent implements OnDestroy {
 
     try {
       const result = await firstValueFrom(
-        this.onboardingService.initialize({ api_key: this.apiKey, use_wanikani: true })
+        this.onboardingService.initialize({
+          api_key: this.apiKey,
+          gemini_api_key: this.geminiApiKey || undefined,
+          use_wanikani: true
+        })
       );
 
       if (!result.is_initialized) {

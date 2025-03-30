@@ -59,6 +59,21 @@
       cursor: not-allowed;
     }
   }
+
+  .hint {
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: #666;
+
+    a {
+      color: #2196f3;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
 }
 
 .error {

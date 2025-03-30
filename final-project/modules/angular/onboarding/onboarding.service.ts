@@ -10,6 +10,7 @@ export interface OnboardingStatus {
 
 export interface OnboardingConfig {
   api_key: string;
+  gemini_api_key?: string;
   use_wanikani: boolean;
 }
 

@@ -1,4 +1,4 @@
-# DuoKani WaniLingo - A Comprehensive Japanese Language Learning Platform
+# DuoKani - A Comprehensive Japanese Language Learning Platform
 Summary - TODO
 
 ## Screenshots
