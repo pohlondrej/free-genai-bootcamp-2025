@@ -41,24 +41,30 @@ import { GroupsService, GroupDetails, GroupItem, PaginatedResponse } from '../..
         <div class="items-section">
           <h2>Items</h2>
           <div class="items-grid" *ngIf="items?.length">
-            <div class="item-card" *ngFor="let item of items" [routerLink]="['/', getItemRoute(item.item_type), item.id]">
+            <div class="item-card" *ngFor="let item of items" [routerLink]="['/', getItemRoute(item.item_type), item.id]" [class]="item.item_type">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-info">
-                <span class="item-type">{{ item.item_type }}</span>
+                <span class="item-type" [class]="item.item_type">{{ item.item_type === 'word' ? 'vocabulary' : item.item_type }}</span>
                 <span class="item-level">{{ item.level }}</span>
               </div>
               <div class="item-stats">
                 <div class="stat">
-                  <span class="label">Total:</span>
+                  <span class="label">Total</span>
                   <span class="value">{{ item.total_reviews }}</span>
                 </div>
                 <div class="stat correct">
-                  <span class="label">Correct:</span>
-                  <span class="value">{{ item.correct_reviews }}</span>
+                  <span class="label">Correct</span>
+                  <div class="value">
+                    <span class="number">{{ item.correct_reviews }}</span>
+                    <span class="percent">({{ getPercentage(item.correct_reviews, item.total_reviews) }}%)</span>
+                  </div>
                 </div>
                 <div class="stat wrong">
-                  <span class="label">Wrong:</span>
-                  <span class="value">{{ item.wrong_reviews }}</span>
+                  <span class="label">Wrong</span>
+                  <div class="value">
+                    <span class="number">{{ item.wrong_reviews }}</span>
+                    <span class="percent">({{ getPercentage(item.wrong_reviews, item.total_reviews) }}%)</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -154,5 +160,10 @@ export class GroupDetailsComponent implements OnInit {
 
   getItemRoute(itemType: string): string {
     return itemType === 'word' ? 'vocabulary' : itemType;
+  }
+
+  getPercentage(value: number, total: number): number {
+    if (total === 0) return 0;
+    return Math.round((value / total) * 100);
   }
 }

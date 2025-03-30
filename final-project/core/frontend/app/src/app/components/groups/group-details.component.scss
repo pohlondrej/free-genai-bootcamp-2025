@@ -83,41 +83,88 @@
 
     .item-card {
       background: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.25rem;
       cursor: pointer;
       transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        opacity: 0.9;
+        transition: opacity 0.2s;
+      }
+
+      &.kanji::before {
+        background: var(--primary-color);
+      }
+
+      &.word::before {
+        background: var(--success-color);
+      }
 
       &:hover {
         transform: translateY(-2px);
         box-shadow: var(--shadow-md);
+        border-color: var(--text-color);
+
+        &::before {
+          opacity: 1;
+        }
       }
 
       .item-name {
-        font-size: 1.25rem;
+        font-size: 1.5rem;
         font-weight: 600;
         color: var(--text-color);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
       }
 
       .item-info {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
         margin-bottom: 1rem;
 
         .item-type, .item-level {
           font-size: 0.875rem;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
+          padding: 0.25rem 0.75rem;
+          border-radius: 20px;
+          font-weight: 500;
+          letter-spacing: 0.5px;
+          text-transform: capitalize;
+        }
+
+        .item-type {
+          &.kanji {
+            background: var(--primary-color);
+            color: white;
+          }
+
+          &.word {
+            background: var(--success-color);
+            color: white;
+          }
+        }
+
+        .item-level {
           background: var(--background-color);
           color: var(--text-muted);
+          border: 1px solid var(--border-color);
         }
       }
 
       .item-stats {
         display: flex;
         gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
 
         .stat {
           flex: 1;
@@ -135,12 +182,26 @@
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-bottom: 0.25rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
           }
 
           .value {
-            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
             font-weight: 600;
             color: var(--text-color);
+
+            .number {
+              font-size: 1.125rem;
+            }
+
+            .percent {
+              font-size: 0.875rem;
+              color: var(--text-muted);
+            }
           }
         }
       }
