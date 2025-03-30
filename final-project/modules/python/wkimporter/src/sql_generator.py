@@ -27,6 +27,17 @@ class SQLGenerator:
         """
         return value.replace("'", "''")
 
+    def _parse_level(self, level_str: str) -> int:
+        """Parse a level string that might have a prefix like 'WK_'.
+        
+        Args:
+            level_str: Level string to parse (e.g., 'WK_1')
+            
+        Returns:
+            Integer level number
+        """
+        return int(level_str.split('_')[-1])
+
     def generate_kanji_insert(self, kanji_data: Dict[str, Any]) -> str:
         """Generate SQL INSERT statement for a kanji.
         
@@ -88,10 +99,8 @@ class SQLGenerator:
             groups.append(Group(id=i+VOCAB_LEVEL_GROUP_ID, name=f"Wanikani Vocabulary Level {i}"))
 
         # Generate SQL INSERT statements to insert groups
-        return (
-            "INSERT INTO groups (id, name) "
-            f"VALUES ({', '.join([f'({g.id}, \'{self._escape_sql_string(g.name)}\')' for g in groups])})"
-        )
+        values = [f"({g.id}, '{self._escape_sql_string(g.name)}')" for g in groups]
+        return "INSERT INTO groups (id, name) VALUES " + ", ".join(values)
 
     def generate_all_kanji_group_insert(self, kanji_list: List[Dict[str, Any]]) -> str:
         """Generate SQL INSERT statement for all kanji to the kanji group.
@@ -102,10 +111,11 @@ class SQLGenerator:
         Returns:
             SQL INSERT statement as a string
         """
-        return (
-            "INSERT INTO group_items (group_id, item_type, item_id) "
-            f"VALUES ({', '.join([f'({KANJI_GROUP_ID}, \'kanji\', {g["id"]})' for g in kanji_list])})"
-        )
+        if not kanji_list:
+            return ""
+            
+        values = [f"({KANJI_GROUP_ID}, 'kanji', {k['id']})" for k in kanji_list]
+        return "INSERT INTO group_items (group_id, item_type, item_id) VALUES " + ",\n".join(values)
 
     def generate_all_vocabulary_group_insert(self, vocab_list: List[Dict[str, Any]]) -> str:
         """Generate SQL INSERT statement for all vocabulary to the vocabulary group.
@@ -116,10 +126,11 @@ class SQLGenerator:
         Returns:
             SQL INSERT statement as a string
         """
-        return (
-            "INSERT INTO group_items (group_id, item_type, item_id) "
-            f"VALUES ({', '.join([f'({VOCAB_GROUP_ID}, \'word\', {g.id})' for g in vocab_list])})"
-        )
+        if not vocab_list:
+            return ""
+            
+        values = [f"({VOCAB_GROUP_ID}, 'word', {v['id']})" for v in vocab_list]
+        return "INSERT INTO group_items (group_id, item_type, item_id) VALUES " + ",\n".join(values)
 
     def generate_level_group_insert(self, user_level: int, kanji_list: List[Dict[str, Any]], vocab_list: List[Dict[str, Any]]) -> str:
         """Generate SQL INSERT statement for level groups.
@@ -136,14 +147,14 @@ class SQLGenerator:
         
         # Add kanji to their respective level groups
         for kanji in kanji_list:
-            level = int(kanji['kanji_level'])
+            level = self._parse_level(kanji['kanji_level'])
             if level <= user_level:
                 group_id = LEVEL_GROUP_ID + level
                 values.append(f"({group_id}, 'kanji', {kanji['id']})")
         
         # Add vocabulary to their respective level groups
         for vocab in vocab_list:
-            level = int(vocab['word_level'])
+            level = self._parse_level(vocab['word_level'])
             if level <= user_level:
                 group_id = LEVEL_GROUP_ID + level
                 values.append(f"({group_id}, 'word', {vocab['id']})")
@@ -162,7 +173,6 @@ class SQLGenerator:
         Args:
             user_level: Current level of the user
             kanji_list: List of transformed kanji data
-            vocab_list: List of transformed vocabulary data
             
         Returns:
             SQL INSERT statement as a string
@@ -171,7 +181,7 @@ class SQLGenerator:
         
         # Add kanji to their respective level groups
         for kanji in kanji_list:
-            level = int(kanji['kanji_level'])
+            level = self._parse_level(kanji['kanji_level'])
             if level <= user_level:
                 group_id = KANJI_LEVEL_GROUP_ID + level
                 values.append(f"({group_id}, 'kanji', {kanji['id']})")
@@ -198,7 +208,7 @@ class SQLGenerator:
         
         # Add vocabulary to their respective level groups
         for vocab in vocab_list:
-            level = int(vocab['word_level'])
+            level = self._parse_level(vocab['word_level'])
             if level <= user_level:
                 group_id = VOCAB_LEVEL_GROUP_ID + level
                 values.append(f"({group_id}, 'word', {vocab['id']})")
@@ -211,10 +221,11 @@ class SQLGenerator:
             ",\n".join(values)
         )
 
-    def generate_migration_script(self, kanji_list: List[Dict[str, Any]], vocab_list: List[Dict[str, Any]], user_level: int) -> str:
+    def generate_migration_script(self, user_level: int, kanji_list: List[Dict[str, Any]], vocab_list: List[Dict[str, Any]]) -> str:
         """Generate a complete SQL migration script for both kanji and vocabulary.
         
         Args:
+            user_level: Current level of the user
             kanji_list: List of transformed kanji data
             vocab_list: List of transformed vocabulary data
             

@@ -96,7 +96,7 @@ def import_vocabulary(
     output_file = output_path / "migration.sql"
     
     # Generate SQL and write to file
-    migration_sql = generator.generate_migration_script(kanji_items, vocab_items)
+    migration_sql = generator.generate_migration_script(user_level, kanji_items, vocab_items)
     with open(output_file, "w", encoding="utf-8") as f:
         f.write(migration_sql)
     
