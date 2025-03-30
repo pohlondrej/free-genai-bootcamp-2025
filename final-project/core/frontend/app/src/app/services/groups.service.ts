@@ -10,6 +10,18 @@ export interface Group {
   total_items: number;
 }
 
+export interface GroupDetails {
+  id: number;
+  name: string;
+  stats: {
+    total_items: number;
+    word_count: number;
+    kanji_count: number;
+    completed_sessions: number;
+    active_sessions: number;
+  };
+}
+
 export interface GroupsResponse {
   items: Group[];
   pagination: {
@@ -34,6 +46,16 @@ export class GroupsService {
       .toPromise();
     if (!response) {
       throw new Error('Failed to fetch groups');
+    }
+    return response;
+  }
+
+  async getGroup(id: number): Promise<GroupDetails> {
+    const response = await this.http
+      .get<GroupDetails>(`${this.apiUrl}/${id}`)
+      .toPromise();
+    if (!response) {
+      throw new Error('Failed to fetch group details');
     }
     return response;
   }
