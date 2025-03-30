@@ -2,7 +2,7 @@ nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 2rem;
+  padding: 0rem 2rem;
   background-color: var(--surface-color);
   box-shadow: var(--shadow-sm);
   position: fixed;
@@ -19,17 +19,22 @@ nav {
       color: var(--text-color);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
 
       .logo-icon {
-        width: 32px;
-        height: 32px;
+        width: 64px;
+        height: 64px;
         display: inline-block;
         background-image: url('../../../assets/crabowl_background.svg');
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
-        filter: var(--icon-filter);
+        filter: brightness(0);
+        opacity: 0.8;
+
+        :host-context(.dark-theme) & {
+          filter: brightness(0) invert(1);
+          opacity: 0.9;
+        }
       }
 
       span {
