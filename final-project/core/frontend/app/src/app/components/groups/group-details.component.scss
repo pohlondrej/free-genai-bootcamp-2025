@@ -106,8 +106,8 @@
         background: var(--primary-color);
       }
 
-      &.word::before {
-        background: var(--success-color);
+      &.vocabulary::before {
+        background: var(--secondary-color);
       }
 
       &:hover {
@@ -147,8 +147,8 @@
             color: white;
           }
 
-          &.word {
-            background: var(--success-color);
+          &.vocabulary {
+            background: var(--secondary-color);
             color: white;
           }
         }
@@ -171,7 +171,7 @@
           text-align: center;
 
           &.correct .value {
-            color: var(--success-color);
+            color: var(--secondary-color);
           }
 
           &.wrong .value {
