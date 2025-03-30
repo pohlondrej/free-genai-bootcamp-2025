@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { GroupsService, GroupDetails } from '../../services/groups.service';
+import { GroupsService, GroupDetails, GroupItem, PaginatedResponse } from '../../services/groups.service';
 
 @Component({
   selector: 'app-group-details',
@@ -38,7 +38,52 @@ import { GroupsService, GroupDetails } from '../../services/groups.service';
           </div>
         </div>
 
-        <!-- TODO: Add list of items in the group -->
+        <div class="items-section">
+          <h2>Items</h2>
+          <div class="items-grid" *ngIf="items?.length">
+            <div class="item-card" *ngFor="let item of items" [routerLink]="['/', item.item_type, item.id]">
+              <div class="item-name">{{ item.name }}</div>
+              <div class="item-info">
+                <span class="item-type">{{ item.item_type }}</span>
+                <span class="item-level">{{ item.level }}</span>
+              </div>
+              <div class="item-stats">
+                <div class="stat">
+                  <span class="label">Total:</span>
+                  <span class="value">{{ item.total_reviews }}</span>
+                </div>
+                <div class="stat correct">
+                  <span class="label">Correct:</span>
+                  <span class="value">{{ item.correct_reviews }}</span>
+                </div>
+                <div class="stat wrong">
+                  <span class="label">Wrong:</span>
+                  <span class="value">{{ item.wrong_reviews }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pagination" *ngIf="pagination">
+            <button 
+              class="prev" 
+              [disabled]="pagination.current_page === 1"
+              (click)="loadPage(pagination.current_page - 1)"
+            >
+              Previous
+            </button>
+            <span class="page-info">
+              Page {{ pagination.current_page }} of {{ pagination.total_pages }}
+            </span>
+            <button 
+              class="next"
+              [disabled]="pagination.current_page === pagination.total_pages"
+              (click)="loadPage(pagination.current_page + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="loading" *ngIf="loading">
@@ -54,6 +99,8 @@ import { GroupsService, GroupDetails } from '../../services/groups.service';
 })
 export class GroupDetailsComponent implements OnInit {
   group: GroupDetails | null = null;
+  items: GroupItem[] = [];
+  pagination: PaginatedResponse<GroupItem>['pagination'] | null = null;
   loading = true;
   error: string | null = null;
 
@@ -65,7 +112,9 @@ export class GroupDetailsComponent implements OnInit {
   ngOnInit() {
     const groupId = this.route.snapshot.paramMap.get('id');
     if (groupId) {
-      this.loadGroupDetails(parseInt(groupId, 10));
+      const id = parseInt(groupId, 10);
+      this.loadGroupDetails(id);
+      this.loadItems(id);
     } else {
       this.error = 'Group ID not found';
       this.loading = false;
@@ -82,6 +131,24 @@ export class GroupDetailsComponent implements OnInit {
       console.error('Error loading group details:', err);
     } finally {
       this.loading = false;
+    }
+  }
+
+  async loadItems(groupId: number, page: number = 1) {
+    try {
+      const response = await this.groupsService.getGroupItems(groupId, page);
+      this.items = response.items;
+      this.pagination = response.pagination;
+    } catch (err) {
+      console.error('Error loading group items:', err);
+      // Don't show error to user since this is not critical
+    }
+  }
+
+  async loadPage(page: number) {
+    const groupId = this.route.snapshot.paramMap.get('id');
+    if (groupId) {
+      await this.loadItems(parseInt(groupId, 10), page);
     }
   }
 }

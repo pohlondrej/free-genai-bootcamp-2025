@@ -10,20 +10,42 @@ export interface Group {
   total_items: number;
 }
 
+export interface GroupStats {
+  total_items: number;
+  kanji_count: number;
+  word_count: number;
+  completed_sessions: number;
+  active_sessions: number;
+}
+
 export interface GroupDetails {
   id: number;
   name: string;
-  stats: {
-    total_items: number;
-    word_count: number;
-    kanji_count: number;
-    completed_sessions: number;
-    active_sessions: number;
-  };
+  stats: GroupStats;
+}
+
+export interface GroupItem {
+  id: number;
+  item_type: 'kanji' | 'word';
+  name: string;
+  level: string;
+  total_reviews: number;
+  correct_reviews: number;
+  wrong_reviews: number;
 }
 
 export interface GroupsResponse {
   items: Group[];
+  pagination: {
+    current_page: number;
+    total_pages: number;
+    total_items: number;
+    items_per_page: number;
+  };
+}
+
+export interface PaginatedResponse<T> {
+  items: T[];
   pagination: {
     current_page: number;
     total_pages: number;
@@ -56,6 +78,16 @@ export class GroupsService {
       .toPromise();
     if (!response) {
       throw new Error('Failed to fetch group details');
+    }
+    return response;
+  }
+
+  async getGroupItems(groupId: number, page: number = 1): Promise<PaginatedResponse<GroupItem>> {
+    const response = await this.http
+      .get<PaginatedResponse<GroupItem>>(`${this.apiUrl}/${groupId}/items?page=${page}`)
+      .toPromise();
+    if (!response) {
+      throw new Error('Failed to fetch group items');
     }
     return response;
   }
