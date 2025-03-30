@@ -41,7 +41,7 @@ import { GroupsService, GroupDetails, GroupItem, PaginatedResponse } from '../..
         <div class="items-section">
           <h2>Items</h2>
           <div class="items-grid" *ngIf="items?.length">
-            <div class="item-card" *ngFor="let item of items" [routerLink]="['/', item.item_type, item.id]">
+            <div class="item-card" *ngFor="let item of items" [routerLink]="['/', getItemRoute(item.item_type), item.id]">
               <div class="item-name">{{ item.name }}</div>
               <div class="item-info">
                 <span class="item-type">{{ item.item_type }}</span>
@@ -150,5 +150,9 @@ export class GroupDetailsComponent implements OnInit {
     if (groupId) {
       await this.loadItems(parseInt(groupId, 10), page);
     }
+  }
+
+  getItemRoute(itemType: string): string {
+    return itemType === 'word' ? 'vocabulary' : itemType;
   }
 }
