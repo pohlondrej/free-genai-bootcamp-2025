@@ -17,6 +17,24 @@ nav {
       font-weight: bold;
       text-decoration: none;
       color: var(--text-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      .logo-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-block;
+        background-image: url('../../../assets/crabowl_background.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        filter: var(--icon-filter);
+      }
+
+      span {
+        letter-spacing: 1px;
+      }
     }
   }
 

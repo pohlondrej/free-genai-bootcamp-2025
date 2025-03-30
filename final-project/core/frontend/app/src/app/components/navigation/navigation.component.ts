@@ -9,7 +9,11 @@ import { RouterModule } from '@angular/router';
   template: `
     <nav>
       <div class="logo">
-        <a routerLink="/">DuoKani</a>
+        <a routerLink="/">
+          <span>DUO</span>
+          <span class="logo-icon"></span>
+          <span>KANI</span>
+        </a>
       </div>
       <button class="menu-toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen">
         <span class="bar"></span>

@@ -12,17 +12,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('../../resources/crab_background.svg');
+    background-image: url('assets/crabowl_background.svg');
     background-repeat: repeat;
-    background-size: 64px;  // Half of the original 128px size
-    opacity: 0.03;  // Very subtle
-    pointer-events: none;  // Don't interfere with clicks
+    background-size: 64px;
+    opacity: 0.03;
+    pointer-events: none;
     z-index: 0;
     
     // Theme-based tint
     .dark-theme & {
       filter: invert(1);
-      opacity: 0.02;  // Even more subtle in dark mode
+      opacity: 0.02;
     }
   }
 }
