@@ -95,9 +95,10 @@ async def get_group(group_id: int, db: AsyncSession = Depends(get_db)):
             func.count(GroupItem.id).filter(GroupItem.item_type == 'word').label("word_count"),
             func.count(GroupItem.id).filter(GroupItem.item_type == 'kanji').label("kanji_count")
         )
-        .select_from(StudySession)
-        .outerjoin(GroupItem, StudySession.group_id == GroupItem.group_id)
-        .filter(StudySession.group_id == group_id)
+        .select_from(GroupItem)
+        .filter(GroupItem.group_id == group_id)
+        .outerjoin(StudySession, StudySession.group_id == GroupItem.group_id)
+        .group_by(GroupItem.group_id)
     )
     result = await db.execute(stats_query)
     completed_sessions, active_sessions, word_count, kanji_count = result.first()
