@@ -46,7 +46,7 @@ import { KanjiService, Kanji } from '../../services/kanji.service';
         <div class="groups" *ngIf="kanji.groups?.length">
           <h2>Groups</h2>
           <div class="group-list">
-            <div class="group" *ngFor="let group of kanji.groups">
+            <div class="group" *ngFor="let group of kanji.groups" [routerLink]="['/groups', group.id]">
               {{ group.name }}
             </div>
           </div>

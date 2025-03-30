@@ -47,7 +47,7 @@ import { VocabularyService, Word } from '../../services/vocabulary.service';
         <div class="groups" *ngIf="word.groups?.length">
           <h2>Groups</h2>
           <div class="group-list">
-            <div class="group" *ngFor="let group of word.groups">
+            <div class="group" *ngFor="let group of word.groups" [routerLink]="['/groups', group.id]">
               {{ group.name }}
             </div>
           </div>

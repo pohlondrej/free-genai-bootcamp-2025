@@ -88,7 +88,7 @@
     .stat {
       text-align: center;
       padding: 1rem;
-      background: var(--surface-color-alt);
+      background: var(--surface-color);
       border-radius: 8px;
 
       .label {
@@ -103,11 +103,11 @@
         color: var(--text-color);
 
         &.correct {
-          color: #28a745;
+          color: var(--secondary-color);
         }
 
         &.wrong {
-          color: #dc3545;
+          color: var(--error-color);
         }
       }
     }
@@ -128,10 +128,20 @@
 
     .group {
       padding: 0.5rem 1rem;
-      background: var(--surface-color-alt);
+      background: var(--surface-color);
+      border: 1px solid var(--border-color);
       border-radius: 6px;
       font-size: 0.9rem;
-      color: var(--text-muted);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+        transform: translateY(-1px);
+      }
     }
   }
 }
@@ -143,5 +153,5 @@
 }
 
 .error {
-  color: #dc3545;
+  color: var(--error-color);
 }
