@@ -1,13 +1,18 @@
 name: example-plugin
 
 services:
-  example:
+  example-backend:
     build:
-      context: ./plugins/example
+      context: ./plugins/example/backend
       dockerfile: Dockerfile
     ports:
       - "8001:8001"
+
+  example-frontend:
+    build:
+      context: ./plugins/example/frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4201:4201"
     depends_on:
-      - nginx
-    profiles:
-      - example
+      - example-backend

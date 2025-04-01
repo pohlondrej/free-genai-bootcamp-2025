@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 # Plugin configuration
 PLUGIN_NAME = "example"
 PLUGIN_PORT = 8001
+PLUGIN_FRONTEND_PORT = 4201
 MAIN_APP_URL = "http://nginx:80"
 REGISTRATION_RETRY_DELAY = 5  # seconds
 MAX_RETRIES = 30  # 5 seconds * 30 = 2.5 minutes max wait
@@ -18,7 +19,9 @@ async def register_plugin():
     """Register this plugin with the main application with retries"""
     plugin_data = {
         "name": PLUGIN_NAME,
-        "endpoint": f"http://example:{PLUGIN_PORT}",
+        "backend_endpoint": f"http://example-backend:{PLUGIN_PORT}",
+        "frontend_endpoint": f"http://example-frontend:{PLUGIN_FRONTEND_PORT}",
+        "module_name": "examplePlugin",
         "image": "example-plugin:latest"
     }
     
