@@ -1,21 +1,16 @@
-const ModuleFederationPlugin = require('@angular-architects/module-federation/webpack').ModuleFederationPlugin;
+const { ModuleFederationPlugin } = require('webpack').container;
 
 module.exports = {
   output: {
-    publicPath: 'auto'
+    publicPath: 'auto',
+    uniqueName: 'app'
   },
   optimization: {
     runtimeChunk: false
   },
-  experiments: {
-    outputModule: true
-  },
   plugins: [
     new ModuleFederationPlugin({
-      library: { type: 'module' },
-      remotes: {
-        // Remotes will be added dynamically based on plugin registration
-      },
+      name: 'app',
       shared: {
         '@angular/core': { singleton: true, strictVersion: true },
         '@angular/common': { singleton: true, strictVersion: true },

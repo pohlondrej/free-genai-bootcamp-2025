@@ -62,13 +62,13 @@
           "defaultConfiguration": "production"
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "example-plugin:build:production"
+              "buildTarget": "example-plugin:build:production"
             },
             "development": {
-              "browserTarget": "example-plugin:build:development"
+              "buildTarget": "example-plugin:build:development"
             }
           },
           "defaultConfiguration": "development",

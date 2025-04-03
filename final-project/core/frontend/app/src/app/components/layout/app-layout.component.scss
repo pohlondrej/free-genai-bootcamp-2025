@@ -3,7 +3,6 @@
   flex-direction: column;
   overflow-y: auto;
   position: relative;
-  min-height: 100vh;
   
   &::before {
     content: '';
@@ -12,7 +11,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-image: url('assets/crabowl_background.svg');
+    background-image: url('../../../assets/crabowl_background.svg');
     background-repeat: repeat;
     background-size: 64px;
     opacity: 0.03;
