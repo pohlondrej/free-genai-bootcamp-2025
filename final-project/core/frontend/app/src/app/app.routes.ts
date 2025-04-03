@@ -58,6 +58,11 @@ export const routes: Routes = [
         path: 'settings',
         loadComponent: () => import('./components/settings/settings.component')
           .then(m => m.SettingsComponent)
+      },
+      {
+        path: 'plugins',
+        loadComponent: () => import('./components/plugins/plugin-host.component')
+          .then(m => m.PluginHostComponent)
       }
     ]
   }
