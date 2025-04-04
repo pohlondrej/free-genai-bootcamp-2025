@@ -67,10 +67,10 @@ export const routes: Routes = [
       },
       {
         path: 'plugins/:name/launch',
-        loadChildren: () =>
+        loadComponent: () =>
           loadRemoteModule({
               type: 'module',
-              remoteEntry: 'http://localhost:4001/remoteEntry.js',
+              remoteEntry: 'http://localhost:4201/remoteEntry.js',
               exposedModule: './Component'
           })
           .then(m => m.HelloComponent)
