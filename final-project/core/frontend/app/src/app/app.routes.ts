@@ -67,13 +67,22 @@ export const routes: Routes = [
       },
       {
         path: 'plugins/:name/launch',
-        loadComponent: () =>
-          loadRemoteModule({
+        loadComponent: () => {
+          console.log('Router: Attempting to load remote module');
+          return loadRemoteModule({
               type: 'module',
               remoteEntry: 'http://localhost:4201/remoteEntry.js',
               exposedModule: './Component'
           })
-          .then(m => m.HelloComponent)
+          .then(m => {
+            console.log('Router: Remote module loaded successfully', m);
+            return m.HelloComponent;
+          })
+          .catch(err => {
+            console.error('Router: Error loading remote module', err);
+            throw err; // Re-throw the error to propagate it
+          });
+        }
       }
     ]
   }

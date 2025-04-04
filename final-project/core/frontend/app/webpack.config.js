@@ -17,9 +17,9 @@ module.exports = {
       name: 'app',
       library: { type: 'module' },
       shared: {
-        '@angular/core': { singleton: true, strictVersion: true },
-        '@angular/common': { singleton: true, strictVersion: true },
-        '@angular/router': { singleton: true, strictVersion: true }
+        '@angular/core': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' },
+        '@angular/common': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' },
+        '@angular/router': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' },
       }
     })
   ]

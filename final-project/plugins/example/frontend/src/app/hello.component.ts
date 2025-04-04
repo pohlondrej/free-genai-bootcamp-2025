@@ -1,10 +1,8 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'plugin-hello',
   standalone: true,
-  imports: [CommonModule],
   template: `
     <div class="plugin-hello">
       <h2>Hello from Example Plugin!</h2>
@@ -20,4 +18,16 @@ import { CommonModule } from '@angular/common';
     }
   `]
 })
-export class HelloComponent {}
+export class HelloComponent implements OnInit, OnDestroy {
+  constructor() {
+    console.log('HelloComponent: Constructor');
+  }
+
+  ngOnInit(): void {
+    console.log('HelloComponent: OnInit');
+  }
+
+  ngOnDestroy(): void {
+    console.log('HelloComponent: OnDestroy');
+  }
+}

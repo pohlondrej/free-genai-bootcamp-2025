@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PluginsService, PluginInfo } from '../../services/plugins.service';
 
 @Component({
@@ -14,9 +14,9 @@ import { PluginsService, PluginInfo } from '../../services/plugins.service';
       </header>
 
       <div class="plugins-grid" *ngIf="!loading && !error">
-        <div class="plugin-card" 
+        <div class="plugin-card"
           *ngFor="let plugin of plugins"
-          [routerLink]="['/plugins', plugin.name, 'launch']">
+          (click)="launchPlugin(plugin.name)">
           <div class="name">{{ plugin.name }}</div>
           <div class="endpoints">
             <div class="backend">{{ plugin.backend_endpoint }}</div>
@@ -41,10 +41,17 @@ export class PluginsComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private pluginsService: PluginsService) {}
+  constructor(private pluginsService: PluginsService, private router: Router) {}
 
   ngOnInit() {
     this.loadPlugins();
+  }
+
+  launchPlugin(pluginName: string) {
+    console.log(`PluginsComponent: launchPlugin - Navigating to ${pluginName}`);
+    this.router.navigate(['/plugins', pluginName, 'launch'])
+      .then(() => console.log(`PluginsComponent: Navigation to ${pluginName} complete`))
+      .catch(err => console.error(`PluginsComponent: Navigation error`, err));
   }
 
   private loadPlugins() {

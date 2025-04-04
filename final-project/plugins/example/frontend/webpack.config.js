@@ -21,9 +21,9 @@ module.exports = {
         './Component': './src/app/hello.component.ts'
       },
       shared: {
-        '@angular/core': { singleton: true, strictVersion: true, requiredVersion: '^19.0.0' },
-        '@angular/common': { singleton: true, strictVersion: true, requiredVersion: '^19.0.0' },
-        '@angular/router': { singleton: true, strictVersion: true, requiredVersion: '^19.0.0' }
+        '@angular/core': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' },
+        '@angular/common': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' },
+        '@angular/router': { singleton: true, strictVersion: false, requiredVersion: '^19.2.0' }
       },
       library: { type: 'module' }
     })
