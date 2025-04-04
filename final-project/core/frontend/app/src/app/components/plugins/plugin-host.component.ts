@@ -1,62 +1,85 @@
-import { Component, OnInit, ViewChildren, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewContainerRef, Injector } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { PluginsService, PluginInfo } from '../../services/plugins.service';
 
 @Component({
   selector: 'app-plugin-host',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
-    <div class="plugins-container">
-      <h2>Plugins</h2>
-      <div class="plugin-list">
-        <div *ngFor="let plugin of plugins" class="plugin-item">
-          <h3>{{ plugin.name }}</h3>
-          <div #pluginContainer></div>
-        </div>
+    <div class="plugin-host">
+      <header class="page-header">
+        <button class="back-button" routerLink="/plugins">← Back to Plugins</button>
+      </header>
+
+      <div class="plugin-container" *ngIf="!loading && !error && plugin">
+        <h2>{{ plugin.name }}</h2>
+        <div class="plugin-mount" #pluginMount></div>
+      </div>
+
+      <div class="loading" *ngIf="loading">
+        Loading plugin...
+      </div>
+
+      <div class="error" *ngIf="error">
+        {{ error }}
       </div>
     </div>
   `,
-  styles: [`
-    .plugins-container {
-      padding: 1rem;
-    }
-    .plugin-list {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .plugin-item {
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      padding: 1rem;
-    }
-  `]
+  styleUrls: ['./plugin-host.component.scss']
 })
 export class PluginHostComponent implements OnInit {
-  @ViewChildren('pluginContainer', { read: ViewContainerRef }) 
-  pluginContainer!: ViewContainerRef;
+  plugin: PluginInfo | null = null;
+  loading = true;
+  error: string | null = null;
 
-  plugins: PluginInfo[] = [];
-
-  constructor(private pluginsService: PluginsService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private pluginsService: PluginsService,
+    private injector: Injector,
+    private viewContainer: ViewContainerRef
+  ) {}
 
   ngOnInit() {
-    this.pluginsService.getPlugins().subscribe(plugins => {
-      this.plugins = plugins;
-      this.loadPlugins();
+    const pluginName = this.route.snapshot.paramMap.get('name');
+    if (!pluginName) {
+      this.router.navigate(['/plugins']);
+      return;
+    }
+
+    this.pluginsService.getPlugins().subscribe({
+      next: (plugins) => {
+        const plugin = plugins.find(p => p.name === pluginName);
+        if (!plugin) {
+          this.error = `Plugin ${pluginName} not found`;
+          this.loading = false;
+          return;
+        }
+        this.plugin = plugin;
+        this.loadPlugin(plugin);
+      },
+      error: (err) => {
+        this.error = 'Failed to load plugin info. Please try again later.';
+        this.loading = false;
+        console.error('Error loading plugin info:', err);
+      }
     });
   }
 
-  private async loadPlugins() {
-    for (const plugin of this.plugins) {
-      try {
-        const component = await this.pluginsService.loadPluginComponent(plugin);
-        this.pluginContainer.createComponent(component);
-      } catch (err) {
-        console.error(`Failed to load plugin ${plugin.name}:`, err);
-      }
+  private async loadPlugin(plugin: PluginInfo) {
+    try {
+      const componentType = await this.pluginsService.loadPluginComponent(plugin);
+      const componentRef = this.viewContainer.createComponent(componentType, {
+        injector: this.injector
+      });
+      componentRef.changeDetectorRef.detectChanges();
+      this.loading = false;
+    } catch (err) {
+      this.error = `Failed to load plugin ${plugin.name}`;
+      this.loading = false;
+      console.error('Error loading plugin:', err);
     }
   }
 }

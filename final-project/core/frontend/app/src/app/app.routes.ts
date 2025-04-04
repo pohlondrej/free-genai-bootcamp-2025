@@ -4,6 +4,7 @@ import { KanjiDetailComponent } from './components/kanji/kanji-detail.component'
 import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
+import { loadRemoteModule } from '@angular-architects/module-federation';
 
 export const routes: Routes = [
   {
@@ -61,8 +62,18 @@ export const routes: Routes = [
       },
       {
         path: 'plugins',
-        loadComponent: () => import('./components/plugins/plugin-host.component')
-          .then(m => m.PluginHostComponent)
+        loadComponent: () => import('./components/plugins/plugins.component')
+          .then(m => m.PluginsComponent)
+      },
+      {
+        path: 'plugins/:name/launch',
+        loadChildren: () =>
+          loadRemoteModule({
+              type: 'module',
+              remoteEntry: 'http://localhost:4001/remoteEntry.js',
+              exposedModule: './Component'
+          })
+          .then(m => m.HelloComponent)
       }
     ]
   }
