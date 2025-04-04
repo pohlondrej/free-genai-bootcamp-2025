@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChildren, ViewContainerRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PluginsService, PluginInfo } from '../../services/plugins.service';
 
@@ -35,7 +35,7 @@ import { PluginsService, PluginInfo } from '../../services/plugins.service';
   `]
 })
 export class PluginHostComponent implements OnInit {
-  @ViewChild('pluginContainer', { read: ViewContainerRef, static: false }) 
+  @ViewChildren('pluginContainer', { read: ViewContainerRef }) 
   pluginContainer!: ViewContainerRef;
 
   plugins: PluginInfo[] = [];
