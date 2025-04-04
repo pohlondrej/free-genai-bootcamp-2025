@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { loadRemoteModule } from '@angular-architects/module-federation';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { loadRemoteModule } from '@angular-architects/module-federation';
 
 export interface PluginInfo {
   name: string;
@@ -35,13 +34,17 @@ export class PluginsService {
 
   async loadPluginComponent(plugin: PluginInfo): Promise<any> {
     try {
-      const module = await loadRemoteModule({
-        remoteEntry: `${plugin.frontend_endpoint}/remoteEntry.js`,
-        remoteName: plugin.module_name,
-        exposedModule: './Component'
-      });
+      console.log('Loading remote module from:', plugin.frontend_endpoint);
       
-      return module.HelloComponent;
+      // Load the remote entry module
+      const containerModule = await loadRemoteModule({
+        remoteEntry: `${plugin.frontend_endpoint}/remoteEntry.js`,
+        type: 'module',
+        exposedModule: './Component',
+      });
+      console.log('Remote module loaded');
+
+      return containerModule.HelloComponent;
     } catch (err) {
       console.error(`Failed to load plugin ${plugin.name}:`, err);
       throw err;

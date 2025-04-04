@@ -19,8 +19,8 @@ async def register_plugin():
     """Register this plugin with the main application with retries"""
     plugin_data = {
         "name": PLUGIN_NAME,
-        "backend_endpoint": f"http://example-backend:{PLUGIN_PORT}",
-        "frontend_endpoint": f"http://example-frontend:{PLUGIN_FRONTEND_PORT}",
+        "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
+        "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
         "module_name": "examplePlugin",
         "image": "example-plugin:latest"
     }
