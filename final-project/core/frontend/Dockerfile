@@ -1,5 +1,5 @@
 # Build stage
-FROM node:18
+FROM node:20-slim
 
 ARG APP_DIR
 ARG MODULES_DIR

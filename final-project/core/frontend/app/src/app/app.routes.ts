@@ -5,6 +5,7 @@ import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
 import { loadRemoteModule } from '@angular-architects/module-federation';
+import { Type } from '@angular/core';
 
 export const routes: Routes = [
   {
@@ -67,22 +68,13 @@ export const routes: Routes = [
       },
       {
         path: 'plugins/:name/launch',
-        loadComponent: () => {
-          console.log('Router: Attempting to load remote module');
-          return loadRemoteModule({
-              type: 'module',
-              remoteEntry: 'http://localhost:4201/remoteEntry.js',
-              exposedModule: './Component'
+        loadChildren: () =>
+          loadRemoteModule({
+            type: 'module',
+            remoteEntry: 'http://localhost:4201/remoteEntry.js',
+            exposedModule: './Module' // Load the NgModule
           })
-          .then(m => {
-            console.log('Router: Remote module loaded successfully', m);
-            return m.HelloComponent;
-          })
-          .catch(err => {
-            console.error('Router: Error loading remote module', err);
-            throw err; // Re-throw the error to propagate it
-          });
-        }
+          .then(m => m.HelloModule) // Return the NgModule
       }
     ]
   }
