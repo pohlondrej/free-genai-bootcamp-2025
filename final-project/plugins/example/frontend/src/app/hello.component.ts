@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 
 @Component({
   selector: 'plugin-hello',
-  standalone: true,
+  standalone: false,
   template: `
     <div class="plugin-hello">
       <h2>Hello from Example Plugin!</h2>

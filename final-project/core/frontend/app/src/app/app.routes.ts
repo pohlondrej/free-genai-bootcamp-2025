@@ -72,9 +72,9 @@ export const routes: Routes = [
           loadRemoteModule({
             type: 'module',
             remoteEntry: 'http://localhost:4201/remoteEntry.js',
-            exposedModule: './Module' // Load the NgModule
+            exposedModule: './Module'
           })
-          .then(m => m.HelloModule) // Return the NgModule
+          .then(m => m.HelloModule)
       }
     ]
   }
