@@ -5,7 +5,7 @@ module.exports = {
   output: {
     uniqueName: 'examplePlugin',
     publicPath: 'auto',
-    scriptType: 'module'
+    scriptType: 'text/javascript',
   },
   optimization: {
     runtimeChunk: false
@@ -18,15 +18,14 @@ module.exports = {
       name: 'examplePlugin',
       filename: 'remoteEntry.js',
       exposes: {
-        './Module': './src/app/hello.module.ts'
+        './Module': './src/app/hello.module.ts',
       },
       shared: {
         '@angular/core': { singleton: true, strictVersion: true, requiredVersion: '^19.2.0' },
         '@angular/common': { singleton: true, strictVersion: true, requiredVersion: '^19.2.0' },
         '@angular/router': { singleton: true, strictVersion: true, requiredVersion: '^19.2.0' },
         '@angular/common/http': { singleton: true, strictVersion: true, requiredVersion: '^19.2.0' },
-      },
-      library: { type: 'module' }
+      }
     })
   ]
 };

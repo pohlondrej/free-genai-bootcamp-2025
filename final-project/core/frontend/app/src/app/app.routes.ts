@@ -27,6 +27,11 @@ export const routes: Routes = [
         component: DashboardComponent
       },
       {
+        path: 'test',
+        loadChildren: () => import('./components/test/hello.module')
+          .then(m => m.HelloModule)
+      },
+      {
         path: 'kanji',
         loadComponent: () => import('./components/kanji/kanji.component')
           .then(m => m.KanjiComponent)
@@ -66,28 +71,29 @@ export const routes: Routes = [
           .then(m => m.PluginsComponent)
       },
       {
-        path: 'plugins/:name/launch',
+        path: 'plugins/plugin-hello/launch',
         loadChildren: () => {
-            console.log('[Host Router] Starting loadRemoteModule for HelloModule...'); // Add Log
+            console.log('[Host Router] Starting loadRemoteModule for HelloModule...');
             return loadRemoteModule({
-                type: 'module',
+                remoteName: 'examplePlugin',
                 remoteEntry: 'http://localhost:4201/remoteEntry.js',
                 exposedModule: './Module'
             })
+            
             .then(m => {
-                console.log('[Host Router] Remote module loaded. Raw module object:', m); // Add Log
+                console.log('[Host Router] Remote module loaded. Raw module object:', m);
                 if (m && m.HelloModule) {
-                    console.log('[Host Router] Found HelloModule class:', m.HelloModule); // Add Log
-                    // Check if it has Angular metadata (might be stripped?)
+                    console.log('[Host Router] Found HelloModule class:', m.HelloModule);
                     console.log('[Host Router] HelloModule ngModuleDef:', (m.HelloModule as any)?.ɵmod); 
                 } else {
                     console.error('[Host Router] HelloModule class NOT found in loaded remote module!');
                 }
-                return m.HelloModule; // Return the module class
+                
+                return m.HelloModule;
             })
             .catch(err => {
-                 console.error('[Host Router] Error loading remote module:', err); // Add Log
-                 throw err; // Re-throw error
+                 console.error('[Host Router] Error loading remote module:', err);
+                 throw err;
             });
         }
     }
