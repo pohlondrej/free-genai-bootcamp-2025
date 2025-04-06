@@ -5,7 +5,6 @@ import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
 import { loadRemoteModule } from '@angular-architects/module-federation';
-import { Type } from '@angular/core';
 
 export const routes: Routes = [
   {
@@ -68,14 +67,30 @@ export const routes: Routes = [
       },
       {
         path: 'plugins/:name/launch',
-        loadChildren: () =>
-          loadRemoteModule({
-            type: 'module',
-            remoteEntry: 'http://localhost:4201/remoteEntry.js',
-            exposedModule: './Module'
-          })
-          .then(m => m.HelloModule)
-      }
+        loadChildren: () => {
+            console.log('[Host Router] Starting loadRemoteModule for HelloModule...'); // Add Log
+            return loadRemoteModule({
+                type: 'module',
+                remoteEntry: 'http://localhost:4201/remoteEntry.js',
+                exposedModule: './Module'
+            })
+            .then(m => {
+                console.log('[Host Router] Remote module loaded. Raw module object:', m); // Add Log
+                if (m && m.HelloModule) {
+                    console.log('[Host Router] Found HelloModule class:', m.HelloModule); // Add Log
+                    // Check if it has Angular metadata (might be stripped?)
+                    console.log('[Host Router] HelloModule ngModuleDef:', (m.HelloModule as any)?.ɵmod); 
+                } else {
+                    console.error('[Host Router] HelloModule class NOT found in loaded remote module!');
+                }
+                return m.HelloModule; // Return the module class
+            })
+            .catch(err => {
+                 console.error('[Host Router] Error loading remote module:', err); // Add Log
+                 throw err; // Re-throw error
+            });
+        }
+    }
     ]
   }
 ];
