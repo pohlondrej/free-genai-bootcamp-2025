@@ -18,7 +18,7 @@ from typing import List, Optional
 
 router = APIRouter(prefix="/study-sessions", tags=["study_sessions"])
 
-ITEMS_PER_PAGE = 100
+ITEMS_PER_PAGE = 30
 
 @router.get("", response_model=StudySessionListResponse)
 async def list_study_sessions(

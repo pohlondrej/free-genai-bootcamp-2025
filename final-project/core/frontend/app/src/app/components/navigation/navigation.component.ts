@@ -26,7 +26,6 @@ import { RouterModule } from '@angular/router';
         <li><a routerLink="/kanji" routerLinkActive="active" (click)="closeMenu()">Kanji</a></li>
         <li><a routerLink="/groups" routerLinkActive="active" (click)="closeMenu()">Groups</a></li>
         <li><a routerLink="/sessions" routerLinkActive="active" (click)="closeMenu()">Sessions</a></li>
-        <li><a routerLink="/plugins" routerLinkActive="active" (click)="closeMenu()">Plugins</a></li>
         <li><a routerLink="/settings" routerLinkActive="active" (click)="closeMenu()">Settings</a></li>
       </ul>
     </nav>

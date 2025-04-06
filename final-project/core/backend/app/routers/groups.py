@@ -21,7 +21,7 @@ from typing import List, Optional
 
 router = APIRouter(prefix="/groups", tags=["groups"])
 
-ITEMS_PER_PAGE = 100
+ITEMS_PER_PAGE = 30
 
 @router.get("", response_model=GroupListResponse)
 async def list_groups(
@@ -87,11 +87,11 @@ async def get_group(group_id: int, db: AsyncSession = Depends(get_db)):
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
     
-    # Get stats
+    # Get stats; TODO: Fix the number of completed sessions loading incorrectly
     stats_query = (
         select(
             func.count(StudySession.id).filter(StudySession.completed_at.is_not(None)).label("completed_sessions"),
-            func.count(StudySession.id).filter(StudySession.completed_at.is_(None)).label("active_sessions"),
+            func.count(StudySession.id).filter(and_(StudySession.completed_at.is_(None), StudySession.created_at.is_not(None))).label("active_sessions"),
             func.count(GroupItem.id).filter(GroupItem.item_type == 'word').label("word_count"),
             func.count(GroupItem.id).filter(GroupItem.item_type == 'kanji').label("kanji_count")
         )

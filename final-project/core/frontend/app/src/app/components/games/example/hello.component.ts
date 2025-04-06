@@ -7,7 +7,6 @@ import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
   template: `
     <div class="plugin-hello">
       <h2>Hello from Example Plugin!</h2>
-      <p>This component was loaded via Module Federation.</p>
     </div>
   `,
   styles: [`

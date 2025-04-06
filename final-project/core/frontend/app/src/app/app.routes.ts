@@ -4,7 +4,6 @@ import { KanjiDetailComponent } from './components/kanji/kanji-detail.component'
 import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
-import { loadRemoteModule } from '@angular-architects/module-federation';
 
 export const routes: Routes = [
   {
@@ -25,11 +24,6 @@ export const routes: Routes = [
       {
         path: 'dashboard',
         component: DashboardComponent
-      },
-      {
-        path: 'test',
-        loadChildren: () => import('./components/test/hello.module')
-          .then(m => m.HelloModule)
       },
       {
         path: 'kanji',
@@ -66,37 +60,18 @@ export const routes: Routes = [
           .then(m => m.SettingsComponent)
       },
       {
-        path: 'plugins',
-        loadComponent: () => import('./components/plugins/plugins.component')
-          .then(m => m.PluginsComponent)
+        path: 'games',
+        loadComponent: () => import('./components/games/games.component')
+          .then(m => m.GamesComponent)
       },
+
+      // Games, hardcoded for now.
+      // TODO: Make the module federation lazy-loading work (out of scope for final project)
       {
-        path: 'plugins/plugin-hello/launch',
-        loadChildren: () => {
-            console.log('[Host Router] Starting loadRemoteModule for HelloModule...');
-            return loadRemoteModule({
-                remoteName: 'examplePlugin',
-                remoteEntry: 'http://localhost:4201/remoteEntry.js',
-                exposedModule: './Module'
-            })
-            
-            .then(m => {
-                console.log('[Host Router] Remote module loaded. Raw module object:', m);
-                if (m && m.HelloModule) {
-                    console.log('[Host Router] Found HelloModule class:', m.HelloModule);
-                    console.log('[Host Router] HelloModule ngModuleDef:', (m.HelloModule as any)?.ɵmod); 
-                } else {
-                    console.error('[Host Router] HelloModule class NOT found in loaded remote module!');
-                }
-                
-                return m.HelloModule;
-            })
-            .catch(err => {
-                 console.error('[Host Router] Error loading remote module:', err);
-                 throw err;
-            });
-        }
-    }
+        path: 'games/example',
+        loadChildren: () => import('./components/games/example/hello.module')
+          .then(m => m.HelloModule)
+      }
     ]
   }
 ];

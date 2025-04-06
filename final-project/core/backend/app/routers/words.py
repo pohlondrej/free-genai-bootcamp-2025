@@ -18,7 +18,7 @@ from typing import List, Optional
 
 router = APIRouter(prefix="/words", tags=["words"])
 
-ITEMS_PER_PAGE = 100
+ITEMS_PER_PAGE = 30
 
 @router.get("", response_model=WordListResponse)
 async def list_words(

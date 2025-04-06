@@ -12,7 +12,7 @@ project/
 │   ├── app/
 │   │   ├── __init__.py
 │   │   ├── main.py
-│   │   ├── plugins/
+│   │   ├── games/
 │   │   └── ...
 │   ├── Dockerfile
 │   └── requirements.txt

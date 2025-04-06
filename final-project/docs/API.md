@@ -1,6 +1,6 @@
 # API Endpoints
 ## GET `/api/words`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -19,7 +19,7 @@
     "current_page": 1,
     "total_pages": 2,
     "total_items": 200,
-    "items_per_page": 100
+    "items_per_page": 30
   }
 }
 ```
@@ -63,7 +63,7 @@
     "current_page": 1,
     "total_pages": 2,
     "total_items": 200,
-    "items_per_page": 100
+    "items_per_page": 30
   }
 }
 ```
@@ -90,7 +90,7 @@
 }
 ```
 ## GET `/api/groups`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -105,7 +105,7 @@
     "current_page": 1,
     "total_pages": 1,
     "total_items": 10,
-    "items_per_page": 100
+    "items_per_page": 30
   }
 }
 ```
@@ -121,7 +121,7 @@
 }
 ```
 ## GET `/api/groups/:id/items`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -146,13 +146,13 @@
   "pagination": {
     "current_page": 1,
     "total_pages": 1,
-    "total_items": 10,
-    "items_per_page": 100
+    "total_items": 100,
+    "items_per_page": 30
   }
 }
 ```
 ## GET `/api/groups/:id/study_sessions`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -170,7 +170,7 @@
     "current_page": 1,
     "total_pages": 1,
     "total_items": 5,
-    "items_per_page": 100
+    "items_per_page": 30
   }
 }
 ```
@@ -250,7 +250,7 @@
 }
 ```
 ## GET `/api/study_sessions`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -267,7 +267,7 @@
   "pagination": {
     "current_page": 1,
     "total_pages": 5,
-    "total_items": 100,
+    "total_items": 30,
     "items_per_page": 20
   }
 }
@@ -285,7 +285,7 @@
 }
 ```
 ## GET `/api/study_sessions/:id/items`
-- pagination with 100 items per page
+- pagination with 30 items per page
 ### JSON Response
 ```json
 {
@@ -311,7 +311,7 @@
     "current_page": 1,
     "total_pages": 1,
     "total_items": 20,
-    "items_per_page": 100
+    "items_per_page": 30
   }
 }
 ```

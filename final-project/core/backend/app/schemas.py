@@ -179,6 +179,12 @@ class ReviewItemInSession(BaseModel):
     class Config:
         from_attributes = True
 
+class ReviewItemCreate(BaseModel):
+    item_type: str  # 'word' or 'kanji'
+    item_id: int
+    study_session_id: int
+    correct: bool
+
 class StudySessionDetail(StudySessionBase):
     group_id: int
     review_items: List[ReviewItemInSession]
