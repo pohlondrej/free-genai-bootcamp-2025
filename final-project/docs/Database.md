@@ -1,0 +1,38 @@
+# Database schema
+There will be the following tables:
+- words - stored vocabulary words
+    - id integer
+    - word_level string
+    - japanese string
+    - kana string
+    - romaji string
+    - english string
+- kanji - stored kanji characters
+    - id integer
+    - kanji_level string
+    - symbol string
+    - primary_meaning string
+    - primary_reading string
+    - primary_reading_type string
+- group_items - join table for words and groups, many-to-many
+    - id integer
+    - item_id integer
+    - item_type string
+    - group_id integer
+- groups - thematic groups of words
+    - id integer
+    - name string
+- study_sessions - records of study sessions, mapping group to an an activity_type (e.g., "vocab_quiz", "kanji_practice")
+    - id integer
+    - group_id integer
+    - activity_type string
+    - created_at datetime
+    - completed_at datetime
+- word_review_items - a record of word practice, determining if the word was correct or not
+    - word_id integer
+    - study_session_id integer
+    - correct boolean
+    - created_at datetime
+- user - user account information
+    - key string
+    - value string

@@ -1,0 +1,96 @@
+<div class="wizard-container">
+  <div class="wizard-content">
+    <!-- API Key Input Step -->
+    <div *ngIf="!isImportComplete">
+      <h2>Choose Your Learning Path</h2>
+      <p>You can either connect your WaniKani account or start with JLPT N5 kanji and vocabulary set.</p>
+
+      <form (ngSubmit)="onSubmit()" #form="ngForm">
+        <!-- Gemini API Key -->
+        <div class="form-group">
+          <label for="geminiApiKey">Add Gemini API Key (Highly Recommended) *</label>
+          <input
+            type="text"
+            id="geminiApiKey"
+            name="geminiApiKey"
+            [(ngModel)]="geminiApiKey"
+            [disabled]="isSubmitting"
+            placeholder="Enter your Gemini API key"
+          >
+          <div class="hint">
+            Get your API key <a href="https://aistudio.google.com/app/apikey" target="_blank">here</a>. 
+            This greatly enhances AI-powered features for better learning experience. If not added, local Ollama setup is assumed.
+          </div>
+        </div>
+
+        <!-- WaniKani API Key -->
+        <div class="form-group">
+          <label for="apiKey">WaniKani API Key</label>
+          <input
+            type="text"
+            id="apiKey"
+            name="apiKey"
+            [(ngModel)]="apiKey"
+            [disabled]="isSubmitting"
+            required
+            placeholder="Enter your API key"
+          >
+        </div>
+
+        <div class="error" *ngIf="error">{{ error }}</div>
+
+        <!-- Progress indicator -->
+        <div class="progress-container" *ngIf="isSubmitting">
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="progress"></div>
+          </div>
+          <div class="progress-text">{{ progressMessage }}</div>
+        </div>
+
+        <div class="button-group">
+          <button
+            type="button"
+            [routerLink]="['/onboarding']"
+            [disabled]="isSubmitting"
+          >
+            Back
+          </button>
+          
+          <button
+            type="button"
+            class="jlpt-button"
+            (click)="initializeWithJLPT()"
+            [disabled]="isSubmitting"
+          >
+            Use JLPT N5
+          </button>
+          
+          <button
+            type="submit"
+            class="submit-button"
+            [disabled]="isSubmitting || !apiKey"
+          >
+            {{ isSubmitting ? 'Importing...' : 'Connect WaniKani' }}
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Success Step -->
+    <div *ngIf="isImportComplete" class="success-step">
+      <div class="success-icon">✓</div>
+      <h2>Your App is Ready!</h2>
+      <p>Your vocabulary and kanji data has been successfully imported.</p>
+      <p>You can now start using DuoKani to enhance your Japanese learning journey!</p>
+      
+      <div class="button-group">
+        <button
+          class="submit-button"
+          (click)="goToApp()"
+        >
+          Start Using DuoKani
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

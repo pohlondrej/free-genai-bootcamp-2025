@@ -1,0 +1,17 @@
+.dashboard {
+  h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  .games-link {
+    display: inline-block;
+    color: var(--text-muted);
+    text-decoration: none;
+    margin-bottom: 1rem;
+    transition: color 0.2s;
+
+    &:hover {
+      color: var(--primary-color);
+    }
+  }
+}

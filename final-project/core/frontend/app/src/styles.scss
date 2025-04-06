@@ -1,0 +1,51 @@
+/* You can add global styles to this file, and also import other style files */
+
+:root {
+  // Light theme variables
+  --bg-color: #ffffff;
+  --surface-color: #f8f9fa;
+  --text-color: #2c3e50;
+  --text-muted: #6c757d;
+  --primary-color: #1a73e8;
+  --secondary-color: #34a853;
+  --error-color: #dc3545;
+  --border-color: #dee2e6;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --toggle-bg: #e9ecef;
+}
+
+.dark-theme {
+  --bg-color: #1a1a1a;
+  --surface-color: #2d2d2d;
+  --text-color: #e9ecef;
+  --text-muted: #adb5bd;
+  --primary-color: #4285f4;
+  --secondary-color: #34a853;
+  --error-color: #dc3545;
+  --border-color: #404040;
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --toggle-bg: #404040;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

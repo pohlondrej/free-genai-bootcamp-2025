@@ -1,0 +1,141 @@
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0rem 2rem;
+  background-color: var(--surface-color);
+  box-shadow: var(--shadow-sm);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+
+  .logo {
+    a {
+      font-size: 1.5rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: var(--text-color);
+      display: flex;
+      align-items: center;
+
+      .logo-icon {
+        width: 64px;
+        height: 64px;
+        display: inline-block;
+        background-image: url('../../../assets/crabowl_background.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-position: center;
+        filter: brightness(0);
+        opacity: 0.8;
+
+        :host-context(.dark-theme) & {
+          filter: brightness(0) invert(1);
+          opacity: 0.9;
+        }
+      }
+
+      span {
+        letter-spacing: 1px;
+      }
+    }
+  }
+
+  .menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+
+    .bar {
+      width: 100%;
+      height: 3px;
+      background-color: var(--text-color);
+      transition: all 0.3s ease-in-out;
+    }
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    li {
+      a {
+        text-decoration: none;
+        color: var(--text-color);
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background-color: var(--border-color);
+        }
+
+        &.active {
+          background-color: var(--primary-color);
+          color: white;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    .menu-toggle {
+      display: flex;
+
+      &[aria-expanded="true"] {
+        .bar:nth-child(1) {
+          transform: translateY(9px) rotate(45deg);
+        }
+        .bar:nth-child(2) {
+          opacity: 0;
+        }
+        .bar:nth-child(3) {
+          transform: translateY(-9px) rotate(-45deg);
+        }
+      }
+    }
+
+    .nav-links {
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: var(--surface-color);
+      padding: 5rem 2rem 2rem;
+      box-shadow: var(--shadow-md);
+
+      &.open {
+        display: flex;
+      }
+
+      li {
+        a {
+          display: block;
+          padding: 1rem;
+          border-radius: 0;
+
+          &:hover {
+            background-color: var(--border-color);
+          }
+        }
+      }
+    }
+  }
+}

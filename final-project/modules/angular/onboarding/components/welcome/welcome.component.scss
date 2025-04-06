@@ -1,0 +1,52 @@
+.welcome-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.welcome-content {
+  background: #1a1a1a;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+
+  h1 {
+    color: #fff;
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+  }
+
+  p {
+    color: #ccc;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .get-started-btn {
+    display: inline-block;
+    padding: 0.75rem 2rem;
+    border: 2px solid #3498db;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: transparent;
+    color: #3498db;
+    text-decoration: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #3498db;
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

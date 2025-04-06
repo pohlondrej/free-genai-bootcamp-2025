@@ -1,0 +1,34 @@
+services:
+  backend:
+    build:
+      args:
+        APP_DIR: /core/backend
+        MODULES_DIR: /modules/python
+      context: .
+      dockerfile: core/backend/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+
+  frontend:
+    build:
+      args:
+        APP_DIR: /core/frontend/app
+        MODULES_DIR: /modules/angular
+      context: .
+      dockerfile: core/frontend/Dockerfile
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
+
+  nginx:
+    build:
+      context: ./modules/nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend

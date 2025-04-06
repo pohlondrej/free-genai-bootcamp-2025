@@ -1,0 +1,59 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../../assets/crabowl_background.svg');
+    background-repeat: repeat;
+    background-size: 64px;
+    opacity: 0.03;
+    pointer-events: none;
+    z-index: 0;
+    
+    // Theme-based tint
+    .dark-theme & {
+      filter: invert(1);
+      opacity: 0.02;
+    }
+  }
+}
+
+.content {
+  flex: 1;
+  padding: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;  // Ensure content stays above background
+  z-index: 1;
+  
+  @media (min-width: 768px) {
+    padding: 1.5rem;
+    max-width: min(calc(100vw - 250px - 3rem), 1200px); // Responsive max-width
+  }
+}
+
+@media (max-width: 767px) {
+  :host {
+    app-navigation {
+      width: 100%;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      z-index: 1000;
+    }
+  }
+
+  .content {
+    padding-bottom: calc(1rem + 60px); // Combine padding and space for navigation
+  }
+}
