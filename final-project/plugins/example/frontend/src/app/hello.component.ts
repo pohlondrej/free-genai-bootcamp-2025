@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'plugin-hello',
   standalone: false,
+  encapsulation: ViewEncapsulation.None,
   template: `
     <div class="plugin-hello">
       <h2>Hello from Example Plugin!</h2>
@@ -29,5 +30,9 @@ export class HelloComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('HelloComponent: OnDestroy');
+  }
+
+  ngDoCheck(): void {
+    console.log('HelloComponent: Change detection triggered');
   }
 }

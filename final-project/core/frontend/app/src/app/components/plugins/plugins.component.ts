@@ -49,6 +49,7 @@ export class PluginsComponent implements OnInit {
 
   launchPlugin(pluginName: string) {
     console.log(`PluginsComponent: launchPlugin - Navigating to ${pluginName}`);
+    this.router.config.forEach(r => console.log(JSON.stringify(r)));
     this.router.navigate(['/plugins', pluginName, 'launch'])
       .then(() => console.log(`PluginsComponent: Navigation to ${pluginName} complete`))
       .catch(err => console.error(`PluginsComponent: Navigation error`, err));
