@@ -9,8 +9,8 @@ logger = logging.getLogger(__name__)
 
 # Plugin configuration
 PLUGIN_NAME = "example"
-PLUGIN_PORT = 8001
-PLUGIN_FRONTEND_PORT = 4201
+PLUGIN_PORT = 8099
+PLUGIN_FRONTEND_PORT = 4299
 MAIN_APP_URL = "http://nginx:80"
 REGISTRATION_RETRY_DELAY = 5  # seconds
 MAX_RETRIES = 30  # 5 seconds * 30 = 2.5 minutes max wait

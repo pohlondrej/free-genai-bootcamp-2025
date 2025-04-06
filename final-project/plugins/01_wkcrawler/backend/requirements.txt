@@ -1,0 +1,9 @@
+fastapi
+wikipedia-api
+duckduckgo-search
+uvicorn
+httpx
+python-dotenv
+aiohttp
+google-genai
+pydantic

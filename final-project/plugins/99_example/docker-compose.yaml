@@ -6,13 +6,13 @@ services:
       context: ./plugins/example/backend
       dockerfile: Dockerfile
     ports:
-      - "8001:8001"
+      - "8099:8099"
 
   # example-frontend:
   #   build:
   #     context: ./plugins/example/frontend
   #     dockerfile: Dockerfile
   #   ports:
-  #     - "4201:4201"
+  #     - "4299:4299"
   #   depends_on:
   #     - example-backend
