@@ -28,17 +28,32 @@ async def summarize_text(text: str, llm_provider: LLMProvider) -> Dict[str, str]
     # Create the full prompt
     full_prompt = f"{prompt_template}\n\n{text}"
     
-    # Get response from LLM
-    response = await llm_provider.call(full_prompt)
-    
-    # Validate response
-    if not isinstance(response, dict) or 'simplified' not in response:
-        raise ValueError("Expected response with 'simplified' field")
+    try:
+        # Get response from LLM
+        raw_response = await llm_provider.call(full_prompt)
         
-    return {
-        'original': text,
-        'simplified': response['simplified']
-    }
+        # Extract JSON from response if needed
+        if isinstance(raw_response, str):
+            response = eval(raw_response)
+        else:
+            response = raw_response
+            
+        # Validate response
+        if not isinstance(response, dict) or 'simplified' not in response:
+            raise ValueError("Expected response with 'simplified' field")
+            
+        # Ensure simplified text is not empty
+        simplified = response['simplified'].strip()
+        if not simplified:
+            raise ValueError("Simplified text is empty")
+            
+        return {
+            'original': text,
+            'simplified': simplified
+        }
+    except Exception as e:
+        logger.error(f"Failed to simplify text: {e}")
+        raise
 
 if __name__ == "__main__":
     # Test the function
@@ -48,9 +63,14 @@ if __name__ == "__main__":
     
     try:
         from common.llms import LLMFactory
-        llm = LLMFactory.create()
-        result = summarize_text(test_text, llm)
-        print("Original:", result["original"])
-        print("\nSimplified:", result["simplified"])
+        import asyncio
+        
+        async def test():
+            llm = LLMFactory.create()
+            result = await summarize_text(test_text, llm)
+            print("Original:", result["original"])
+            print("\nSimplified:", result["simplified"])
+            
+        asyncio.run(test())
     except Exception as e:
         print(f"Error: {e}")

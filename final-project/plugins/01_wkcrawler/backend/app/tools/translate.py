@@ -44,29 +44,54 @@ async def translate_to_japanese(english_text: str, llm_provider: LLMProvider) ->
         Dict containing:
         - english: Original English text
         - translation: Japanese translation
-        - romaji: Romanized reading of the translation
     """
     # Load and prepare prompt
     prompt_template = load_prompt()
     full_prompt = f"{prompt_template}\n\n{english_text}"
     
-    # Get response from LLM
-    response = await llm_provider.call(full_prompt)
-    
-    # Validate response
-    if not validate_translation(response):
-        raise ValueError("Invalid translation response")
+    try:
+        # Get response from LLM
+        response = await llm_provider.call(full_prompt)
         
-    return response
+        # If response is string, try to extract JSON
+        if isinstance(response, str):
+            # Find the JSON object in the response
+            start = response.find('{')
+            end = response.rfind('}') + 1
+            if start == -1 or end == 0:
+                raise ValueError("No JSON object found in response")
+            
+            response = json.loads(response[start:end])
+        
+        # Validate translation
+        if not validate_translation(response):
+            raise ValueError("Invalid translation format")
+            
+        return {
+            "translation": response["translation"].strip(),
+            "english": response["english"].strip()
+        }
+        
+    except Exception as e:
+        logger.error(f"Error translating text: {e}")
+        return {
+            "translation": "",
+            "english": english_text,
+            "error": str(e)
+        }
 
 if __name__ == "__main__":
     # Test the translation
     test_text = "I would like to eat sushi."
     try:
         from common.llms import LLMFactory
-        llm = LLMFactory.create()
         import asyncio
-        result = asyncio.run(translate_to_japanese(test_text, llm))
-        print(json.dumps(result, ensure_ascii=False, indent=2))
+        
+        async def test():
+            llm = LLMFactory.create()
+            result = await translate_to_japanese(test_text, llm)
+            print(json.dumps(result, ensure_ascii=False, indent=2))
+            
+        asyncio.run(test())
     except Exception as e:
         print(f"Error: {e}")

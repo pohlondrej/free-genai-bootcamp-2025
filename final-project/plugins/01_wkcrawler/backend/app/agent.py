@@ -13,86 +13,33 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class AgentError(Exception):
-    """Custom error for agent-specific issues."""
+    """Custom error for agent-specific failures."""
     pass
 
 class TopicExplorerAgent:
     def __init__(self, llm_provider: LLMProvider, max_turns: int = 20):
-        self.llm_provider = llm_provider
-        self.max_turns = max_turns
-        self.turn_count = 0
+        """Initialize the agent with tools and LLM provider."""
         self.tools = {
             "search_wikipedia": search_wikipedia,
             "summarize_text": summarize_text,
             "translate_to_japanese": translate_to_japanese,
             "extract_vocabulary": extract_vocabulary
         }
-        self.load_prompts()
-    
-    def load_prompts(self) -> None:
-        """Load all prompt templates."""
-        prompts_dir = os.path.join(os.path.dirname(__file__), 'prompts')
-        
-        # Load base prompt
-        with open(os.path.join(prompts_dir, 'agent.txt'), 'r', encoding='utf-8') as f:
-            self.base_prompt = f.read()
-            
-        # Load validation error prompt
-        with open(os.path.join(prompts_dir, 'validation_error.txt'), 'r', encoding='utf-8') as f:
-            self.validation_error_prompt = f.read()
-            
-        # Load tool error prompt
-        with open(os.path.join(prompts_dir, 'tool_error.txt'), 'r', encoding='utf-8') as f:
-            self.tool_error_prompt = f.read()
-
-    async def run(self, input_text: str) -> Dict:
-        """Run the ReAct loop with input text."""
+        self.llm_provider = llm_provider
+        self.max_turns = max_turns
         self.turn_count = 0
-        conversation = [
-            self.base_prompt,
-            f'Input: {input_text}'
-        ]
-
-        while self.turn_count < self.max_turns:
-            self.turn_count += 1
-            logger.info(f"Turn {self.turn_count}")
-
-            try:
-                # Get and validate LLM response
-                response = await self.llm_provider.call('\n'.join(conversation))
-                try:
-                    self.validate_response(response)
-                except AgentError as validation_error:
-                    # Give the agent another chance to fix its response
-                    logger.info(f"Response validation failed: {validation_error}. Asking agent to fix it.")
-                    conversation.append(self.validation_error_prompt.format(error=str(validation_error)))
-                    continue
-                
-                # Check for final answer
-                if "final_answer" in response:
-                    return response["final_answer"]
-
-                # Execute tool if action is present
-                action = response["action"]
-                tool_result = await self.execute_tool(action)
-                
-                if "error" in tool_result:
-                    error_msg = f"Tool execution failed: {tool_result['error']}"
-                    logger.error(error_msg)
-                    conversation.append(self.tool_error_prompt.format(error=error_msg))
-                else:
-                    result_str = json.dumps(tool_result["result"], ensure_ascii=False)
-                    conversation.append(f"Tool output: {result_str}")
-                    
-            except AgentError as e:
-                logger.error(f"Agent error: {str(e)}")
-                return {"error": str(e)}
-            except Exception as e:
-                logger.error(f"Unexpected error: {str(e)}")
-                return {"error": f"Unexpected error: {str(e)}"}
-
-        return {"error": f"Exceeded maximum turns ({self.max_turns})"}
-
+        
+        # Load prompts
+        self.base_prompt = self._load_prompt('agent.txt')
+        self.validation_error_prompt = "Error in last response: {error}. Please fix and try again."
+        self.tool_error_prompt = "Tool execution failed: {error}. Please try a different approach."
+        
+    def _load_prompt(self, filename: str) -> str:
+        """Load a prompt template from the prompts directory."""
+        prompt_path = os.path.join(os.path.dirname(__file__), 'prompts', filename)
+        with open(prompt_path, 'r', encoding='utf-8') as f:
+            return f.read()
+            
     def validate_response(self, response: Dict) -> None:
         """Validate the structure of the LLM response."""
         if not isinstance(response, dict):
@@ -123,9 +70,60 @@ class TopicExplorerAgent:
                 return {"error": f"Unknown tool: {tool_name}"}
             
             result = await self.tools[tool_name](tool_input, self.llm_provider)
+            logger.info(f"Tool result: {json.dumps(result, ensure_ascii=False)}")
             return {"result": result}
         except Exception as e:
             return {"error": str(e)}
+
+    async def run(self, input_text: str) -> Dict:
+        """Run the ReAct loop with input text."""
+        self.turn_count = 0
+        conversation = [
+            self.base_prompt,
+            f'Input: {input_text}'
+        ]
+
+        while self.turn_count < self.max_turns:
+            self.turn_count += 1
+            logger.info(f"Turn {self.turn_count}")
+
+            try:
+                # Get and validate LLM response
+                response = await self.llm_provider.call('\n'.join(conversation))
+                try:
+                    self.validate_response(response)
+                    logger.info(f"Thought: {response.get('thought', '')}")
+                except AgentError as validation_error:
+                    # Give the agent another chance to fix its response
+                    logger.info(f"Response validation failed: {validation_error}. Asking agent to fix it.")
+                    conversation.append(self.validation_error_prompt.format(error=str(validation_error)))
+                    continue
+                
+                # Check for final answer
+                if "final_answer" in response:
+                    return response["final_answer"]
+
+                # Execute tool if action is present
+                action = response["action"]
+                logger.info(f"Executing tool: {action['name']}")
+                tool_result = await self.execute_tool(action)
+                
+                if "error" in tool_result:
+                    error_msg = f"Tool execution failed: {tool_result['error']}"
+                    logger.error(error_msg)
+                    conversation.append(self.tool_error_prompt.format(error=error_msg))
+                else:
+                    result_str = json.dumps(tool_result["result"], ensure_ascii=False)
+                    conversation.append(f"Tool output: {result_str}")
+                    
+            except AgentError as e:
+                logger.error(f"Agent error: {str(e)}")
+                return {"error": str(e)}
+            except Exception as e:
+                logger.error(f"Unexpected error: {str(e)}")
+                return {"error": f"Unexpected error: {str(e)}"}
+
+        return {"error": f"Exceeded maximum turns ({self.max_turns})"}
 
 if __name__ == "__main__":
     # Test the agent with English text

@@ -25,9 +25,12 @@ def search_wikipedia_api(query: str) -> List[str]:
         "srsearch": query,
         "srlimit": 5  # Get top 5 results
     }
+    headers = {
+        "User-Agent": "WaniduokaniTopicExplorer/1.0 (https://github.com/pohlondrej/free-genai-bootcamp-2025; pohlondrej@gmail.com)"
+    }
     
     try:
-        response = requests.get(search_url, params=params)
+        response = requests.get(search_url, params=params, headers=headers)
         response.raise_for_status()
         data = response.json()
         
@@ -61,7 +64,10 @@ async def search_wikipedia(topic: str, llm_provider: LLMProvider, language: str 
         }
     
     # Get the first article's content
-    wiki = wikipediaapi.Wikipedia(language)
+    wiki = wikipediaapi.Wikipedia(
+        language=language,
+        user_agent="WaniduokaniTopicExplorer/1.0 (https://github.com/pohlondrej/free-genai-bootcamp-2025; pohlondrej@gmail.com)"
+    )
     page = wiki.page(titles[0])
     
     if not page.exists():
@@ -81,6 +87,7 @@ async def search_wikipedia(topic: str, llm_provider: LLMProvider, language: str 
     # Process the summary with LLM to make it more readable
     try:
         response = await llm_provider.call(f"Please summarize this Wikipedia excerpt in a clear and concise way:\n\n{summary}")
+        
         if isinstance(response, dict) and "summary" in response:
             processed_summary = response["summary"]
         else:
