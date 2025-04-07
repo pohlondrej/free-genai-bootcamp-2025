@@ -71,6 +71,11 @@ export const routes: Routes = [
         path: 'games/example',
         loadChildren: () => import('./components/games/example/hello.module')
           .then(m => m.HelloModule)
+      },
+      {
+        path: 'games/wkcrawler',
+        loadChildren: () => import('./components/games/wkcrawler/wkcrawler.module')
+          .then(m => m.WkCrawlerModule)
       }
     ]
   }

@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 from typing import Dict, List, Optional
@@ -27,6 +28,16 @@ app = FastAPI(
     docs_url="/docs",
     openapi_url="/openapi.json",
     root_path="/api"
+)
+
+# Configure CORS - allow all origins in development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # More permissive for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 class Topic(BaseModel):
