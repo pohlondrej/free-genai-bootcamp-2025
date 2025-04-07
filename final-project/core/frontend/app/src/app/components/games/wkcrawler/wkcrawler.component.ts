@@ -211,7 +211,7 @@ export class WkCrawlerComponent implements OnInit, OnDestroy {
     const container = button.closest('.favorite-container') as HTMLDivElement;
     
     try {
-      await this.http.post('/api/favorite', {
+      await this.http.post('/api/favorites/add', {
         word: word.word,
         reading: word.reading,
         romaji: word.romaji,
