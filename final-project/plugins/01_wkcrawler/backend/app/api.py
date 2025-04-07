@@ -71,6 +71,11 @@ async def process_topic(job_id: str, english_text: str):
     """Process the topic using the agent."""
     try:
         agent = TopicExplorerAgent()
+
+        if not gemini_api_key:
+            # Try loading the API key again
+            await get_gemini_api_key()
+
         result = agent.run(english_text, gemini_api_key)
         
         # Store the result
