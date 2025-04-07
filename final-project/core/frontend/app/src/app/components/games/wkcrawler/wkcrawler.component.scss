@@ -2,7 +2,7 @@
   padding: 2rem;
 
   .page-header {
-    margin-bottom: 2rem;
+    margin-bottom: 2.5rem;
 
     h1 {
       font-size: 2rem;
@@ -19,7 +19,7 @@
         flex: 1;
         padding: 0.75rem 1rem;
         border: 2px solid var(--border-color);
-        border-radius: 8px;
+        border-radius: 12px;
         font-size: 1rem;
         color: var(--text-color);
         background: var(--surface-color);
@@ -28,7 +28,7 @@
         &:focus {
           outline: none;
           border-color: var(--primary-color);
-          box-shadow: 0 0 0 2px var(--primary-color-alpha);
+          box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
         }
 
         &:disabled {
@@ -40,7 +40,7 @@
       button {
         padding: 0.75rem 1.5rem;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         background: var(--primary-color);
         color: white;
         font-size: 1rem;
@@ -49,8 +49,9 @@
         transition: all 0.2s;
 
         &:hover:not(:disabled) {
-          background: var(--primary-color-dark);
+          background: #1557b0;
           transform: translateY(-1px);
+          box-shadow: var(--shadow-sm);
         }
 
         &:disabled {
@@ -62,23 +63,32 @@
   }
 
   .result-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+
     .article-card {
       background: var(--surface-color);
       border: 2px solid var(--border-color);
       border-radius: 12px;
-      padding: 1.5rem;
-      margin-bottom: 2rem;
+      padding: 2rem;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: var(--primary-color);
+        box-shadow: var(--shadow-sm);
+      }
 
       h2 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         color: var(--text-color);
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .translation {
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: 1.5rem;
 
         .translation-item {
           .label {
@@ -86,13 +96,15 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.5rem;
+            display: block;
           }
 
           p {
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             color: var(--text-color);
             margin: 0;
+            line-height: 1.5;
           }
         }
       }
@@ -100,40 +112,54 @@
 
     .vocabulary-section {
       h2 {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         color: var(--text-color);
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
       }
 
       .vocabulary-table {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         background: var(--surface-color);
         border: 2px solid var(--border-color);
         border-radius: 12px;
         overflow: hidden;
+        transition: all 0.2s;
+
+        &:hover {
+          border-color: var(--secondary-color);
+          box-shadow: var(--shadow-sm);
+        }
 
         th, td {
-          padding: 1rem;
+          padding: 1.25rem;
           text-align: left;
           border-bottom: 1px solid var(--border-color);
         }
 
         th {
-          background: var(--surface-color-alt);
+          background: var(--surface-color);
           font-weight: 600;
           color: var(--text-muted);
           text-transform: uppercase;
           font-size: 0.875rem;
           letter-spacing: 0.5px;
+          border-bottom: 2px solid var(--border-color);
         }
 
         td {
           color: var(--text-color);
-          font-size: 1rem;
+          font-size: 1.125rem;
+          background: var(--surface-color);
 
           &:first-child {
             font-weight: 600;
+            color: var(--primary-color);
+          }
+
+          &:nth-child(2) {
+            color: var(--secondary-color);
           }
         }
 
@@ -146,6 +172,14 @@
 
           &:hover {
             background-color: var(--surface-color-alt);
+
+            td:first-child {
+              color: #1557b0;
+            }
+
+            td:nth-child(2) {
+              color: #2d8a46;
+            }
           }
         }
       }
