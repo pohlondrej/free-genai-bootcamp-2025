@@ -17,6 +17,7 @@ interface VocabularyItem {
   reading: string;
   romaji: string;
   meaning: string;
+  isFavorited?: boolean;
 }
 
 interface TopicResult {
@@ -78,6 +79,7 @@ interface TopicResult {
                 <th>Reading</th>
                 <th>Romaji</th>
                 <th>Meaning</th>
+                <th>Favorite</th>
               </tr>
             </thead>
             <tbody>
@@ -86,6 +88,16 @@ interface TopicResult {
                 <td>{{word.reading}}</td>
                 <td>{{word.romaji}}</td>
                 <td>{{word.meaning}}</td>
+                <td>
+                  <button 
+                    class="favorite-btn" 
+                    [class.favorited]="word.isFavorited"
+                    [disabled]="word.isFavorited"
+                    (click)="addToFavorites(word)"
+                    [attr.title]="word.isFavorited ? 'Added to favorites!' : 'Add to favorites'">
+                    <span class="heart-icon">♥</span>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -190,5 +202,21 @@ export class WkCrawlerComponent implements OnInit, OnDestroy {
           this.isProcessing = false;
         }
       });
+  }
+
+  async addToFavorites(word: VocabularyItem) {
+    try {
+      await this.http.post('/api/favorite', {
+        word: word.word,
+        reading: word.reading,
+        romaji: word.romaji,
+        meaning: word.meaning
+      }).toPromise();
+      
+      word.isFavorited = true;
+    } catch (err) {
+      this.error = 'Failed to add word to favorites';
+      setTimeout(() => this.error = null, 3000);
+    }
   }
 }
