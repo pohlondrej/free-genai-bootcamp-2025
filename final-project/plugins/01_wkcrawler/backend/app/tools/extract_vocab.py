@@ -1,6 +1,7 @@
 import json
 import os
 from typing import List, Dict
+from common.llms import call_ollama, call_gemini
 
 def load_prompt() -> str:
     """Load the vocabulary extraction prompt template."""
@@ -30,27 +31,20 @@ def validate_vocab_entry(entry: Dict) -> bool:
 
 def extract_vocabulary(text: str) -> List[Dict[str, str]]:
     """Extract vocabulary from Japanese text using Ollama."""
-    import requests
-
     # Load and prepare prompt
     prompt_template = load_prompt()
     full_prompt = f"{prompt_template}\n\n{text}"
     
-    # Call Ollama API
-    response = requests.post('http://localhost:11434/api/generate',
-                           json={
-                               'model': 'qwen2.5:7b',
-                               'prompt': full_prompt,
-                               'stream': False,
-                               'temperature': 0.1  # Low temperature for consistent output
-                           })
-    
-    if response.status_code != 200:
-        raise Exception(f"Ollama API error: {response.text}")
+    if not client:
+        logger.info("Using Ollama for vocabulary extraction")
+        response = call_ollama(full_prompt)
+    else:
+        logger.info("Using Google Gemini for vocabulary extraction")
+        response = call_gemini(full_prompt)
     
     # Extract JSON from response
     try:
-        result = response.json()['response']
+        result = response.json()
         # Find the JSON array in the response
         start = result.find('[')
         end = result.rfind(']') + 1

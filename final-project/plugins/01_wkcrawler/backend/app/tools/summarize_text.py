@@ -2,6 +2,12 @@ import os
 import requests
 from typing import Dict
 import re
+import logging
+from common.llms import call_ollama, call_gemini
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def summarize_text(text: str) -> Dict[str, str]:
     """Simplify English text to be more understandable.
@@ -22,22 +28,15 @@ def summarize_text(text: str) -> Dict[str, str]:
     
     # Create the full prompt
     full_prompt = f"{prompt_template}\n\n{text}"
+
+    if not client:
+        logger.info("Using Ollama for vocabulary extraction")
+        response = call_ollama(full_prompt)
+    else:
+        logger.info("Using Google Gemini for vocabulary extraction")
+        response = call_gemini(full_prompt)
     
     try:
-        # Call Ollama API
-        response = requests.post('http://localhost:11434/api/generate',
-                               json={
-                                   'model': 'qwen2.5:7b',
-                                   'prompt': full_prompt,
-                                   'stream': False
-                               })
-        
-        if response.status_code != 200:
-            return {
-                "original": text,
-                "simplified": f"Error: Failed to simplify text (HTTP {response.status_code})"
-            }
-            
         simplified = response.json()['response'].strip()
         
         # Validation

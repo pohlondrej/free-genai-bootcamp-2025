@@ -1,14 +1,13 @@
 import json
 import os
 import logging
-from typing import Dict, List, Optional, Any
-import requests
+from typing import Dict, Any
 from tools.extract_vocab import extract_vocabulary
 from tools.translate import translate_to_japanese
 from tools.search_wikipedia import search_wikipedia
 from tools.summarize_text import summarize_text
 from google import genai
-from pydantic import BaseModel
+from common.llms import call_ollama, call_gemini, AgentError
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -16,14 +15,6 @@ logger = logging.getLogger(__name__)
 
 # Set up Google Gemini
 client = None
-
-class AgentError(Exception):
-    """Custom error for agent-specific issues."""
-    pass
-
-class GeminiResponse(BaseModel):
-    """Response model for Gemini API."""
-    response: str
 
 class TopicExplorerAgent:
     def __init__(self, max_turns: int = 20):
@@ -84,47 +75,6 @@ class TopicExplorerAgent:
                 
         raise AgentError(f"Failed to parse any JSON from response: {text}")
 
-    def call_ollama(self, prompt: str) -> Dict:
-        """Call Ollama with the given prompt and parse JSON response."""
-        response = requests.post('http://localhost:11434/api/generate',
-                               json={
-                                   'model': 'qwen2.5:7b',
-                                   'prompt': prompt,
-                                   'stream': False,
-                                   'temperature': 0.1
-                               })
-        if response.status_code != 200:
-            raise AgentError(f"Ollama API error: {response.text}")
-            
-        try:
-            llm_response = response.json()['response']
-            logger.debug(f"Raw LLM response:\n{llm_response}")
-            
-            response_json = self.extract_json_from_response(llm_response)
-            logger.info(f"Parsed LLM response: {json.dumps(response_json, indent=2, ensure_ascii=False)}")
-            return response_json
-        except Exception as e:
-            raise AgentError(f"Failed to parse LLM response: {str(e)}\nResponse: {llm_response}")
-        
-    def call_gemini(self, prompt: str) -> Dict:
-        """Call Gemini with the given prompt and parse JSON response."""        
-        try:
-            response = client.models.generate_content(
-                model='gemini-2.0-flash',
-                contents=prompt,
-                config={
-                    'response_mime_type': 'application/json',
-                }
-            )
-            llm_response = response.text
-            logger.debug(f"Raw LLM response:\n{llm_response}")
-            
-            response_json = self.extract_json_from_response(llm_response)
-            logger.info(f"Parsed Gemini response: {json.dumps(response_json, indent=2, ensure_ascii=False)}")
-            return response_json
-        except Exception as e:
-            raise AgentError(f"Failed to parse Gemini response: {str(e)}\nResponse: {response}")
-
     def validate_response(self, response: Dict) -> None:
         """Validate the structure of the LLM response."""
         if not isinstance(response, dict):
@@ -178,11 +128,12 @@ class TopicExplorerAgent:
 
             try:
                 # Get and validate LLM response
+                response = None
                 if gemini_api_key:
                     logger.info("Using Gemini API key for agent responses.")
-                    response = self.call_gemini('\n'.join(conversation))
+                    response = call_gemini('\n'.join(conversation))
                 else:
-                    response = self.call_ollama('\n'.join(conversation))
+                    response = call_ollama('\n'.join(conversation))
                 try:
                     self.validate_response(response)
                 except AgentError as validation_error:
