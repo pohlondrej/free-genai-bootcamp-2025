@@ -6,7 +6,8 @@ interface TopicResponse {
   job_id: string;
 }
 
-interface Translation {
+interface Article {
+  title: string;
   english: string;
   japanese: string;
 }
@@ -21,7 +22,7 @@ interface VocabularyItem {
 interface TopicResult {
   status: string;
   result?: {
-    translation: Translation;
+    article: Article;
     vocabulary: VocabularyItem[];
   };
 }
@@ -30,10 +31,11 @@ interface TopicResult {
   selector: 'plugin-wkcrawler',
   standalone: false,
   encapsulation: ViewEncapsulation.None,
+  styleUrls: ['./wkcrawler.component.scss'],
   template: `
     <div class="plugin-wkcrawler">
-      <div class="wkcrawler-input">
-        <h2>Japanese Topic Explorer</h2>
+      <div class="page-header">
+        <h1>Japanese Topic Explorer</h1>
         <div class="input-group">
           <input 
             type="text" 
@@ -48,36 +50,52 @@ interface TopicResult {
         </div>
       </div>
 
-      <div *ngIf="isProcessing" class="wkcrawler-loading">
+      <div *ngIf="isProcessing" class="loading">
         Processing topic...
       </div>
 
-      <div *ngIf="isComplete" class="wkcrawler-result">
-        <div class="translation-section">
-          <h3>Translation</h3>
+      <div *ngIf="isComplete" class="result-section">
+        <div class="article-card">
+          <h2>{{getArticle().title}}</h2>
           <div class="translation">
-            <p><strong>English:</strong> {{getTranslation().english}}</p>
-            <p><strong>Japanese:</strong> {{getTranslation().japanese}}</p>
+            <div class="translation-item">
+              <span class="label">English</span>
+              <p>{{getArticle().english}}</p>
+            </div>
+            <div class="translation-item">
+              <span class="label">Japanese</span>
+              <p>{{getArticle().japanese}}</p>
+            </div>
           </div>
         </div>
 
         <div class="vocabulary-section">
-          <h3>Vocabulary</h3>
-          <div class="vocabulary-list">
-            <div *ngFor="let word of getVocabulary()" class="vocab-item">
-              <div class="word">{{word.word}}</div>
-              <div class="reading">{{word.reading}}</div>
-              <div class="romaji">{{word.romaji}}</div>
-              <div class="meaning">{{word.meaning}}</div>
-            </div>
-          </div>
+          <h2>Vocabulary</h2>
+          <table class="vocabulary-table" *ngIf="hasVocabulary()">
+            <thead>
+              <tr>
+                <th>Word</th>
+                <th>Reading</th>
+                <th>Romaji</th>
+                <th>Meaning</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let word of getVocabulary()">
+                <td>{{word.word}}</td>
+                <td>{{word.reading}}</td>
+                <td>{{word.romaji}}</td>
+                <td>{{word.meaning}}</td>
+              </tr>
+            </tbody>
+          </table>
           <div *ngIf="!hasVocabulary()" class="no-vocab">
             No vocabulary items found.
           </div>
         </div>
       </div>
 
-      <div *ngIf="error" class="wkcrawler-error">
+      <div *ngIf="error" class="error">
         {{error}}
       </div>
     </div>
@@ -107,8 +125,9 @@ export class WkCrawlerComponent implements OnInit, OnDestroy {
     return this.result?.status === 'complete' && !!this.result?.result;
   }
 
-  getTranslation(): Translation {
-    return this.result?.result?.translation || {
+  getArticle(): Article {
+    return this.result?.result?.article || {
+      title: 'Not available',
       english: 'Not available',
       japanese: 'Not available'
     };
