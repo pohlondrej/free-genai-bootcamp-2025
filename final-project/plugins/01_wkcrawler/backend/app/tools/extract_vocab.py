@@ -5,7 +5,7 @@ from typing import List, Dict
 from common.llms import LLMProvider
 
 # Set up logging
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 def load_prompt() -> str:
@@ -17,22 +17,30 @@ def load_prompt() -> str:
 
 def validate_vocab_entry(entry: Dict) -> bool:
     """Validate a vocabulary entry."""
-    # All fields must be present and non-empty
-    required_fields = ["word", "reading", "romaji", "meaning"]
-    if not all(field in entry and entry[field] for field in required_fields):
+    try:
+        # All fields must be present and non-empty
+        required_fields = ["word", "reading", "romaji", "meaning"]
+        if not all(field in entry and entry[field] for field in required_fields):
+            logger.debug(f"Missing or empty fields in entry: {entry}")
+            return False
+            
+        # Don't include particles unless they're part of a compound
+        if entry["word"] in ["は", "が", "の", "に", "を", "で", "へ"]:
+            logger.debug(f"Skipping particle: {entry['word']}")
+            return False
+            
+        # Don't include entries with spaces or invalid characters
+        if any(c in entry["reading"] for c in [" ", "_", "-"]):
+            logger.debug(f"Invalid reading: {entry['reading']}")
+            return False
+        if any(c in entry["romaji"] for c in [" ", "_"]):
+            logger.debug(f"Invalid romaji: {entry['romaji']}")
+            return False
+            
+        return True
+    except (KeyError, TypeError) as e:
+        logger.debug(f"Validation error for entry: {e}")
         return False
-        
-    # Don't include particles unless they're part of a compound
-    if entry["word"] in ["は", "が", "の", "に", "を", "で", "へ"]:
-        return False
-        
-    # Don't include entries with spaces or invalid characters
-    if any(c in entry["reading"] for c in [" ", "_", "-"]):
-        return False
-    if any(c in entry["romaji"] for c in [" ", "_"]):
-        return False
-        
-    return True
 
 async def extract_vocabulary(text: str, llm_provider: LLMProvider) -> List[Dict[str, str]]:
     """Extract vocabulary from Japanese text using LLM provider.
@@ -55,8 +63,9 @@ async def extract_vocabulary(text: str, llm_provider: LLMProvider) -> List[Dict[
     try:
         # Get response from LLM
         raw_response = await llm_provider.call(full_prompt)
+        logger.debug(f"Raw LLM response: {raw_response}")
         
-        # Extract JSON array from response if needed
+        # Extract vocab list from response
         if isinstance(raw_response, str):
             # Find the JSON array in the response
             start = raw_response.find('[')
@@ -65,11 +74,30 @@ async def extract_vocabulary(text: str, llm_provider: LLMProvider) -> List[Dict[
                 raise ValueError("No JSON array found in response")
             vocab_json = raw_response[start:end]
             vocab_list = json.loads(vocab_json)
-        else:
+        elif isinstance(raw_response, list):
             vocab_list = raw_response
+        elif isinstance(raw_response, dict):
+            # If it's a dict, try to find a list field
+            for value in raw_response.values():
+                if isinstance(value, list):
+                    vocab_list = value
+                    break
+            else:
+                # If no list found, wrap the dict itself if it looks like a vocab entry
+                if all(field in raw_response for field in ["word", "reading", "romaji", "meaning"]):
+                    vocab_list = [raw_response]
+                else:
+                    raise ValueError("No vocabulary list found in response")
+        else:
+            raise ValueError(f"Unexpected response type: {type(raw_response)}")
             
         # Filter and validate entries
-        valid_entries = [entry for entry in vocab_list if validate_vocab_entry(entry)]
+        valid_entries = []
+        for entry in vocab_list:
+            if validate_vocab_entry(entry):
+                valid_entries.append(entry)
+            else:
+                logger.debug(f"Invalid entry: {entry}")
         
         # Remove duplicates while preserving order
         seen = set()
@@ -80,6 +108,9 @@ async def extract_vocabulary(text: str, llm_provider: LLMProvider) -> List[Dict[
                 seen.add(key)
                 unique_entries.append(entry)
         
+        if not unique_entries:
+            logger.warning("No valid vocabulary entries found")
+            
         return unique_entries
         
     except Exception as e:
