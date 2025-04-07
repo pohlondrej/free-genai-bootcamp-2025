@@ -1,7 +1,12 @@
 import os
 import json
-import requests
+import logging
 from typing import Dict
+from common.llms import LLMProvider
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_prompt() -> str:
     """Load the translation prompt."""
@@ -28,51 +33,40 @@ def validate_translation(response: Dict) -> bool:
         
     return True
 
-def translate_to_japanese(english_text: str) -> Dict[str, str]:
-    """Translate English text to Japanese using Qwen model."""
-    prompt = load_prompt()
-    full_prompt = f"{prompt}\n\n{english_text}"
+async def translate_to_japanese(english_text: str, llm_provider: LLMProvider) -> Dict[str, str]:
+    """Translate English text to Japanese using LLM.
     
-    response = requests.post('http://localhost:11434/api/generate',
-                           json={
-                               'model': 'qwen2.5:7b',
-                               'prompt': full_prompt,
-                               'stream': False,
-                               'temperature': 0.1
-                           })
+    Args:
+        english_text: Text to translate
+        llm_provider: LLM provider to use for translation
+        
+    Returns:
+        Dict containing:
+        - english: Original English text
+        - translation: Japanese translation
+        - romaji: Romanized reading of the translation
+    """
+    # Load and prepare prompt
+    prompt_template = load_prompt()
+    full_prompt = f"{prompt_template}\n\n{english_text}"
     
-    if response.status_code != 200:
-        raise Exception(f"Ollama API error: {response.text}")
+    # Get response from LLM
+    response = await llm_provider.call(full_prompt)
+    
+    # Validate response
+    if not validate_translation(response):
+        raise ValueError("Invalid translation response")
         
-    try:
-        llm_response = response.json()['response']
-        # Find the JSON object in the response
-        start = llm_response.find('{')
-        end = llm_response.rfind('}') + 1
-        if start == -1 or end == 0:
-            raise ValueError("No JSON object found in response")
-        
-        result = json.loads(llm_response[start:end])
-        
-        # Validate translation
-        if not validate_translation(result):
-            raise ValueError("Invalid translation format")
-            
-        return {
-            "translation": result["translation"].strip(),
-            "english": result["english"].strip()
-        }
-        
-    except Exception as e:
-        print(f"Error translating text: {str(e)}")
-        return {
-            "translation": "",
-            "english": english_text,
-            "error": str(e)
-        }
+    return response
 
 if __name__ == "__main__":
     # Test the translation
     test_text = "I would like to eat sushi."
-    result = translate_to_japanese(test_text)
-    print(json.dumps(result, ensure_ascii=False, indent=2))
+    try:
+        from common.llms import LLMFactory
+        llm = LLMFactory.create()
+        import asyncio
+        result = asyncio.run(translate_to_japanese(test_text, llm))
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    except Exception as e:
+        print(f"Error: {e}")

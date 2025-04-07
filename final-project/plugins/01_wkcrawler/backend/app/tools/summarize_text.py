@@ -1,19 +1,18 @@
 import os
-import requests
-from typing import Dict
-import re
 import logging
-from common.llms import call_ollama, call_gemini
+from typing import Dict
+from common.llms import LLMProvider
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def summarize_text(text: str) -> Dict[str, str]:
+async def summarize_text(text: str, llm_provider: LLMProvider) -> Dict[str, str]:
     """Simplify English text to be more understandable.
     
     Args:
         text: Complex English text to simplify
+        llm_provider: LLM provider to use for simplification
         
     Returns:
         Dict containing:
@@ -28,58 +27,30 @@ def summarize_text(text: str) -> Dict[str, str]:
     
     # Create the full prompt
     full_prompt = f"{prompt_template}\n\n{text}"
-
-    if not client:
-        logger.info("Using Ollama for vocabulary extraction")
-        response = call_ollama(full_prompt)
-    else:
-        logger.info("Using Google Gemini for vocabulary extraction")
-        response = call_gemini(full_prompt)
     
-    try:
-        simplified = response.json()['response'].strip()
+    # Get response from LLM
+    response = await llm_provider.call(full_prompt)
+    
+    # Validate response
+    if not isinstance(response, dict) or 'simplified' not in response:
+        raise ValueError("Expected response with 'simplified' field")
         
-        # Validation
-        if len(simplified) < 10:  # Too short to be valid
-            return {
-                "original": text,
-                "simplified": "Error: Generated text too short"
-            }
-            
-        # Check for non-English characters (except common punctuation)
-        if re.search(r'[^\x00-\x7F]+', simplified):
-            return {
-                "original": text,
-                "simplified": "Error: Generated text contains non-English characters"
-            }
-            
-        # Check if output is significantly different from input
-        if simplified == text:
-            return {
-                "original": text,
-                "simplified": "Error: Generated text is identical to input"
-            }
-            
-        return {
-            "original": text,
-            "simplified": simplified
-        }
-        
-    except Exception as e:
-        return {
-            "original": text,
-            "simplified": f"Error simplifying text: {str(e)}"
-        }
+    return {
+        'original': text,
+        'simplified': response['simplified']
+    }
 
 if __name__ == "__main__":
     # Test the function
     test_text = """Elephants are the largest living land animals. Three living species are currently recognised: 
     the African bush elephant (Loxodonta africana), the African forest elephant (L. cyclotis), and the Asian 
-    elephant (Elephas maximus). They are the only surviving members of the family Elephantidae and the order 
-    Proboscidea; extinct relatives include mammoths and mastodons."""
+    elephant (Elephas maximus). They are the only surviving members of the family Elephantidae and the order Proboscidea."""
     
-    result = summarize_text(test_text)
-    print("\nOriginal:")
-    print(result["original"])
-    print("\nSimplified:")
-    print(result["simplified"])
+    try:
+        from common.llms import LLMFactory
+        llm = LLMFactory.create()
+        result = summarize_text(test_text, llm)
+        print("Original:", result["original"])
+        print("\nSimplified:", result["simplified"])
+    except Exception as e:
+        print(f"Error: {e}")

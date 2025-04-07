@@ -1,7 +1,12 @@
 import json
 import os
+import logging
 from typing import List, Dict
-from common.llms import call_ollama, call_gemini
+from common.llms import LLMProvider
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def load_prompt() -> str:
     """Load the vocabulary extraction prompt template."""
@@ -29,52 +34,52 @@ def validate_vocab_entry(entry: Dict) -> bool:
         
     return True
 
-def extract_vocabulary(text: str) -> List[Dict[str, str]]:
-    """Extract vocabulary from Japanese text using Ollama."""
+async def extract_vocabulary(text: str, llm_provider: LLMProvider) -> List[Dict[str, str]]:
+    """Extract vocabulary from Japanese text using LLM.
+    
+    Args:
+        text: Japanese text to extract vocabulary from
+        llm_provider: LLM provider to use for extraction
+        
+    Returns:
+        List of vocabulary entries, each containing:
+        - word: Japanese word
+        - reading: Hiragana reading
+        - romaji: Romanized reading
+        - meaning: English meaning
+    """
     # Load and prepare prompt
     prompt_template = load_prompt()
     full_prompt = f"{prompt_template}\n\n{text}"
     
-    if not client:
-        logger.info("Using Ollama for vocabulary extraction")
-        response = call_ollama(full_prompt)
-    else:
-        logger.info("Using Google Gemini for vocabulary extraction")
-        response = call_gemini(full_prompt)
+    # Get response from LLM
+    response = await llm_provider.call(full_prompt)
     
-    # Extract JSON from response
-    try:
-        result = response.json()
-        # Find the JSON array in the response
-        start = result.find('[')
-        end = result.rfind(']') + 1
-        if start == -1 or end == 0:
-            raise ValueError("No JSON array found in response")
-        vocab_json = result[start:end]
-        vocab_list = json.loads(vocab_json)
+    # Extract and validate vocabulary entries
+    if not isinstance(response, list):
+        raise ValueError("Expected list of vocabulary entries")
         
-        # Filter and validate entries
-        valid_entries = [entry for entry in vocab_list if validate_vocab_entry(entry)]
+    # Filter out invalid entries
+    valid_entries = [entry for entry in response if validate_vocab_entry(entry)]
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_entries = []
+    for entry in valid_entries:
+        key = entry["word"]
+        if key not in seen:
+            seen.add(key)
+            unique_entries.append(entry)
         
-        # Remove duplicates while preserving order
-        seen = set()
-        unique_entries = []
-        for entry in valid_entries:
-            key = entry["word"]
-            if key not in seen:
-                seen.add(key)
-                unique_entries.append(entry)
-        
-        return unique_entries
-        
-    except (json.JSONDecodeError, KeyError, ValueError) as e:
-        raise Exception(f"Failed to parse vocabulary: {str(e)}")
+    return unique_entries
 
 if __name__ == "__main__":
     # Test the function with a simple example
     test_text = "ビール3本と弁当はいくらですか"
     try:
-        vocab = extract_vocabulary(test_text)
-        print(json.dumps(vocab, ensure_ascii=False, indent=2))
+        from common.llms import LLMFactory
+        llm = LLMFactory.create()
+        result = extract_vocabulary(test_text, llm)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
     except Exception as e:
         print(f"Error: {e}")

@@ -16,3 +16,4 @@
 - When working with Python, always use Python 3.10.
 - When creating YAML files, always give them a .yaml extension.
 - When working with Angular, always leverage SCSS.
+- Always read files in full.

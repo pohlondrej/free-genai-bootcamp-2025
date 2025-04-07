@@ -6,6 +6,7 @@ import asyncio
 import aiohttp
 import logging
 from agent import TopicExplorerAgent
+from common.llms import LLMFactory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -70,21 +71,12 @@ async def get_topic(job_id: str):
 async def process_topic(job_id: str, english_text: str):
     """Process the topic using the agent."""
     try:
-        agent = TopicExplorerAgent()
-
-        if not gemini_api_key:
-            # Try loading the API key again
-            await get_gemini_api_key()
-
-        result = agent.run(english_text, gemini_api_key)
-        
-        # Store the result
+        agent = TopicExplorerAgent(llm_provider=app.state.llm_provider)
+        result = await agent.run(english_text)
         results[job_id] = result
-        
     except Exception as e:
         # Store error result
         results[job_id] = {"error": str(e)}
-
 
 async def register_plugin():
     """Register this plugin with the main application with retries"""
@@ -147,8 +139,15 @@ async def get_gemini_api_key():
 async def startup_event():
     # First register the plugin with retries
     if not await register_plugin():
-        logger.error("${PLUGIN_NAME} registration failed, exiting...")
+        logger.error(f"{PLUGIN_NAME} registration failed, exiting...")
         exit(323)
 
-    if not await get_gemini_api_key():
+    # Get Gemini API key
+    api_key = None
+    if await get_gemini_api_key():
+        api_key = gemini_api_key
+    else:
         logger.warning("Gemini API key not found, defaulting to Ollama...")
+    
+    # Initialize LLM provider
+    app.state.llm_provider = LLMFactory.create(api_key)
