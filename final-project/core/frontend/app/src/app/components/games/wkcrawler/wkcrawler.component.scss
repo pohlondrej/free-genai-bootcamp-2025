@@ -168,50 +168,87 @@
             color: var(--secondary-color);
           }
 
-          .favorite-btn {
-            width: 36px;
-            height: 36px;
-            padding: 0;
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            background: var(--surface-color);
-            color: var(--text-muted);
-            font-size: 1.25rem;
-            line-height: 1;
-            cursor: pointer;
-            transition: all 0.2s;
+          .favorite-container {
+            position: relative;
             display: inline-flex;
-            align-items: center;
             justify-content: center;
 
-            .heart-icon {
-              transform: translateY(-1px);
-              transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-
-            &:hover:not(:disabled) {
-              border-color: var(--error-color);
-              color: var(--error-color);
-              transform: scale(1.1);
+            .favorite-btn {
+              width: 36px;
+              height: 36px;
+              padding: 0;
+              border: 2px solid var(--border-color);
+              border-radius: 50%;
+              background: var(--surface-color);
+              color: var(--text-muted);
+              font-size: 1.25rem;
+              line-height: 1;
+              cursor: pointer;
+              transition: all 0.2s;
+              display: inline-flex;
+              align-items: center;
+              justify-content: center;
+              z-index: 1;
 
               .heart-icon {
-                transform: translateY(-1px) scale(1.1);
+                transform: translateY(-1px);
+                transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              }
+
+              &:hover:not(:disabled) {
+                border-color: var(--error-color);
+                color: var(--error-color);
+                transform: scale(1.1);
+
+                .heart-icon {
+                  transform: translateY(-1px) scale(1.1);
+                }
+              }
+
+              &.favorited {
+                background: var(--error-color);
+                border-color: var(--error-color);
+                color: white;
+                transform: scale(1.1);
+
+                .heart-icon {
+                  transform: translateY(-1px) scale(1.1);
+                }
+
+                &:disabled {
+                  opacity: 1;
+                  cursor: default;
+                }
               }
             }
 
-            &.favorited {
-              background: var(--error-color);
-              border-color: var(--error-color);
-              color: white;
-              transform: scale(1.1);
+            .status-bubble {
+              position: absolute;
+              top: calc(100% + 4px);
+              padding: 4px 8px;
+              border-radius: 12px;
+              font-size: 0.75rem;
+              font-weight: 500;
+              white-space: nowrap;
+              opacity: 0;
+              transform: translateY(-10px);
+              transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+              z-index: 2;
+              box-shadow: var(--shadow-sm);
 
-              .heart-icon {
-                transform: translateY(-1px) scale(1.1);
+              &.success {
+                background: var(--secondary-color);
+                color: white;
               }
 
-              &:disabled {
+              &.error {
+                background: var(--error-color);
+                color: white;
+              }
+
+              &.show {
                 opacity: 1;
-                cursor: default;
+                transform: translateY(0);
               }
             }
           }

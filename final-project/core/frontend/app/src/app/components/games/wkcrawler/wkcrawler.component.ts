@@ -89,14 +89,16 @@ interface TopicResult {
                 <td>{{word.romaji}}</td>
                 <td>{{word.meaning}}</td>
                 <td>
-                  <button 
-                    class="favorite-btn" 
-                    [class.favorited]="word.isFavorited"
-                    [disabled]="word.isFavorited"
-                    (click)="addToFavorites(word)"
-                    [attr.title]="word.isFavorited ? 'Added to favorites!' : 'Add to favorites'">
-                    <span class="heart-icon">♥</span>
-                  </button>
+                  <div class="favorite-container">
+                    <button 
+                      class="favorite-btn" 
+                      [class.favorited]="word.isFavorited"
+                      [disabled]="word.isFavorited"
+                      (click)="addToFavorites($event, word)"
+                      [attr.title]="word.isFavorited ? 'Added to favorites!' : 'Add to favorites'">
+                      <span class="heart-icon">♥</span>
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -204,7 +206,10 @@ export class WkCrawlerComponent implements OnInit, OnDestroy {
       });
   }
 
-  async addToFavorites(word: VocabularyItem) {
+  async addToFavorites(event: MouseEvent, word: VocabularyItem) {
+    const button = event.currentTarget as HTMLButtonElement;
+    const container = button.closest('.favorite-container') as HTMLDivElement;
+    
     try {
       await this.http.post('/api/favorite', {
         word: word.word,
@@ -214,9 +219,25 @@ export class WkCrawlerComponent implements OnInit, OnDestroy {
       }).toPromise();
       
       word.isFavorited = true;
+      this.showStatusBubble(container, 'Saved to liked :-)', false);
     } catch (err) {
-      this.error = 'Failed to add word to favorites';
-      setTimeout(() => this.error = null, 3000);
+      this.showStatusBubble(container, 'Couldn\'t save :-(', true);
     }
+  }
+
+  private showStatusBubble(container: HTMLElement, message: string, isError: boolean) {
+    const bubble = document.createElement('div');
+    bubble.className = `status-bubble ${isError ? 'error' : 'success'}`;
+    bubble.textContent = message;
+    container.appendChild(bubble);
+
+    // Force a reflow to trigger the animation
+    bubble.offsetHeight;
+    bubble.classList.add('show');
+
+    setTimeout(() => {
+      bubble.classList.remove('show');
+      setTimeout(() => bubble.remove(), 300); // Wait for fade out animation
+    }, 2000);
   }
 }
