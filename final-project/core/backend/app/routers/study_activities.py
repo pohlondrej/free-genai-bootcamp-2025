@@ -181,3 +181,51 @@ async def create_study_session(
         review_items_count=0,
         review_items=[]
     )
+
+@router.post("{session_id}/end", response_model=StudySessionDetail)
+async def end_study_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """End a study session"""
+    # Find session
+    query = select(StudySession).filter(StudySession.id == session_id)
+    result = await db.execute(query)
+    session = result.scalar()
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Study session not found")
+    
+    # Update session
+    session.completed_at = datetime.now()
+    db.update(session)
+    await db.commit()
+    await db.refresh(session)
+
+    # Get review items
+    query = (
+        select(ReviewItem)
+        .filter(ReviewItem.study_session_id == session_id)
+    )
+    result = await db.execute(query)
+    review_items = result.scalars().all()
+    
+    return StudySessionDetail(
+        id=session.id,
+        activity_type=session.activity_type,
+        group_name=session.group.name,
+        group_id=session.group_id,
+        created_at=session.created_at,
+        completed_at=session.completed_at,
+        review_items_count=len(review_items),
+        review_items=[
+            ReviewItemInSession(
+                id=review_item.id,
+                item_type=review_item.item_type,
+                correct=review_item.correct,
+                created_at=review_item.created_at,
+                item=review_item.item
+            )
+            for review_item in review_items
+        ]
+    )
