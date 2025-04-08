@@ -1,11 +1,11 @@
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import func, desc, case, select, and_, Integer
-from typing import List, Optional
+from sqlalchemy import select, func, case, desc, and_, Integer
 from datetime import datetime
 from pydantic import BaseModel
 from database import get_db
-from models import Word, Kanji, StudySession, Group, Plugin, ReviewItem, User
+from models import Word, Kanji, StudySession, Group, ReviewItem, User
 
 class StudyProgress(BaseModel):
     total_words: int
@@ -81,13 +81,13 @@ async def get_wanikani_level(db: AsyncSession = Depends(get_db)):
     if not use_wanikani:
         return None
     
-    # Find the highest WK_ group
+    # Find the highest WK_ it
     highest_level = await db.scalar(
         select(func.max(func.cast(
-            func.substr(Group.name, 4),  # Extract number after "WK_"
+            func.substr(Word.word_level, 4),  # Extract number after "WK_"
             type_=Integer
         )))
-        .where(Group.name.like("WK_%"))
+        .where(Word.word_level.like("WK_%"))
     )
     
     if highest_level is None:
@@ -125,8 +125,10 @@ async def get_problematic_items(limit: int = 5, db: AsyncSession = Depends(get_d
         select(
             ReviewItem.item_id,
             ReviewItem.item_type,
-            (func.sum(func.case((ReviewItem.correct == True, 1), else_=0)) * 100.0 / 
-             func.count(ReviewItem.id)).label("success_rate")
+            func.round(
+                (100.0 * func.sum(func.cast(ReviewItem.correct, Integer))) / 
+                func.nullif(func.count(ReviewItem.id), 0)
+            ).label("success_rate")
         )
         .group_by(ReviewItem.item_id, ReviewItem.item_type)
         .having(func.count(ReviewItem.id) >= 5)  # Minimum attempts threshold
