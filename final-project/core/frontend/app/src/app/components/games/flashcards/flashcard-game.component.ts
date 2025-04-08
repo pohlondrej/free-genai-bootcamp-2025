@@ -62,11 +62,14 @@ export class FlashcardGameComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private groupsService: GroupsService
-  ) {}
+  ) {
+    console.log('FlashcardGameComponent: Constructor');
+  }
 
   ngOnInit() {
+    console.log('FlashcardGameComponent: OnInit');
     this.route.params.subscribe(params => {
-      this.groupId = +params['id'];
+      this.groupId = +params['groupId'];
       this.startNewSession();
     });
   }
@@ -76,8 +79,10 @@ export class FlashcardGameComponent implements OnInit, OnDestroy {
   }
 
   private async startNewSession() {
+    console.log('FlashcardGameComponent: Starting new session for group', this.groupId);
     try {
       const response = await this.groupsService.getGroupItems(this.groupId);
+      console.log('FlashcardGameComponent: Got group items', response);
       this.session = {
         id: Date.now(),
         groupId: this.groupId,
@@ -93,8 +98,9 @@ export class FlashcardGameComponent implements OnInit, OnDestroy {
         incorrectCount: 0
       };
       this.currentItem = this.session.items[0];
+      console.log('FlashcardGameComponent: Session started', this.session);
     } catch (error) {
-      console.error('Error starting session:', error);
+      console.error('FlashcardGameComponent: Error starting session:', error);
       // TODO: Show error message to user
     }
   }

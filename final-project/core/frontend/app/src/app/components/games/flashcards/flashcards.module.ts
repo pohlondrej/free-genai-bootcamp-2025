@@ -8,13 +8,11 @@ import { FlashcardGameComponent } from './flashcard-game.component';
 const routes: Routes = [
   {
     path: '',
-    component: FlashcardsComponent,
-    children: [
-      {
-        path: 'play/:groupId',
-        component: FlashcardGameComponent
-      }
-    ]
+    component: FlashcardsComponent
+  },
+  {
+    path: 'play/:groupId',
+    component: FlashcardGameComponent
   }
 ];
 

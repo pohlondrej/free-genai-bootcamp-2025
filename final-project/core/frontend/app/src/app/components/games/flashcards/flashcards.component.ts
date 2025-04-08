@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { GroupsService, Group } from '../../../services/groups.service';
@@ -22,7 +22,8 @@ export class FlashcardsComponent implements OnInit {
 
   constructor(
     private groupsService: GroupsService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit() {
@@ -64,6 +65,6 @@ export class FlashcardsComponent implements OnInit {
   }
 
   startSession(group: Group) {
-    this.router.navigate(['/games/flashcards/play', group.id]);
+    this.router.navigate(['play', group.id], { relativeTo: this.route });
   }
 }
