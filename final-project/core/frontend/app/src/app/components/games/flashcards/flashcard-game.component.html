@@ -1,0 +1,73 @@
+<div class="game-page">
+  <header class="game-header">
+    <button class="back-button" (click)="endSession()">
+      End Session
+    </button>
+    <div class="progress">
+      {{ currentIndex + 1 }} / {{ totalItems }}
+    </div>
+    <div class="score">
+      Score: {{ correctCount }}/{{ totalAnswered }}
+    </div>
+  </header>
+
+  <div class="game-content" *ngIf="currentItem">
+    <div class="flashcard" [class.flipped]="showAnswer">
+      <div class="card-inner">
+        <div class="card-front">
+          <div class="item-type">{{ currentItem.type }}</div>
+          <div class="question">{{ currentItem.question }}</div>
+        </div>
+        <div class="card-back">
+          <div class="answer">{{ currentItem.answer }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-section" *ngIf="!showAnswer">
+      <input
+        type="text"
+        [formControl]="answerControl"
+        placeholder="Type your answer..."
+        (keyup.enter)="submitAnswer()"
+        class="answer-input"
+      />
+      <button class="submit-button" (click)="submitAnswer()">
+        Submit
+      </button>
+    </div>
+
+    <div class="feedback-section" *ngIf="showAnswer">
+      <div class="feedback" [class.correct]="lastAnswerCorrect" [class.incorrect]="!lastAnswerCorrect">
+        {{ lastAnswerCorrect ? 'Correct!' : 'Incorrect' }}
+      </div>
+      <button class="next-button" (click)="nextCard()">
+        Next Card
+      </button>
+    </div>
+  </div>
+
+  <div class="session-complete" *ngIf="isSessionComplete">
+    <h2>Session Complete!</h2>
+    <div class="final-stats">
+      <div class="stat">
+        <div class="value">{{ correctCount }}</div>
+        <div class="label">Correct</div>
+      </div>
+      <div class="stat">
+        <div class="value">{{ incorrectCount }}</div>
+        <div class="label">Incorrect</div>
+      </div>
+      <div class="stat">
+        <div class="value">{{ (correctCount / totalItems * 100).toFixed(1) }}%</div>
+        <div class="label">Success Rate</div>
+      </div>
+    </div>
+    <button class="restart-button" (click)="restartSession()">
+      Start New Session
+    </button>
+    <button class="exit-button" (click)="endSession()">
+      Exit to Menu
+    </button>
+  </div>
+</div>

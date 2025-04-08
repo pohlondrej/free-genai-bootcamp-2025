@@ -76,6 +76,11 @@ export const routes: Routes = [
         path: 'games/wkcrawler',
         loadChildren: () => import('./components/games/wkcrawler/wkcrawler.module')
           .then(m => m.WkCrawlerModule)
+      },
+      {
+        path: 'games/flashcards',
+        loadChildren: () => import('./components/games/flashcards/flashcards.module')
+          .then(m => m.FlashcardsModule)
       }
     ]
   }

@@ -1,0 +1,47 @@
+<div class="flashcards-page">
+  <header class="page-header">
+    <h1>Flashcards</h1>
+    <p>Practice your vocabulary and kanji with flashcards</p>
+  </header>
+
+  <div class="stats-section" *ngIf="stats">
+    <div class="stat-card">
+      <div class="value">{{ stats.totalCards }}</div>
+      <div class="label">Total Cards</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ stats.cardsStudied }}</div>
+      <div class="label">Cards Studied</div>
+    </div>
+    <div class="stat-card">
+      <div class="value">{{ stats.successRate }}%</div>
+      <div class="label">Success Rate</div>
+    </div>
+  </div>
+
+  <div class="group-selection">
+    <h2>Select a Group to Study</h2>
+    <div class="search-box">
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Search groups..."
+        class="search-input"
+      />
+    </div>
+
+    <div class="groups-grid">
+      <div
+        *ngFor="let group of filteredGroups"
+        class="group-card"
+        (click)="startSession(group)"
+      >
+        <div class="group-name">{{ group.name }}</div>
+        <div class="group-stats">
+          <span>{{ group.total_items }} items</span>
+          <span>{{ group.word_count }} words, {{ group.kanji_count }} kanji</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
