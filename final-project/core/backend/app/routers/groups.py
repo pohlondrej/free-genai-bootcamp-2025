@@ -87,21 +87,29 @@ async def get_group(group_id: int, db: AsyncSession = Depends(get_db)):
     if not group:
         raise HTTPException(status_code=404, detail="Group not found")
     
-    # Get stats; TODO: Fix the number of completed sessions loading incorrectly
-    stats_query = (
+    # Get stats
+    items_query = (
         select(
-            func.count(StudySession.id).filter(StudySession.completed_at.is_not(None)).label("completed_sessions"),
-            func.count(StudySession.id).filter(and_(StudySession.completed_at.is_(None), StudySession.created_at.is_not(None))).label("active_sessions"),
             func.count(GroupItem.id).filter(GroupItem.item_type == 'word').label("word_count"),
             func.count(GroupItem.id).filter(GroupItem.item_type == 'kanji').label("kanji_count")
         )
         .select_from(GroupItem)
         .filter(GroupItem.group_id == group_id)
-        .outerjoin(StudySession, StudySession.group_id == GroupItem.group_id)
         .group_by(GroupItem.group_id)
     )
-    result = await db.execute(stats_query)
-    completed_sessions, active_sessions, word_count, kanji_count = result.first()
+    items_result = await db.execute(items_query)
+    word_count, kanji_count = items_result.first() or (0, 0)
+
+    sessions_query = (
+        select(
+            func.count(StudySession.id).filter(StudySession.completed_at.is_not(None)).label("completed_sessions"),
+            func.count(StudySession.id).filter(and_(StudySession.completed_at.is_(None), StudySession.created_at.is_not(None))).label("active_sessions")
+        )
+        .select_from(StudySession)
+        .filter(StudySession.group_id == group_id)
+    )
+    sessions_result = await db.execute(sessions_query)
+    completed_sessions, active_sessions = sessions_result.first() or (0, 0)
     
     stats = GroupStats(
         total_items=(word_count or 0) + (kanji_count or 0),
