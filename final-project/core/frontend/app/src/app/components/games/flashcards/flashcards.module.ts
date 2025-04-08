@@ -4,6 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FlashcardsComponent } from './flashcards.component';
 import { FlashcardGameComponent } from './flashcard-game.component';
+import { HttpClientModule } from '@angular/common/http';
 
 const routes: Routes = [
   {
@@ -25,6 +26,7 @@ const routes: Routes = [
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule,
     RouterModule.forChild(routes)
   ],
   exports: [RouterModule]

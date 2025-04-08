@@ -4,6 +4,7 @@ import { KanjiDetailComponent } from './components/kanji/kanji-detail.component'
 import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
+import { SessionsComponent } from './components/sessions/sessions.component';
 
 export const routes: Routes = [
   {
@@ -53,6 +54,11 @@ export const routes: Routes = [
         path: 'groups/:id',
         loadComponent: () => import('./components/groups/group-details.component')
           .then(m => m.GroupDetailsComponent)
+      },
+      {
+        path: 'sessions',
+        loadComponent: () => import('./components/sessions/sessions.component')
+          .then(m => m.SessionsComponent)
       },
       {
         path: 'settings',
