@@ -11,19 +11,29 @@ import { GamesService, GameInfo } from '../../services/games.service';
     <div class="games-page">
       <header class="page-header">
         <h1>Games</h1>
+        <p class="subtitle">Explore interactive ways to learn Japanese</p>
       </header>
 
       <div class="games-grid" *ngIf="!loading && !error">
         <div class="game-card"
           *ngFor="let game of games"
           [routerLink]="['/games', game.id]">
-          <div class="name">{{ game.name }}</div>
-          <div class="description">{{ game.description }}</div>
+          <div class="game-image">
+            <img 
+              [src]="game.backend_endpoint + game.image"
+              (error)="onImageError($event)"
+              alt="Preview of {{ game.name }}"
+            >
+          </div>
+          <div class="game-content">
+            <h2 class="name">{{ game.name }}</h2>
+            <p class="description">{{ game.description }}</p>
+          </div>
         </div>
       </div>
 
       <div class="loading" *ngIf="loading">
-        Loading games...
+        Loading available games...
       </div>
 
       <div class="error" *ngIf="error">
@@ -38,23 +48,24 @@ export class GamesComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
-  constructor(private gamesService: GamesService, private router: Router) {}
+  constructor(private gamesService: GamesService) {}
 
   ngOnInit() {
-    this.loadGames();
-  }
-
-  private loadGames() {
-    this.gamesService.getGames().subscribe({
-      next: (games) => {
+    this.gamesService.games$.subscribe(
+      games => {
         this.games = games;
         this.loading = false;
       },
-      error: (err) => {
+      error => {
         this.error = 'Failed to load games. Please try again later.';
         this.loading = false;
-        console.error('Error loading games:', err);
+        console.error('Error loading games:', error);
       }
-    });
+    );
+  }
+
+  onImageError(event: Event) {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/crabowl_background.svg';
   }
 }

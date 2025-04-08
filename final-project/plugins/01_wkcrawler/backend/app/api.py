@@ -107,7 +107,7 @@ async def register_plugin():
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
         "module_name": PLUGIN_ID,
-        "image": "example-plugin:latest"
+        "image": "/assets/wiki_crawler.svg"
     }
     
     retries = 0
