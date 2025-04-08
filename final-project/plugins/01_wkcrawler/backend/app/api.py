@@ -8,6 +8,7 @@ import aiohttp
 import logging
 from agent import TopicExplorerAgent
 from common.llms import LLMFactory
+from common.llms.ollama import OllamaProvider
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -55,6 +56,12 @@ gemini_api_key = None
 
 @app.post("/v1/topic")
 async def create_topic(topic: Topic):
+    # Check if we can upgrade to Gemini
+    if not gemini_api_key and isinstance(app.state.llm_provider, OllamaProvider):
+        if await get_gemini_api_key():
+            logger.info("Upgrading to Gemini LLM provider...")
+            app.state.llm_provider = LLMFactory.create(gemini_api_key)
+    
     job_id = str(uuid.uuid4())
     
     # Store None initially to indicate job is in progress
