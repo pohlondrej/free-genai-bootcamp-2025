@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Plugin configuration
-PLUGIN_NAME = "example"
+PLUGIN_ID = "example"
 PLUGIN_PORT = 8099
 PLUGIN_FRONTEND_PORT = 4299
 MAIN_APP_URL = "http://nginx:80"
@@ -18,7 +18,7 @@ MAX_RETRIES = 30  # 5 seconds * 30 = 2.5 minutes max wait
 async def register_plugin():
     """Register this plugin with the main application with retries"""
     plugin_data = {
-        "name": PLUGIN_NAME,
+        "id": PLUGIN_ID,
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
         "module_name": "examplePlugin",

@@ -15,7 +15,9 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Plugin configuration
-PLUGIN_NAME = "wkcrawler"
+PLUGIN_ID = "wkcrawler"
+PLUGIN_NAME = "Wikipedia Crawler"
+PLUGIN_DESCRIPTION = "Build your Japanese vocabulary by browsing Wikipedia articles."
 PLUGIN_PORT = 8001
 PLUGIN_FRONTEND_PORT = 4201
 MAIN_APP_URL = "http://nginx:80"
@@ -99,10 +101,12 @@ async def process_topic(job_id: str, english_text: str):
 async def register_plugin():
     """Register this plugin with the main application with retries"""
     plugin_data = {
+        "id": PLUGIN_ID,
         "name": PLUGIN_NAME,
+        "description": PLUGIN_DESCRIPTION,
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
-        "module_name": "examplePlugin",
+        "module_name": PLUGIN_ID,
         "image": "example-plugin:latest"
     }
     
@@ -136,7 +140,7 @@ async def get_gemini_api_key():
         async with aiohttp.ClientSession() as session:
             async with session.get(
                 f"{MAIN_APP_URL}/api/plugins/gemini_key",
-                params={"plugin_name": PLUGIN_NAME}
+                params={"plugin_id": PLUGIN_ID}
             ) as response:
                 if response.status == 200:
                     data = await response.json()
@@ -157,7 +161,7 @@ async def get_gemini_api_key():
 async def startup_event():
     # First register the plugin with retries
     if not await register_plugin():
-        logger.error(f"{PLUGIN_NAME} registration failed, exiting...")
+        logger.error(f"{PLUGIN_ID} registration failed, exiting...")
         exit(323)
 
     # Get Gemini API key

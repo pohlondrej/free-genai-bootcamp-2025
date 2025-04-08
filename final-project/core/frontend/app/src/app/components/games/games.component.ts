@@ -16,8 +16,9 @@ import { GamesService, GameInfo } from '../../services/games.service';
       <div class="games-grid" *ngIf="!loading && !error">
         <div class="game-card"
           *ngFor="let game of games"
-          [routerLink]="['/games', game.name]">
+          [routerLink]="['/games', game.id]">
           <div class="name">{{ game.name }}</div>
+          <div class="description">{{ game.description }}</div>
         </div>
       </div>
 
