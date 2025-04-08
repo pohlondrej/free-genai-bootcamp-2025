@@ -9,7 +9,6 @@ export interface GameInfo {
   backend_endpoint: string;
   frontend_endpoint: string;
   module_name: string;
-  image: string;
 }
 
 @Injectable({

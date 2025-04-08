@@ -21,8 +21,7 @@ async def register_plugin():
         "id": PLUGIN_ID,
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
-        "module_name": "examplePlugin",
-        "image": "example-plugin:latest"
+        "module_name": "examplePlugin"
     }
     
     retries = 0

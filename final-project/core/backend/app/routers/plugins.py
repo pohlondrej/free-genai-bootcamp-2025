@@ -12,7 +12,6 @@ class PluginInfo(BaseModel):
     backend_endpoint: str
     frontend_endpoint: str
     module_name: str
-    image: str
 
 router = APIRouter(
     prefix="/plugins",

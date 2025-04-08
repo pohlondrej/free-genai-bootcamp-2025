@@ -20,7 +20,7 @@ import { GamesService, GameInfo } from '../../services/games.service';
           [routerLink]="['/games', game.id]">
           <div class="game-image">
             <img 
-              [src]="game.backend_endpoint + game.image"
+              [src]="game.backend_endpoint + '/image'"
               (error)="onImageError($event)"
               alt="Preview of {{ game.name }}"
             >

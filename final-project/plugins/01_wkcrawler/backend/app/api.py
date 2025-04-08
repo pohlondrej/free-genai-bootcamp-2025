@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uuid
 from typing import Dict, List, Optional
+from fastapi.responses import FileResponse
 import asyncio
 import aiohttp
 import logging
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 PLUGIN_ID = "wkcrawler"
 PLUGIN_NAME = "Wikipedia Crawler"
 PLUGIN_DESCRIPTION = "Build your Japanese vocabulary by browsing Wikipedia articles."
+PLUGIN_IMAGE = "/assets/wiki_crawler.svg"
 PLUGIN_PORT = 8001
 PLUGIN_FRONTEND_PORT = 4201
 MAIN_APP_URL = "http://nginx:80"
@@ -88,6 +90,10 @@ async def get_topic(job_id: str):
         "result": result
     }
 
+@app.get("/image")
+async def get_image():
+    return FileResponse(PLUGIN_IMAGE)
+
 async def process_topic(job_id: str, english_text: str):
     """Process the topic using the agent."""
     try:
@@ -106,8 +112,7 @@ async def register_plugin():
         "description": PLUGIN_DESCRIPTION,
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
-        "module_name": PLUGIN_ID,
-        "image": "/assets/wiki_crawler.svg"
+        "module_name": PLUGIN_ID
     }
     
     retries = 0
