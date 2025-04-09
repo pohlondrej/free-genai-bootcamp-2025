@@ -11,11 +11,6 @@ import { Kanji } from '../../services/kanji.service';
   imports: [CommonModule, RouterLink],
   template: `
     <div class="dashboard-page">
-      <header class="page-header">
-        <h1>Welcome to DuoKani!</h1>
-        <p>Your Japanese learning journey starts here.</p>
-      </header>
-
       <div class="dashboard-content" *ngIf="!loading">
         <!-- Study Progress -->
         <div class="stats-grid" *ngIf="progress">
@@ -76,12 +71,14 @@ import { Kanji } from '../../services/kanji.service';
         </div>
 
         <!-- Last Studied -->
-        <div class="last-studied" *ngIf="lastStudied">
+        <div class="items-section" *ngIf="lastStudied">
           <h2>Last Studied</h2>
-          <div class="item-card" [routerLink]="['/', getItemRoute(lastStudied.item_type), lastStudied.item_id]">
-            <div class="item-info">
-              <span class="item-type">{{ getItemDisplayText(lastStudied.details, lastStudied.item_type) }}</span>
-              <span class="studied-at">{{ lastStudied.studied_at | date:'short' }}</span>
+          <div class="items-grid">
+            <div class="item-card" [routerLink]="['/', getItemRoute(lastStudied.item_type), lastStudied.item_id]">
+              <div class="item-info">
+                <span class="item-type">{{ getItemDisplayText(lastStudied.details, lastStudied.item_type) }}</span>
+                <span class="studied-at">{{ lastStudied.studied_at | date:'short' }}</span>
+              </div>
             </div>
           </div>
         </div>

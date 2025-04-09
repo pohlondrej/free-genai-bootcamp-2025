@@ -41,25 +41,23 @@ async def get_study_progress(db: AsyncSession = Depends(get_db)):
     total_words = await db.scalar(select(func.count()).select_from(Word))
     total_kanji = await db.scalar(select(func.count()).select_from(Kanji))
     
-    # Get counts of studied items (items that have been reviewed at least once)
+    # Get counts of distinct items that have been reviewed at least once
     studied_words = await db.scalar(
-        select(func.count(Word.id))
+        select(func.count(func.distinct(Word.id)))
         .select_from(Word)
         .join(ReviewItem, and_(
             ReviewItem.item_type == 'word',
             ReviewItem.item_id == Word.id
         ))
-        .group_by(Word.id)
     )
     
     studied_kanji = await db.scalar(
-        select(func.count(Kanji.id))
+        select(func.count(func.distinct(Kanji.id)))
         .select_from(Kanji)
         .join(ReviewItem, and_(
             ReviewItem.item_type == 'kanji',
             ReviewItem.item_id == Kanji.id
         ))
-        .group_by(Kanji.id)
     )
     
     return StudyProgress(
