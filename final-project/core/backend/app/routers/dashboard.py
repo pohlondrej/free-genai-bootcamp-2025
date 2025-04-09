@@ -179,9 +179,11 @@ async def get_last_studied(db: AsyncSession = Depends(get_db)):
         .limit(1)
     )
     
-    review = last_review.first()
-    if not review:
+    result = last_review.first()
+    if not result:
         raise HTTPException(status_code=404, detail="No study activity found")
+    
+    review = result[0]  # Get the actual ReviewItem from the result tuple
     
     return LastStudied(
         item_id=review.item_id,

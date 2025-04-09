@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DashboardService, StudyProgress, LastStudied, StudyItem, GroupStats } from '../../services/dashboard.service';
+import { Word } from '../../services/vocabulary.service';
+import { Kanji } from '../../services/kanji.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -44,7 +46,7 @@ import { DashboardService, StudyProgress, LastStudied, StudyItem, GroupStats } f
           <div class="items-grid">
             <div class="item-card" *ngFor="let item of mostStudied" [routerLink]="['/', getItemRoute(item.type), item.id]">
               <div class="item-info">
-                <span class="item-type">{{ getItemType(item.type) }}</span>
+                <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
                 <span class="item-count">{{ item.count }} studies</span>
               </div>
             </div>
@@ -57,7 +59,7 @@ import { DashboardService, StudyProgress, LastStudied, StudyItem, GroupStats } f
           <div class="items-grid">
             <div class="item-card warning" *ngFor="let item of problematicItems" [routerLink]="['/', getItemRoute(item.type), item.id]">
               <div class="item-info">
-                <span class="item-type">{{ getItemType(item.type) }}</span>
+                <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
                 <span class="item-success">{{ item.success_rate?.toFixed(1) }}% success</span>
               </div>
             </div>
@@ -78,7 +80,7 @@ import { DashboardService, StudyProgress, LastStudied, StudyItem, GroupStats } f
           <h2>Last Studied</h2>
           <div class="item-card" [routerLink]="['/', getItemRoute(lastStudied.item_type), lastStudied.item_id]">
             <div class="item-info">
-              <span class="item-type">{{ getItemType(lastStudied.item_type) }}</span>
+              <span class="item-type">{{ getItemDisplayText(lastStudied.details, lastStudied.item_type) }}</span>
               <span class="studied-at">{{ lastStudied.studied_at | date:'short' }}</span>
             </div>
           </div>
@@ -148,5 +150,17 @@ export class DashboardComponent implements OnInit {
 
   getItemType(itemType: string): string {
     return itemType === 'word' ? 'vocabulary' : itemType;
+  }
+
+  getItemDisplayText(details: Word | Kanji | undefined, type: string): string {
+    if (!details) return this.getItemType(type);
+    
+    if (type === 'word') {
+      return (details as Word).japanese;
+    } else if (type === 'kanji') {
+      return (details as Kanji).symbol;
+    }
+    
+    return this.getItemType(type);
   }
 }
