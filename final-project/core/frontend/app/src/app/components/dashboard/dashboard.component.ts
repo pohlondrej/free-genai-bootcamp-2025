@@ -12,83 +12,87 @@ import { Kanji } from '../../services/kanji.service';
   template: `
     <div class="dashboard-page">
       <div class="dashboard-content" *ngIf="!loading">
-        <!-- Study Progress -->
-        <div class="stats-grid" *ngIf="progress">
-          <div class="stat-card total">
-            <div class="value">{{ progress.studied_words + progress.studied_kanji }}</div>
-            <div class="label">Items Studied</div>
-            <div class="sub-label">out of {{ progress.total_words + progress.total_kanji }}</div>
-          </div>
-          <div class="stat-card words">
-            <div class="value">{{ progress.studied_words }}</div>
-            <div class="label">Words</div>
-            <div class="sub-label">out of {{ progress.total_words }}</div>
-          </div>
-          <div class="stat-card kanji">
-            <div class="value">{{ progress.studied_kanji }}</div>
-            <div class="label">Kanji</div>
-            <div class="sub-label">out of {{ progress.total_kanji }}</div>
-          </div>
-          <div class="stat-card wanikani" *ngIf="wanikaniLevel !== null">
-            <div class="value">{{ wanikaniLevel }}</div>
-            <div class="label">WaniKani Level</div>
-          </div>
-        </div>
+        <div class="dashboard-grid">
+          <!-- Left Column -->
+          <div class="main-column">
+            <!-- Study Progress -->
+            <div class="stats-grid" *ngIf="progress">
+              <div class="stat-card total">
+                <div class="value">{{ progress.studied_words + progress.studied_kanji }}</div>
+                <div class="label">Items Studied</div>
+                <div class="sub-label">out of {{ progress.total_words + progress.total_kanji }}</div>
+              </div>
+              <div class="stat-card words">
+                <div class="value">{{ progress.studied_words }}</div>
+                <div class="label">Words</div>
+                <div class="sub-label">out of {{ progress.total_words }}</div>
+              </div>
+              <div class="stat-card kanji">
+                <div class="value">{{ progress.studied_kanji }}</div>
+                <div class="label">Kanji</div>
+                <div class="sub-label">out of {{ progress.total_kanji }}</div>
+              </div>
+              <div class="stat-card wanikani" *ngIf="wanikaniLevel !== null">
+                <div class="value">{{ wanikaniLevel }}</div>
+                <div class="label">WaniKani Level</div>
+              </div>
+            </div>
 
-        <!-- Most Studied Items -->
-        <div class="items-section" *ngIf="mostStudied?.length">
-          <h2>Most Studied Items</h2>
-          <div class="items-grid">
-            <div class="item-card" *ngFor="let item of mostStudied" [routerLink]="['/', getItemRoute(item.type), item.id]">
-              <div class="item-info">
-                <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
-                <span class="item-count">{{ item.count }} studies</span>
+            <!-- Most Studied Items -->
+            <div class="items-section" *ngIf="mostStudied?.length">
+              <h2>Most Studied Items</h2>
+              <div class="items-grid">
+                <div class="item-card" *ngFor="let item of mostStudied" [routerLink]="['/', getItemRoute(item.type), item.id]">
+                  <div class="item-info">
+                    <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
+                    <span class="item-count">{{ item.count }} studies</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Problematic Items -->
-        <div class="items-section" *ngIf="problematicItems?.length">
-          <h2>Items to Review</h2>
-          <div class="items-grid">
-            <div class="item-card warning" *ngFor="let item of problematicItems" [routerLink]="['/', getItemRoute(item.type), item.id]">
-              <div class="item-info">
-                <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
-                <span class="item-success">{{ item.success_rate?.toFixed(1) }}% success</span>
+          <!-- Right Column -->
+          <div class="side-column">
+            <!-- Study Activities -->
+            <a routerLink="/games" class="games-button">
+              <span class="icon">🎮</span>
+              <span class="text">Study Activities</span>
+            </a>
+
+            <!-- Most Active Group -->
+            <div class="group-section" *ngIf="mostStudiedGroup">
+              <h2>Most Active Group</h2>
+              <div class="group-card" [routerLink]="['/groups', mostStudiedGroup.id]">
+                <div class="group-name">{{ mostStudiedGroup.name }}</div>
+                <div class="group-stats">{{ mostStudiedGroup.activity_count }} activities</div>
+              </div>
+            </div>
+
+            <!-- Last Studied -->
+            <div class="items-section" *ngIf="lastStudied">
+              <h2>Last Studied</h2>
+              <div class="item-card" [routerLink]="['/', getItemRoute(lastStudied.item_type), lastStudied.item_id]">
+                <div class="item-info">
+                  <span class="item-type">{{ getItemDisplayText(lastStudied.details, lastStudied.item_type) }}</span>
+                  <span class="studied-at">{{ lastStudied.studied_at | date:'short' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Items to Review -->
+            <div class="items-section" *ngIf="problematicItems?.length">
+              <h2>Items to Review</h2>
+              <div class="items-grid">
+                <div class="item-card warning" *ngFor="let item of problematicItems" [routerLink]="['/', getItemRoute(item.type), item.id]">
+                  <div class="item-info">
+                    <span class="item-type">{{ getItemDisplayText(item.details, item.type) }}</span>
+                    <span class="item-success">{{ item.success_rate?.toFixed(1) }}% success</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- Most Active Group -->
-        <div class="group-section" *ngIf="mostStudiedGroup">
-          <h2>Most Active Group</h2>
-          <div class="group-card" [routerLink]="['/groups', mostStudiedGroup.id]">
-            <div class="group-name">{{ mostStudiedGroup.name }}</div>
-            <div class="group-stats">{{ mostStudiedGroup.activity_count }} activities</div>
-          </div>
-        </div>
-
-        <!-- Last Studied -->
-        <div class="items-section" *ngIf="lastStudied">
-          <h2>Last Studied</h2>
-          <div class="items-grid">
-            <div class="item-card" [routerLink]="['/', getItemRoute(lastStudied.item_type), lastStudied.item_id]">
-              <div class="item-info">
-                <span class="item-type">{{ getItemDisplayText(lastStudied.details, lastStudied.item_type) }}</span>
-                <span class="studied-at">{{ lastStudied.studied_at | date:'short' }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Play Games Button -->
-        <div class="games-section">
-          <a routerLink="/games" class="games-button">
-            <span class="icon">🎮</span>
-            <span class="text">Play Games</span>
-          </a>
         </div>
       </div>
 

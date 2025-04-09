@@ -6,131 +6,134 @@
     margin: 0 auto;
   }
 
-  .stats-grid {
+  .dashboard-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
 
-    .stat-card {
-      background: var(--surface-color);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.5rem;
-      text-align: center;
-      transition: all 0.2s;
+  .main-column {
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
 
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-      }
+      .stat-card {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
 
-      .value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--text-color);
-        margin-bottom: 0.5rem;
-      }
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+        }
 
-      .label {
-        font-size: 1rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
+        .value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--text-color);
+          margin-bottom: 0.5rem;
+        }
 
-      .sub-label {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        margin-top: 0.25rem;
-      }
+        .label {
+          font-size: 0.875rem;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
 
-      &.total {
-        background: var(--primary-color);
-        border-color: var(--primary-color);
-        .value, .label { color: white; }
-        .sub-label { color: rgba(255, 255, 255, 0.8); }
-      }
+        .sub-label {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          margin-top: 0.25rem;
+        }
 
-      &.wanikani {
-        background: var(--secondary-color);
-        border-color: var(--secondary-color);
-        .value, .label { color: white; }
+        &.total {
+          background: var(--primary-color);
+          border-color: var(--primary-color);
+          .value, .label { color: white; }
+          .sub-label { color: rgba(255, 255, 255, 0.8); }
+        }
+
+        &.wanikani {
+          background: var(--secondary-color);
+          border-color: var(--secondary-color);
+          .value, .label { color: white; }
+        }
       }
     }
   }
 
-  .items-section, .group-section {
-    margin-bottom: 2.5rem;
+  .side-column {
+    position: sticky;
+    top: 2rem;
+  }
 
-    h2 {
-      font-size: 1.5rem;
-      color: var(--text-color);
-      margin-bottom: 1rem;
-    }
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+  }
+
+  .items-section, .group-section {
+    margin-bottom: 2rem;
   }
 
   .items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
-
-    .item-card {
-      background: var(--surface-color);
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 1.25rem;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-md);
-        border-color: var(--text-color);
-      }
-
-      &.warning {
-        border-left-color: var(--error-color);
-      }
-
-      .item-info {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-
-        .item-type {
-          font-weight: 500;
-          color: var(--text-color);
-          text-transform: capitalize;
-        }
-
-        .item-count, .item-success, .studied-at {
-          color: var(--text-muted);
-          font-size: 0.875rem;
-        }
-      }
-    }
+    gap: 0.75rem;
   }
 
-  .group-card {
+  .item-card {
     background: var(--surface-color);
-    border: 2px solid var(--border-color);
-    border-radius: 12px;
-    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.875rem;
     cursor: pointer;
     transition: all 0.2s;
 
     &:hover {
       transform: translateY(-2px);
       box-shadow: var(--shadow-md);
-      border-color: var(--text-color);
+      border-color: var(--primary-color);
     }
 
+    &.warning {
+      border-left: 3px solid var(--error-color);
+    }
+
+    .item-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+
+      .item-type {
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .item-count, .item-success, .studied-at {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .group-card {
+    @extend .item-card;
+    
     .group-name {
-      font-size: 1.2rem;
       font-weight: 500;
       color: var(--text-color);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
     }
 
     .group-stats {
@@ -139,39 +142,31 @@
     }
   }
 
-  .games-section {
-    text-align: center;
-    margin: 3rem 0;
+  .games-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    text-decoration: none;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
 
-    .games-button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--primary-color);
-      border: none;
-      color: white;
-      text-decoration: none;
-      padding: 1.5rem 3rem;
-      border-radius: 12px;
-      font-size: 1.5rem;
-      font-weight: 600;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-sm);
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      background: var(--secondary-color);
+    }
 
-      &:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-md);
-        background: var(--secondary-color);
-      }
-
-      .icon {
-        font-size: 1.8rem;
-        margin-right: 1rem;
-      }
-
-      .text {
-        letter-spacing: 0.5px;
-      }
+    .icon {
+      font-size: 1.25rem;
+      margin-right: 0.75rem;
     }
   }
 
