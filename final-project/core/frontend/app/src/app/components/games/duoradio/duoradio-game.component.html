@@ -1,11 +1,17 @@
 <div class="game-container">
   <div class="progress-bar">
-    <div class="progress" [style.width.%]="(currentStage + 1) / 3 * 100"></div>
-    <div class="stage-label">Stage {{currentStage + 1}}: {{stageNames[currentStage]}}</div>
+    <div class="progress" [style.width.%]="(currentStage >= 3 ? 3 : currentStage + 1) / 3 * 100"></div>
+    <div class="stage-label">{{currentStage >= 3 ? 'Complete!' : 'Stage ' + (currentStage + 1) + ': ' + stageNames[currentStage]}}</div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div *ngIf="isLoading" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <p class="loading-message">{{loadingMessage}}</p>
   </div>
 
   <!-- Vocabulary Stage -->
-  <div *ngIf="session && currentStage === 0" class="vocabulary-stage">
+  <div *ngIf="!isLoading && session && currentStage === 0" class="vocabulary-stage">
     <div class="matched-count">
       Matched: {{matchedPairs.size}}/{{vocabularyEntries.length}}
     </div>
@@ -40,7 +46,7 @@
   </div>
 
   <!-- Comprehension Stage -->
-  <div *ngIf="session && currentStage === 1" class="comprehension-stage">
+  <div *ngIf="!isLoading && session && currentStage === 1" class="comprehension-stage">
     <h3>Listen to the monologue and answer the question:</h3>
     <button class="audio-button" (click)="playAudio(session.comprehension_stage.jp_audio)">
       🔊 Play Audio
@@ -74,7 +80,7 @@
   </div>
 
   <!-- Recall Stage -->
-  <div *ngIf="session && currentStage === 2" class="recall-stage">
+  <div *ngIf="!isLoading && session && currentStage === 2" class="recall-stage">
     <h3>Listen to the continuation and select TWO words that appeared in the audio:</h3>
     <button class="audio-button" (click)="playAudio(session.recall_stage.jp_audio)">
       🔊 Play Audio
@@ -97,7 +103,7 @@
   </div>
 
   <!-- Session Complete -->
-  <div *ngIf="session && currentStage >= 3" class="session-complete">
+  <div *ngIf="!isLoading && session && currentStage >= 3" class="session-complete">
     <h2>Congratulations!</h2>
     <p>You've completed the session.</p>
     <button class="primary-button" (click)="backToStart()">

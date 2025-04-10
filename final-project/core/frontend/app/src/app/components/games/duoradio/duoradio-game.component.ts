@@ -51,7 +51,9 @@ interface QuizSession {
 export class DuoRadioGameComponent implements OnInit {
   session: QuizSession | null = null;
   currentStage = 0;
-  stageNames = ['Vocabulary', 'Comprehension', 'Recall'];
+  isLoading = false;
+  loadingMessage = '';
+  readonly stageNames = ['Vocabulary', 'Comprehension', 'Recall'];
   
   // Vocabulary stage
   vocabularyEntries: VocabularyEntry[] = [];
@@ -92,6 +94,9 @@ export class DuoRadioGameComponent implements OnInit {
 
   async startNewSession() {
     try {
+      this.isLoading = true;
+      this.loadingMessage = 'Starting a new study session...';
+
       // Start a core study session
       const studySession = await this.studySessionsService.startSession(this.groupId, 'duoradio').toPromise();
       if (!studySession) {
@@ -100,6 +105,7 @@ export class DuoRadioGameComponent implements OnInit {
       this.studySession = studySession;
       console.log('DuoRadioGameComponent: Study session started', this.studySession);
 
+      this.loadingMessage = 'Preparing your personalized listening exercise...';
       const response = await firstValueFrom(
         this.http.post<QuizSession>(
           `http://localhost:8003/api/session/?session_id=${this.studySession.id}`,
@@ -113,6 +119,8 @@ export class DuoRadioGameComponent implements OnInit {
       this.playAudio(this.session.en_intro_audio);
     } catch (error) {
       console.error('Error starting session:', error);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -185,14 +193,24 @@ export class DuoRadioGameComponent implements OnInit {
     
     this.currentStage = 3;
     this.playAudio(this.session.en_outro_audio);
+
+    // End the study session
+    if (this.studySession?.id) {
+      this.studySessionsService.endSession(this.studySession.id).subscribe();
+    }
   }
 
   backToStart() {
+    // Clear all game state
     this.session = null;
     this.currentStage = 0;
     this.matchedPairs.clear();
     this.comprehensionAnswer = null;
     this.comprehensionAnswerSubmitted = false;
     this.correctRecalls.clear();
+    this.studySession = null;
+
+    // Navigate back to the main DuoRadio component
+    this.router.navigate(['../'], { relativeTo: this.route });
   }
 }

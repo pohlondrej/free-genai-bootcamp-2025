@@ -412,3 +412,51 @@
 .error {
   color: var(--error-color);
 }
+
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+  background: var(--surface-color);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+
+  .loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  .loading-message {
+    color: var(--text-muted);
+    font-size: 1rem;
+    text-align: center;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vocabulary-stage, .comprehension-stage, .recall-stage {
+  .matched-count {
+    text-align: center;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  h3 {
+    color: var(--text-color);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+}
