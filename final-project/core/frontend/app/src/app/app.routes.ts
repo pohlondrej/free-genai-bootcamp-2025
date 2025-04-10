@@ -4,7 +4,6 @@ import { KanjiDetailComponent } from './components/kanji/kanji-detail.component'
 import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
-import { SessionsComponent } from './components/sessions/sessions.component';
 
 export const routes: Routes = [
   {
@@ -87,6 +86,11 @@ export const routes: Routes = [
         path: 'games/flashcards',
         loadChildren: () => import('./components/games/flashcards/flashcards.module')
           .then(m => m.FlashcardsModule)
+      },
+      {
+        path: 'games/duoradio',
+        loadChildren: () => import('./components/games/duoradio/duoradio.module')
+          .then(m => m.DuoRadioModule)
       }
     ]
   }
