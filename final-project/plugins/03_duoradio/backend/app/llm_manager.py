@@ -1,11 +1,12 @@
 import json
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List, Union
 from time import sleep
 from litellm import completion, ModelResponse
 from config import settings
 from prompts import *
 from chroma_manager import ChromaManager
 from uuid import uuid4
+from models import WordItem, KanjiItem
 
 class LLMError(Exception):
     """Base class for LLM-related errors"""
@@ -129,7 +130,7 @@ class LLMManager:
         except Exception as e:
             print(f"Failed to store generation: {e}")
 
-    def generate_session_content(self) -> Optional[Dict[str, Any]]:
+    def generate_session_content(self, group_items: List[Union[WordItem, KanjiItem]]) -> Optional[Dict[str, Any]]:
         try:
             # Get recent topics to avoid repetition
             recent_topics = self.chroma.get_recent_topics()
@@ -139,6 +140,12 @@ class LLMManager:
             recent_topics_str = "None found" if not recent_topics else "\n".join(
                 f"- {topic}" for topic in recent_topics
             )
+
+            # Allowed kanji
+            allowed_kanji = [item.symbol for item in group_items if item.item_type == "kanji"]
+
+            # Allowed words
+            allowed_words = [item.japanese for item in group_items if item.item_type == "word"]
             
             # Generate topic with awareness of past topics
             topic_data = self._call_llm(
@@ -163,7 +170,9 @@ class LLMManager:
             vocab_data = self._call_llm(
                 VOCABULARY_PROMPT.format(
                     topic=topic_data["topic"],
-                    examples=context
+                    examples=context,
+                    allowed_kanji=allowed_kanji,
+                    allowed_words=allowed_words
                 )
             )
             if not vocab_data or "words" not in vocab_data:

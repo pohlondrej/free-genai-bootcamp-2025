@@ -1,22 +1,22 @@
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Union
 from uuid import UUID, uuid4
-from models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
+from models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage, WordItem, KanjiItem
 from audio_manager import AudioManager
 from llm_manager import LLMManager
 from tts_manager import TTSManager
 
 class QuizManager:
     def __init__(self):
-        self.active_sessions: Dict[UUID, QuizSession] = {}
+        self.active_sessions: Dict[int, QuizSession] = {}
         self.audio_manager = AudioManager()
         self.llm_manager = LLMManager()
         self.tts_manager = TTSManager()
     
-    async def create_session(self) -> QuizSession:
+    async def create_session(self, session_id: int, group_items: List[Union[WordItem, KanjiItem]]) -> QuizSession:
         placeholder_audio = bytes([0] * 44100 * 2)
         
         # Generate content using LLM
-        session_content = self.llm_manager.generate_session_content()
+        session_content = self.llm_manager.generate_session_content(group_items)
         if not session_content:
             return self._create_demo_session(placeholder_audio)
 
@@ -43,6 +43,7 @@ class QuizManager:
         monologue2_key = self.audio_manager.save_audio(monologue2_audio or placeholder_audio, f"monologue2_{uuid4()}.wav")
 
         session = QuizSession(
+            session_id=session_id,
             en_intro_audio=intro_key,
             en_outro_audio=outro_key,
             vocabulary_stage=VocabularyStage(
@@ -70,6 +71,7 @@ class QuizManager:
         """Create a fallback demo session when LLM fails"""
         demo_key = self.audio_manager.save_audio(placeholder_audio, "demo.mp3")
         return QuizSession(
+            session_id=1,
             vocabulary_stage=VocabularyStage(
                 entries=[{"jp_audio": demo_key, "en_text": "Hello"} for _ in range(4)]
             ),
@@ -84,10 +86,10 @@ class QuizManager:
             )
         )
 
-    def get_session(self, session_id: UUID) -> Optional[QuizSession]:
+    def get_session(self, session_id: int) -> Optional[QuizSession]:
         return self.active_sessions.get(session_id)
 
-    def submit_answer(self, session_id: UUID, answer: str) -> bool:
+    def submit_answer(self, session_id: int, answer: str) -> bool:
         session = self.get_session(session_id)
         if not session:
             return False

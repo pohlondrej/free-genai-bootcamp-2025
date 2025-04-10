@@ -1,6 +1,7 @@
-from pydantic import BaseModel, UUID4
-from typing import List, Optional
+from pydantic import BaseModel, UUID4, Field
+from typing import List, Optional, Literal, Union
 from uuid import uuid4
+from datetime import datetime
 
 class VocabularyEntry(BaseModel):
     """A single vocabulary item with its Japanese audio and English translation.
@@ -54,7 +55,7 @@ class QuizSession(BaseModel):
     """Represents a complete quiz session with all its stages.
     
     Attributes:
-        session_id (UUID4): Unique identifier for the session
+        session_id (int): Unique identifier for the session
         en_intro_audio (str): Cache key for English introduction audio
         en_outro_audio (str): Cache key for English conclusion audio
         vocabulary_stage (VocabularyStage): First stage of the quiz
@@ -63,7 +64,7 @@ class QuizSession(BaseModel):
         current_stage (int): Current progress (0-2)
         score (int): Number of correct answers (0-3)
     """
-    session_id: UUID4 = uuid4()
+    session_id: int = None
     en_intro_audio: str = "placeholder.mp3"
     en_outro_audio: str = "placeholder.mp3"
     vocabulary_stage: VocabularyStage
@@ -71,3 +72,41 @@ class QuizSession(BaseModel):
     recall_stage: RecallStage
     current_stage: int = 0
     score: int = 0
+
+class WordItem(BaseModel):
+    id: int
+    word_level: str
+    japanese: str
+    kana: str
+    romaji: str
+    english: str
+    item_type: Literal["word"] = "word"
+
+class KanjiItem(BaseModel):
+    id: int
+    kanji_level: str
+    symbol: str
+    primary_meaning: str
+    primary_reading: str
+    primary_reading_type: str
+    item_type: Literal["kanji"] = "kanji"
+
+class ReviewItem(BaseModel):
+    id: int
+    item_type: Literal["word", "kanji"]
+    correct: bool
+    created_at: datetime
+    item: Union[WordItem, KanjiItem]
+
+    class Config:
+        smart_union = True
+
+class StudySession(BaseModel):
+    id: int
+    activity_type: str
+    group_name: str
+    created_at: datetime
+    completed_at: Optional[datetime]
+    review_items_count: int
+    group_id: int
+    review_items: List[ReviewItem]

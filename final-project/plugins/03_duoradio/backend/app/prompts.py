@@ -11,6 +11,12 @@ Locations:
 - Transport (train station, bus stop, airport)
 - Entertainment (movie theater, park, museum)
 - Daily life (home, apartment, neighborhood)
+- Work (office, meeting, interview)
+- Nature (forest, beach, garden)
+- Food (restaurant, café, market)
+- Health (hospital, gym, doctor)
+- Science (lab, classroom, library)
+- Outdoor (park, trail, mountain)
 
 Activities:
 - Asking/giving directions
@@ -19,6 +25,7 @@ Activities:
 - Making plans
 - Learning/studying
 - Helping someone
+- Playing/reading/watching/listening
 
 Time:
 - Morning
@@ -26,12 +33,13 @@ Time:
 - Evening
 - Weekend
 - Holiday season
+- Night
+- Day
+- Year
 
 IMPORTANT:
 - Choose a topic that is DIFFERENT from the recent topics listed above
 - Make it specific and interesting
-- Keep it at beginner level
-- Aim for everyday situations
 
 Return ONLY valid JSON matching this format (but create your own unique scenario):
 {{"topic": "at the bookstore", "context": "A student is looking for a Japanese textbook", "difficulty": "beginner"}}"""
@@ -49,8 +57,9 @@ Previous successful examples (DO NOT COPY, USE ONLY AS INSPIRATION):
 IMPORTANT:
 - The japanese vocabulary words should not use furigana.
 - Create completely new words different from the examples
-- Words must be relevant to '{topic}'
-- Use natural Japanese writing (kanji where appropriate)
+- Words should be relevant to '{topic}' and must be from allowed words: {allowed_words}
+- Words must use allowed kanji: {allowed_kanji}, replace other kanji with hiragana.
+- Use natural Japanese writing (kanji where appropriate and where allowed)
 - Choose words that work well together in a conversation
 - Do not use special formatting (e.g. bold, italics)
 - The preview should be in English and should contain no Japanese words.
@@ -66,7 +75,7 @@ Return ONLY valid JSON matching this format (but use your own unique words):
 MONOLOGUE_PROMPT = """Create a short Japanese monologue about '{topic}' using some of these words: {vocab_list}.
 The monologue should be:
 - Natural and realistic
-- It must be a monologue, not a dialogue
+- It must be a monologue, NOT a dialogue
 - Simple enough for beginners
 - Short, maximum 3 sentences
 - Include at least 2 vocabulary words
@@ -97,4 +106,4 @@ Return ONLY valid JSON matching this format:
 }}}}"""
 
 INTRO_TEMPLATE = "Welcome! {context} {preview}"
-OUTRO_TEMPLATE = "Great job! You learned about {topic} and practiced {vocab_count} new words!"
+OUTRO_TEMPLATE = "Great job! You learned about {topic} and practiced {vocab_count} words!"

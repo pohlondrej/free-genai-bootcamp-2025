@@ -3,11 +3,13 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import UUID
 from quiz_manager import QuizManager
-from models import QuizSession
+from models import QuizSession, StudySession, WordItem, KanjiItem
 from audio_manager import AudioManager
+import os
 import asyncio
 import aiohttp
 import logging
+from typing import Optional, List, Union
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -108,6 +110,42 @@ async def get_gemini_api_key():
     
     return True
 
+async def get_session_details(session_id: int) -> Optional[StudySession]:
+    """Fetch session items from database."""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{MAIN_APP_URL}/api/study-sessions/{session_id}"
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return StudySession(**data)
+                else:
+                    text = await response.text()
+                    logger.warning(f"Failed to fetch session items: {text}")
+                    return None
+    except Exception as e:
+        logger.warning(f"Failed to fetch session items: {e}")
+        return None
+
+async def get_group_items(group_id: int) -> Optional[List[Union[WordItem, KanjiItem]]]:
+    """Fetch group items from database."""
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{MAIN_APP_URL}/api/groups/{group_id}/items"
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return [WordItem(**item) if item["item_type"] == "word" else KanjiItem(**item) for item in data]
+                else:
+                    text = await response.text()
+                    logger.warning(f"Failed to fetch group items: {text}")
+                    return None
+    except Exception as e:
+        logger.warning(f"Failed to fetch group items: {e}")
+        return None
+
 @app.on_event("startup")
 async def startup_event():
     # First register the plugin with retries
@@ -121,27 +159,45 @@ async def startup_event():
         api_key = gemini_api_key
     else:
         logger.warning("Gemini API key not found, defaulting to Ollama...")
-    
-    # Initialize LLM provider
-    # TODO
 
 
 quiz_manager = QuizManager()
 audio_manager = AudioManager()
 
 @app.post("/session/", response_model=QuizSession)
-async def create_session():
-    return await quiz_manager.create_session()
+async def create_session(session_id: int):
+
+    if not gemini_api_key:
+        if await get_gemini_api_key():
+            logger.info("Upgrading to Gemini LLM provider...")
+
+    os.environ["GEMINI_API_KEY"] = gemini_api_key
+
+    # Fetch session details
+    session_details = await get_session_details(session_id)
+    if not session_details:
+        raise HTTPException(status_code=404, detail="Session not found")
+    else:
+        logger.info(f"Loading group items for group: {session_details.group_id}")
+
+    # Fetch group items
+    group_items = await get_group_items(session_details.group_id)
+    if not group_items:
+        raise HTTPException(status_code=404, detail="Group items not found")
+    else:
+        logger.info(f"Loaded {len(group_items)} group items")
+
+    return await quiz_manager.create_session(session_id, group_items)
 
 @app.get("/session/{session_id}", response_model=QuizSession)
-async def get_session(session_id: UUID):
+async def get_session(session_id: int):
     session = quiz_manager.get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
     return session
 
 @app.post("/session/{session_id}/answer")
-async def submit_answer(session_id: UUID, answer: str):
+async def submit_answer(session_id: int, answer: str):
     if not quiz_manager.get_session(session_id):
         raise HTTPException(status_code=404, detail="Session not found")
     correct = quiz_manager.submit_answer(session_id, answer)
