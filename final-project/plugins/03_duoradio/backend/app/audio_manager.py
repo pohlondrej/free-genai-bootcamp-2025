@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import Optional
-import os
-from .config import settings
+from config import settings
 
 class AudioManager:
     def __init__(self, cache_dir: str = None):

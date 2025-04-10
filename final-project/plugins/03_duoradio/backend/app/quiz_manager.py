@@ -1,9 +1,9 @@
 from typing import Dict, Optional
 from uuid import UUID, uuid4
-from .models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
-from .audio_manager import AudioManager
-from .llm_manager import LLMManager
-from .tts_manager import TTSManager
+from models import QuizSession, VocabularyStage, ComprehensionStage, RecallStage
+from audio_manager import AudioManager
+from llm_manager import LLMManager
+from tts_manager import TTSManager
 
 class QuizManager:
     def __init__(self):

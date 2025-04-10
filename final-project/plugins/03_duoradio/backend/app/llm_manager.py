@@ -2,9 +2,9 @@ import json
 from typing import Any, Dict, Optional
 from time import sleep
 from litellm import completion, ModelResponse
-from .config import settings
-from .prompts import *
-from .chroma_manager import ChromaManager
+from config import settings
+from prompts import *
+from chroma_manager import ChromaManager
 from uuid import uuid4
 
 class LLMError(Exception):

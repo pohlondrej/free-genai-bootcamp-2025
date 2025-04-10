@@ -1,9 +1,17 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from uuid import UUID
-from .quiz_manager import QuizManager
-from .models import QuizSession
-from .audio_manager import AudioManager
+from quiz_manager import QuizManager
+from models import QuizSession
+from audio_manager import AudioManager
+import asyncio
+import aiohttp
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Plugin configuration
 PLUGIN_ID = "duoradio"

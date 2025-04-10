@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import chromadb
 from chromadb.config import Settings as ChromaSettings
 from litellm import embedding
-from .config import settings
+from config import settings
 
 class ChromaManager:
     def __init__(self):
