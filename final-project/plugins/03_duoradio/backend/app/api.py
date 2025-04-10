@@ -3,7 +3,10 @@ from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from uuid import UUID
 from quiz_manager import QuizManager
-from models import QuizSession, StudySession, WordItem, KanjiItem
+from models import (
+    QuizSession, StudySession, WordItem, KanjiItem,
+    GroupWordItem, GroupKanjiItem, GroupItemsResponse
+)
 from audio_manager import AudioManager
 import os
 import asyncio
@@ -137,13 +140,78 @@ async def get_group_items(group_id: int) -> Optional[List[Union[WordItem, KanjiI
             ) as response:
                 if response.status == 200:
                     data = await response.json()
-                    return [WordItem(**item) if item["item_type"] == "word" else KanjiItem(**item) for item in data]
+                    response_model = GroupItemsResponse(**data)
+                    logger.info(f"Fetched {len(response_model.items)} items")
+                    
+                    converted_items = []
+                    for item in response_model.items:
+                        if item.item_type == "word":
+                            word = await get_word(item.id)
+                            if not word:
+                                logger.warning(f"Failed to fetch word {item.id}")
+                                continue
+                            converted_items.append(WordItem(
+                                id=item.id,
+                                word_level=item.level,
+                                japanese=word.japanese,
+                                kana=word.kana,
+                                romaji=word.romaji,
+                                english=word.english
+                            ))
+                        else:  # kanji
+                            kanji = await get_kanji(item.id)
+                            if not kanji:
+                                logger.warning(f"Failed to fetch kanji {item.id}")
+                                continue
+                            converted_items.append(KanjiItem(
+                                id=item.id,
+                                kanji_level=item.level,
+                                symbol=kanji.symbol,
+                                primary_meaning=kanji.primary_meaning,
+                                primary_reading=kanji.primary_reading,
+                                primary_reading_type=kanji.primary_reading_type
+                            ))
+                    return converted_items
                 else:
                     text = await response.text()
                     logger.warning(f"Failed to fetch group items: {text}")
                     return None
     except Exception as e:
         logger.warning(f"Failed to fetch group items: {e}")
+        return None
+
+async def get_kanji(id: int) -> Optional[KanjiItem]:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{MAIN_APP_URL}/api/kanji/{id}"
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return KanjiItem(**data)
+                else:
+                    text = await response.text()
+                    logger.warning(f"Failed to fetch kanji: {text}")
+                    return None
+    except Exception as e:
+        logger.warning(f"Failed to fetch kanji: {e}")
+        return None
+
+async def get_word(id: int) -> Optional[WordItem]:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(
+                f"{MAIN_APP_URL}/api/words/{id}"
+            ) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    return WordItem(**data)
+                else:
+                    text = await response.text()
+                    logger.warning(f"Failed to fetch word: {text}")
+                    return None
+    except Exception as e:
+        logger.warning(f"Failed to fetch word: {e}")
         return None
 
 @app.on_event("startup")

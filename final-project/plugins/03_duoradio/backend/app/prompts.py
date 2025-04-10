@@ -74,6 +74,7 @@ Return ONLY valid JSON matching this format (but use your own unique words):
 
 MONOLOGUE_PROMPT = """Create a short Japanese monologue about '{topic}' using some of these words: {vocab_list}.
 The monologue should be:
+- It should prioritize words from {allowed_words}.
 - Natural and realistic
 - It must be a monologue, NOT a dialogue
 - Simple enough for beginners
@@ -92,6 +93,8 @@ Then create a vocabulary quiz about words used in your continuation.
 IMPORTANT:
 - Do not use special formatting (e.g. bold, italics)
 - Do not use furigana or romaji in the japanese text
+- Prioritize using words from {allowed_words}.
+- Only use kanji from {allowed_kanji}, replace other kanji with hiragana.
 
 Return ONLY valid JSON matching this format:
 {{"continuation": {{

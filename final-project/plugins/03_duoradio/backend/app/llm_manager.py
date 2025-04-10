@@ -190,7 +190,8 @@ class LLMManager:
             monologue_data = self._call_llm(
                 MONOLOGUE_PROMPT.format(
                     topic=topic_data["topic"],
-                    vocab_list=vocab_list
+                    vocab_list=vocab_list,
+                    allowed_words=allowed_words
                 )
             )
             if not monologue_data or "jp_text" not in monologue_data:
@@ -200,7 +201,11 @@ class LLMManager:
             
             # Generate continuation and recall quiz
             recall_data = self._call_llm(
-                RECALL_PROMPT.format(jp_text=monologue_data["jp_text"])
+                RECALL_PROMPT.format(
+                    jp_text=monologue_data["jp_text"],
+                    allowed_words=allowed_words,
+                    allowed_kanji=allowed_kanji
+                )
             )
             if not recall_data or "continuation" not in recall_data or "quiz" not in recall_data:
                 print("Failed to generate continuation and recall quiz")

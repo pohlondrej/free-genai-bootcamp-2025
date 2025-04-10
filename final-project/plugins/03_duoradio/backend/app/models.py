@@ -110,3 +110,31 @@ class StudySession(BaseModel):
     review_items_count: int
     group_id: int
     review_items: List[ReviewItem]
+
+class GroupWordItem(BaseModel):
+    id: int
+    item_type: Literal["word"]
+    name: str
+    level: str
+    total_reviews: int
+    correct_reviews: int
+    wrong_reviews: int
+
+class GroupKanjiItem(BaseModel):
+    id: int
+    item_type: Literal["kanji"]
+    name: str
+    level: str
+    total_reviews: int
+    correct_reviews: int
+    wrong_reviews: int
+
+class PaginationInfo(BaseModel):
+    current_page: int
+    total_pages: int
+    total_items: int
+    items_per_page: int
+
+class GroupItemsResponse(BaseModel):
+    items: List[Union[GroupWordItem, GroupKanjiItem]]
+    pagination: PaginationInfo
