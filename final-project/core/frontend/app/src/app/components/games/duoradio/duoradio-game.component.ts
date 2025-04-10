@@ -102,8 +102,8 @@ export class DuoRadioGameComponent implements OnInit {
 
       const response = await firstValueFrom(
         this.http.post<QuizSession>(
-          'http://localhost:8003/api/session/',
-          { session_id: this.studySession?.id }
+          `http://localhost:8003/api/session/?session_id=${this.studySession.id}`,
+          {}
         )
       );
       
