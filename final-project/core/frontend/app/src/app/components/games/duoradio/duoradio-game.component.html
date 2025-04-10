@@ -72,6 +72,10 @@
       Submit Answer
     </button>
 
+    <div *ngIf="comprehensionFeedback" class="feedback" [class.correct]="comprehensionFeedback.isCorrect">
+      {{ comprehensionFeedback.message }}
+    </div>
+
     <button class="primary-button" 
             *ngIf="comprehensionAnswerSubmitted"
             (click)="nextStage()">
@@ -106,8 +110,13 @@
   <div *ngIf="!isLoading && session && currentStage >= 3" class="session-complete">
     <h2>Congratulations!</h2>
     <p>You've completed the session.</p>
-    <button class="primary-button" (click)="backToStart()">
-      Back to Main Menu
-    </button>
+    <div class="button-group">
+      <button class="primary-button" (click)="playAgain()">
+        Play Again
+      </button>
+      <button class="secondary-button" (click)="backToStart()">
+        Back to Main Menu
+      </button>
+    </div>
   </div>
 </div>

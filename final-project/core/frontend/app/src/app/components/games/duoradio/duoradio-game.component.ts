@@ -65,6 +65,7 @@ export class DuoRadioGameComponent implements OnInit {
   // Comprehension stage
   comprehensionAnswer: boolean | null = null;
   comprehensionAnswerSubmitted = false;
+  comprehensionFeedback: { message: string; isCorrect: boolean } | null = null;
 
   // Recall stage
   correctRecalls = new Set<string>();
@@ -164,9 +165,11 @@ export class DuoRadioGameComponent implements OnInit {
     if (!this.session || this.comprehensionAnswer === null) return;
 
     const isCorrect = this.comprehensionAnswer === this.session.comprehension_stage.correct_answer;
-    if (isCorrect) {
-      this.comprehensionAnswerSubmitted = true;
-    }
+    this.comprehensionAnswerSubmitted = true;
+    this.comprehensionFeedback = {
+      message: isCorrect ? 'Correct! Well done!' : 'Not quite right. Keep practicing!',
+      isCorrect
+    };
   }
 
   selectRecallWord(word: string) {
@@ -185,6 +188,7 @@ export class DuoRadioGameComponent implements OnInit {
     this.currentStage++;
     this.comprehensionAnswer = null;
     this.comprehensionAnswerSubmitted = false;
+    this.comprehensionFeedback = null;
     this.correctRecalls.clear();
   }
 
@@ -201,16 +205,18 @@ export class DuoRadioGameComponent implements OnInit {
   }
 
   backToStart() {
-    // Clear all game state
-    this.session = null;
-    this.currentStage = 0;
-    this.matchedPairs.clear();
-    this.comprehensionAnswer = null;
-    this.comprehensionAnswerSubmitted = false;
-    this.correctRecalls.clear();
-    this.studySession = null;
+    // Navigate back to the main DuoRadio component using absolute path
+    // Component will be destroyed and recreated when revisited
+    this.router.navigate(['']);
+  }
 
-    // Navigate back to the main DuoRadio component
-    this.router.navigate(['../'], { relativeTo: this.route });
+  playAgain() {
+    // Clear only the essential state that might affect starting a new session
+    this.session = null;
+    this.studySession = null;
+    this.isLoading = false;  // Reset loading state in case previous session had errors
+    
+    // Start a new session
+    this.startNewSession();
   }
 }
