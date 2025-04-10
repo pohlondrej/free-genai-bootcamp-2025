@@ -1,0 +1,122 @@
+<div class="game-container">
+  <div class="progress-bar">
+    <div class="progress" [style.width.%]="(currentStage >= 3 ? 3 : currentStage + 1) / 3 * 100"></div>
+    <div class="stage-label">{{currentStage >= 3 ? 'Complete!' : 'Stage ' + (currentStage + 1) + ': ' + stageNames[currentStage]}}</div>
+  </div>
+
+  <!-- Loading Screen -->
+  <div *ngIf="isLoading" class="loading-screen">
+    <div class="loading-spinner"></div>
+    <p class="loading-message">{{loadingMessage}}</p>
+  </div>
+
+  <!-- Vocabulary Stage -->
+  <div *ngIf="!isLoading && session && currentStage === 0" class="vocabulary-stage">
+    <div class="matched-count">
+      Matched: {{matchedPairs.size}}/{{vocabularyEntries.length}}
+    </div>
+    
+    <div class="matching-grid">
+      <div class="audio-buttons">
+        <h3>Listen to the words:</h3>
+        <button *ngFor="let entry of vocabularyEntries"
+                [disabled]="matchedPairs.has(entry.jp_audio)"
+                [class.selected]="selectedAudio === entry.jp_audio"
+                (click)="playAudio(entry.jp_audio); toggleAudioSelection(entry.jp_audio)">
+          {{matchedPairs.has(entry.jp_audio) ? '✓' : '🔊'}}
+        </button>
+      </div>
+      
+      <div class="text-buttons">
+        <h3>Match with meanings:</h3>
+        <button *ngFor="let entry of randomizedEntries"
+                [disabled]="matchedPairs.has(entry.jp_audio)"
+                [class.selected]="selectedText === entry"
+                (click)="toggleTextSelection(entry)">
+          {{entry.en_text}}
+        </button>
+      </div>
+    </div>
+
+    <button class="primary-button" 
+            *ngIf="matchedPairs.size === vocabularyEntries.length"
+            (click)="nextStage()">
+      Continue to Comprehension
+    </button>
+  </div>
+
+  <!-- Comprehension Stage -->
+  <div *ngIf="!isLoading && session && currentStage === 1" class="comprehension-stage">
+    <h3>Listen to the monologue and answer the question:</h3>
+    <button class="audio-button" (click)="playAudio(session.comprehension_stage.jp_audio)">
+      🔊 Play Audio
+    </button>
+
+    <div class="question-section">
+      <p class="question">{{session.comprehension_stage.question}}</p>
+      <div class="answer-options">
+        <label class="radio-option">
+          <input type="radio" [value]="true" [(ngModel)]="comprehensionAnswer" name="answer">
+          <span>Yes</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" [value]="false" [(ngModel)]="comprehensionAnswer" name="answer">
+          <span>No</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="primary-button" 
+            [disabled]="comprehensionAnswer === null"
+            (click)="submitComprehensionAnswer()">
+      Submit Answer
+    </button>
+
+    <div *ngIf="comprehensionFeedback" class="feedback" [class.correct]="comprehensionFeedback.isCorrect">
+      {{ comprehensionFeedback.message }}
+    </div>
+
+    <button class="primary-button" 
+            *ngIf="comprehensionAnswerSubmitted"
+            (click)="nextStage()">
+      Continue to Recall Stage
+    </button>
+  </div>
+
+  <!-- Recall Stage -->
+  <div *ngIf="!isLoading && session && currentStage === 2" class="recall-stage">
+    <h3>Listen to the continuation and select TWO words that appeared in the audio:</h3>
+    <button class="audio-button" (click)="playAudio(session.recall_stage.jp_audio)">
+      🔊 Play Audio
+    </button>
+
+    <div class="word-options">
+      <button *ngFor="let word of session.recall_stage.options"
+              [disabled]="correctRecalls.has(word)"
+              [class.selected]="correctRecalls.has(word)"
+              (click)="selectRecallWord(word)">
+        {{word}}
+      </button>
+    </div>
+
+    <button class="primary-button" 
+            *ngIf="correctRecalls.size === 2"
+            (click)="finishSession()">
+      Finish Session
+    </button>
+  </div>
+
+  <!-- Session Complete -->
+  <div *ngIf="!isLoading && session && currentStage >= 3" class="session-complete">
+    <h2>Congratulations!</h2>
+    <p>You've completed the session.</p>
+    <div class="button-group">
+      <button class="primary-button" (click)="playAgain()">
+        Play Again
+      </button>
+      <button class="secondary-button" (click)="backToStart()">
+        Back to Main Menu
+      </button>
+    </div>
+  </div>
+</div>

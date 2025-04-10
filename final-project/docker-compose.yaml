@@ -36,4 +36,5 @@ services:
 include:
   - plugins/01_wkcrawler/docker-compose.yaml
   - plugins/02_flashcards/docker-compose.yaml
+  - plugins/03_duoradio/docker-compose.yaml
   

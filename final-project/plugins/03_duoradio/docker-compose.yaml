@@ -1,0 +1,7 @@
+services:
+  duoradio-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
