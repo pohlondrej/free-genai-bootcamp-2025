@@ -1,142 +1,198 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '@env/environment';
 import { StudySessionsService, StudySession } from '../../../services/study-sessions.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ReviewService } from '../../../services/review.service';
+import { HttpClient } from '@angular/common/http';
 
-interface GameSession {
-  id: number;
-  groupId: number;
-  startTime: Date;
-  correctCount: number;
-  incorrectCount: number;
+interface VocabularyEntry {
+  jp_audio: string;
+  en_text: string;
+}
+
+interface VocabularyStage {
+  stage_id: string;
+  entries: VocabularyEntry[];
+}
+
+interface ComprehensionStage {
+  stage_id: string;
+  jp_audio: string;
+  question: string;
+  correct_answer: boolean;
+}
+
+interface RecallStage {
+  stage_id: string;
+  jp_audio: string;
+  options: string[];
+  incorrect_option: string;
+}
+
+interface QuizSession {
+  session_id: number;
+  en_intro_audio: string;
+  en_outro_audio: string;
+  vocabulary_stage: VocabularyStage;
+  comprehension_stage: ComprehensionStage;
+  recall_stage: RecallStage;
+  current_stage: number;
+  score: number;
 }
 
 @Component({
-  selector: 'app-flashcard-game',
+  selector: 'app-duoradio-game',
   standalone: false,
-  templateUrl: './flashcard-game.component.html',
-  styleUrls: ['./flashcard-game.component.scss']
+  templateUrl: './duoradio-game.component.html',
+  styleUrls: ['./duoradio-game.component.scss']
 })
-export class FlashcardGameComponent implements OnInit {
-  groupId!: number;
+export class DuoRadioGameComponent implements OnInit {
+  session: QuizSession | null = null;
+  currentStage = 0;
+  stageNames = ['Vocabulary', 'Comprehension', 'Recall'];
+  
+  // Vocabulary stage
+  vocabularyEntries: VocabularyEntry[] = [];
+  randomizedEntries: VocabularyEntry[] = [];
+  selectedAudio: string | null = null;
+  selectedText: VocabularyEntry | null = null;
+  matchedPairs = new Set<string>();
+
+  // Comprehension stage
+  comprehensionAnswer: boolean | null = null;
+  comprehensionAnswerSubmitted = false;
+
+  // Recall stage
+  correctRecalls = new Set<string>();
+
+  // Study session
   studySession: StudySession | null = null;
-  session: GameSession | null = null;
-  showAnswer = false;
-  lastAnswerCorrect = false;
-  isSessionComplete = false;
-  answerControl = new FormControl('');
 
-  get correctCount() {
-    return this.session?.correctCount ?? 0;
-  }
-
-  get incorrectCount() {
-    return this.session?.incorrectCount ?? 0;
-  }
-
-  get totalAnswered() {
-    return (this.correctCount + this.incorrectCount);
-  }
+  groupId: number = 0;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private studySessionsService: StudySessionsService,
-    private reviewService: ReviewService
+    private reviewService: ReviewService,
+    private http: HttpClient
   ) {
-    console.log('FlashcardGameComponent: Constructor called');
+    console.log('DuoRadioGameComponent: Constructor called');
   }
 
   ngOnInit() {
-    console.log('FlashcardGameComponent: ngOnInit called');
+    console.log('DuoRadioGameComponent: ngOnInit called');
     this.route.params.subscribe(params => {
       this.groupId = +params['groupId'];
       this.startNewSession();
     });
   }
 
-  private async startNewSession() {
-    console.log('FlashcardGameComponent: Starting new session for group', this.groupId);
+  async startNewSession() {
     try {
-      // Start a study session
-      const studySession = await this.studySessionsService.startSession(this.groupId, 'flashcards').toPromise();
+      // Start a core study session
+      const studySession = await this.studySessionsService.startSession(this.groupId, 'duoradio').toPromise();
       if (!studySession) {
         throw new Error('Failed to create study session');
       }
       this.studySession = studySession;
-      console.log('FlashcardGameComponent: Study session started', this.studySession);
+      console.log('DuoRadioGameComponent: Study session started', this.studySession);
 
-      this.isSessionComplete = false;
-      console.log('FlashcardGameComponent: Game session started', this.session);
+      const response = await firstValueFrom(
+        this.http.post<QuizSession>(
+          'http://localhost:8003/api/session/',
+          { session_id: this.studySession?.id }
+        )
+      );
+      
+      this.session = response;
+      this.currentStage = 0;
+      this.initializeVocabularyStage();
+      this.playAudio(this.session.en_intro_audio);
     } catch (error) {
-      console.error('FlashcardGameComponent: Error starting session:', error);
-      // TODO: Show error message to user
+      console.error('Error starting session:', error);
     }
   }
 
-  async submitAnswer() {
-    if (!this.session || !this.studySession) return;
-
-    const userAnswer = this.answerControl.value?.trim().toLowerCase() ?? '';
-    const correctAnswer = this.currentItem.answer.toLowerCase();
-    this.lastAnswerCorrect = userAnswer === correctAnswer;
-
-    // Update session stats
-    if (this.lastAnswerCorrect) {
-      this.session.correctCount++;
-    } else {
-      this.session.incorrectCount++;
-    }
-
-    // Send review to backend
-    try {
-      await this.reviewService.createReview({
-        item_type: this.currentItem.type,
-        item_id: this.currentItem.id,
-        study_session_id: this.studySession.id,
-        correct: this.lastAnswerCorrect
-      }).toPromise();
-    } catch (error) {
-      console.error('Error creating review:', error);
-    }
-
-    this.answerControl.reset();
+  private initializeVocabularyStage() {
+    if (!this.session) return;
+    
+    this.vocabularyEntries = this.session.vocabulary_stage.entries;
+    this.randomizedEntries = [...this.vocabularyEntries].sort(() => Math.random() - 0.5);
+    this.matchedPairs.clear();
+    this.selectedAudio = null;
+    this.selectedText = null;
   }
 
-  nextCard() {
+  async playAudio(cacheKey: string) {
+    const audio = new Audio(`http://localhost:8003/api/audio/${cacheKey}`);
+    await audio.play();
+  }
+
+  toggleAudioSelection(audioKey: string) {
+    this.selectedAudio = this.selectedAudio === audioKey ? null : audioKey;
+    this.checkMatch();
+  }
+
+  toggleTextSelection(entry: VocabularyEntry) {
+    this.selectedText = this.selectedText === entry ? null : entry;
+    this.checkMatch();
+  }
+
+  private checkMatch() {
+    if (!this.selectedAudio || !this.selectedText) return;
+
+    if (this.selectedAudio === this.selectedText.jp_audio) {
+      this.matchedPairs.add(this.selectedAudio);
+    }
+
+    this.selectedAudio = null;
+    this.selectedText = null;
+  }
+
+  submitComprehensionAnswer() {
+    if (!this.session || this.comprehensionAnswer === null) return;
+
+    const isCorrect = this.comprehensionAnswer === this.session.comprehension_stage.correct_answer;
+    if (isCorrect) {
+      this.comprehensionAnswerSubmitted = true;
+    }
+  }
+
+  selectRecallWord(word: string) {
     if (!this.session) return;
 
-    this.session.currentIndex++;
-    if (this.session.currentIndex >= this.session.items.length) {
-      this.completeSession();
+    if (word === this.session.recall_stage.incorrect_option) {
+      this.correctRecalls.clear();
+    } else {
+      this.correctRecalls.add(word);
     }
   }
 
-  async completeSession() {
-    if (!this.studySession) return;
-
-    try {
-      await this.studySessionsService.endSession(this.studySession.id).toPromise();
-      this.isSessionComplete = true;
-    } catch (error) {
-      console.error('Error ending session:', error);
-      // TODO: Show error message to user
-    }
+  nextStage() {
+    if (!this.session) return;
+    
+    this.currentStage++;
+    this.comprehensionAnswer = null;
+    this.comprehensionAnswerSubmitted = false;
+    this.correctRecalls.clear();
   }
 
-  async endSession() {
-    if (this.studySession) {
-      try {
-        await this.studySessionsService.endSession(this.studySession.id).toPromise();
-      } catch (error) {
-        console.error('Error ending session:', error);
-      }
-    }
-    this.router.navigate(['../../'], { relativeTo: this.route });
+  finishSession() {
+    if (!this.session) return;
+    
+    this.currentStage = 3;
+    this.playAudio(this.session.en_outro_audio);
   }
 
-  restartSession() {
-    this.startNewSession();
+  backToStart() {
+    this.session = null;
+    this.currentStage = 0;
+    this.matchedPairs.clear();
+    this.comprehensionAnswer = null;
+    this.comprehensionAnswerSubmitted = false;
+    this.correctRecalls.clear();
   }
 }

@@ -1,73 +1,107 @@
-<div class="game-page">
-  <div *ngIf="!isSessionComplete">
-    <header class="game-header">
-      <button class="back-button" (click)="endSession()">
-        End Session
-      </button>
-      <div class="progress">
-        {{ currentIndex + 1 }} / {{ totalItems }}
-      </div>
-      <div class="score">
-        Score: {{ correctCount }}/{{ totalAnswered }}
-      </div>
-    </header>
-
-    <div class="game-content" *ngIf="currentItem">
-      <div class="flashcard">
-        <div class="item-type">{{ currentItem.type }}</div>
-        <div class="content">
-          <div *ngIf="!showAnswer" class="question">{{ currentItem.question }}</div>
-          <div *ngIf="showAnswer" class="answer">{{ currentItem.answer }}</div>
-        </div>
-      </div>
-
-      <div class="answer-section" *ngIf="!showAnswer">
-        <input
-          type="text"
-          [formControl]="answerControl"
-          placeholder="Type your answer..."
-          (keyup.enter)="submitAnswer()"
-          class="answer-input"
-        />
-        <button class="submit-button" (click)="submitAnswer()">
-          Submit
-        </button>
-      </div>
-
-      <div class="feedback-section" *ngIf="showAnswer">
-        <div class="feedback" [class.correct]="lastAnswerCorrect" [class.incorrect]="!lastAnswerCorrect">
-          {{ lastAnswerCorrect ? 'Correct!' : 'Incorrect' }}
-        </div>
-        <button class="next-button" (click)="nextCard()">
-          Next Card
-        </button>
-      </div>
-    </div>
+<div class="game-container">
+  <div class="progress-bar">
+    <div class="progress" [style.width.%]="(currentStage + 1) / 3 * 100"></div>
+    <div class="stage-label">Stage {{currentStage + 1}}: {{stageNames[currentStage]}}</div>
   </div>
 
-  <div class="session-complete" *ngIf="isSessionComplete">
-    <h2>Session Complete!</h2>
-    <div class="final-stats">
-      <div class="stat">
-        <div class="value">{{ correctCount }}</div>
-        <div class="label">Correct</div>
+  <!-- Vocabulary Stage -->
+  <div *ngIf="session && currentStage === 0" class="vocabulary-stage">
+    <div class="matched-count">
+      Matched: {{matchedPairs.size}}/{{vocabularyEntries.length}}
+    </div>
+    
+    <div class="matching-grid">
+      <div class="audio-buttons">
+        <h3>Listen to the words:</h3>
+        <button *ngFor="let entry of vocabularyEntries"
+                [disabled]="matchedPairs.has(entry.jp_audio)"
+                [class.selected]="selectedAudio === entry.jp_audio"
+                (click)="playAudio(entry.jp_audio); toggleAudioSelection(entry.jp_audio)">
+          {{matchedPairs.has(entry.jp_audio) ? '✓' : '🔊'}}
+        </button>
       </div>
-      <div class="stat">
-        <div class="value">{{ incorrectCount }}</div>
-        <div class="label">Incorrect</div>
-      </div>
-      <div class="stat">
-        <div class="value">{{ (correctCount / totalItems * 100).toFixed(1) }}%</div>
-        <div class="label">Success Rate</div>
+      
+      <div class="text-buttons">
+        <h3>Match with meanings:</h3>
+        <button *ngFor="let entry of randomizedEntries"
+                [disabled]="matchedPairs.has(entry.jp_audio)"
+                [class.selected]="selectedText === entry"
+                (click)="toggleTextSelection(entry)">
+          {{entry.en_text}}
+        </button>
       </div>
     </div>
-    <div class="actions">
-      <button class="restart-button" (click)="restartSession()">
-        Start New Session
-      </button>
-      <button class="exit-button" (click)="endSession()">
-        Exit to Menu
+
+    <button class="primary-button" 
+            *ngIf="matchedPairs.size === vocabularyEntries.length"
+            (click)="nextStage()">
+      Continue to Comprehension
+    </button>
+  </div>
+
+  <!-- Comprehension Stage -->
+  <div *ngIf="session && currentStage === 1" class="comprehension-stage">
+    <h3>Listen to the monologue and answer the question:</h3>
+    <button class="audio-button" (click)="playAudio(session.comprehension_stage.jp_audio)">
+      🔊 Play Audio
+    </button>
+
+    <div class="question-section">
+      <p class="question">{{session.comprehension_stage.question}}</p>
+      <div class="answer-options">
+        <label class="radio-option">
+          <input type="radio" [value]="true" [(ngModel)]="comprehensionAnswer" name="answer">
+          <span>Yes</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" [value]="false" [(ngModel)]="comprehensionAnswer" name="answer">
+          <span>No</span>
+        </label>
+      </div>
+    </div>
+
+    <button class="primary-button" 
+            [disabled]="comprehensionAnswer === null"
+            (click)="submitComprehensionAnswer()">
+      Submit Answer
+    </button>
+
+    <button class="primary-button" 
+            *ngIf="comprehensionAnswerSubmitted"
+            (click)="nextStage()">
+      Continue to Recall Stage
+    </button>
+  </div>
+
+  <!-- Recall Stage -->
+  <div *ngIf="session && currentStage === 2" class="recall-stage">
+    <h3>Listen to the continuation and select TWO words that appeared in the audio:</h3>
+    <button class="audio-button" (click)="playAudio(session.recall_stage.jp_audio)">
+      🔊 Play Audio
+    </button>
+
+    <div class="word-options">
+      <button *ngFor="let word of session.recall_stage.options"
+              [disabled]="correctRecalls.has(word)"
+              [class.selected]="correctRecalls.has(word)"
+              (click)="selectRecallWord(word)">
+        {{word}}
       </button>
     </div>
+
+    <button class="primary-button" 
+            *ngIf="correctRecalls.size === 2"
+            (click)="finishSession()">
+      Finish Session
+    </button>
+  </div>
+
+  <!-- Session Complete -->
+  <div *ngIf="session && currentStage >= 3" class="session-complete">
+    <h2>Congratulations!</h2>
+    <p>You've completed the session.</p>
+    <button class="primary-button" (click)="backToStart()">
+      Back to Main Menu
+    </button>
   </div>
 </div>
