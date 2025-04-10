@@ -1,28 +1,57 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 import asyncio
 import aiohttp
 import logging
-import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Plugin configuration
-PLUGIN_NAME = "example"
-PLUGIN_PORT = 8001
-PLUGIN_FRONTEND_PORT = 4201
+PLUGIN_ID = "flashcards"
+PLUGIN_NAME = "Flashcards"
+PLUGIN_DESCRIPTION = "Practice your Japanese vocabulary by studying flashcards."
+PLUGIN_IMAGE = "./assets/flashcards.svg"
+PLUGIN_PORT = 8002
+PLUGIN_FRONTEND_PORT = 4202
 MAIN_APP_URL = "http://nginx:80"
 REGISTRATION_RETRY_DELAY = 5  # seconds
 MAX_RETRIES = 30  # 5 seconds * 30 = 2.5 minutes max wait
 
+app = FastAPI(
+    title="Flashcard API",
+    description="Flashcard Plugin API",
+    version="0.1.0",
+    docs_url="/docs",
+    openapi_url="/openapi.json",
+    root_path="/api"
+)
+
+# Configure CORS - allow all origins in development
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # More permissive for development
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["*"]
+)
+
+@app.get("/image")
+async def get_image():
+    return FileResponse(PLUGIN_IMAGE)
+
 async def register_plugin():
     """Register this plugin with the main application with retries"""
     plugin_data = {
+        "id": PLUGIN_ID,
         "name": PLUGIN_NAME,
+        "description": PLUGIN_DESCRIPTION,
         "backend_endpoint": f"http://localhost:{PLUGIN_PORT}",
         "frontend_endpoint": f"http://localhost:{PLUGIN_FRONTEND_PORT}",
-        "module_name": "examplePlugin",
-        "image": "example-plugin:latest"
+        "module_name": PLUGIN_ID
     }
     
     retries = 0
@@ -49,21 +78,9 @@ async def register_plugin():
     logger.error("Failed to register plugin after maximum retries")
     return False
 
-async def health_check():
-    """Periodically log health status"""
-    while True:
-        logger.info("Plugin is healthy")
-        await asyncio.sleep(30)
-
-async def main():
-    """Main entry point"""
+@app.on_event("startup")
+async def startup_event():
     # First register the plugin with retries
     if not await register_plugin():
-        logger.error("Plugin registration failed, exiting")
-        return
-    
-    # Then start health checks
-    await health_check()
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        logger.error(f"{PLUGIN_ID} registration failed, exiting...")
+        exit(323)

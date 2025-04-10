@@ -4,6 +4,7 @@ import { KanjiDetailComponent } from './components/kanji/kanji-detail.component'
 import { initializationGuard } from './guards/initialization.guard';
 import { LoadingComponent } from './components/loading/loading.component';
 import { AppLayoutComponent } from './components/layout/app-layout.component';
+import { SessionsComponent } from './components/sessions/sessions.component';
 
 export const routes: Routes = [
   {
@@ -55,6 +56,11 @@ export const routes: Routes = [
           .then(m => m.GroupDetailsComponent)
       },
       {
+        path: 'sessions',
+        loadComponent: () => import('./components/sessions/sessions.component')
+          .then(m => m.SessionsComponent)
+      },
+      {
         path: 'settings',
         loadComponent: () => import('./components/settings/settings.component')
           .then(m => m.SettingsComponent)
@@ -71,6 +77,16 @@ export const routes: Routes = [
         path: 'games/example',
         loadChildren: () => import('./components/games/example/hello.module')
           .then(m => m.HelloModule)
+      },
+      {
+        path: 'games/wkcrawler',
+        loadChildren: () => import('./components/games/wkcrawler/wkcrawler.module')
+          .then(m => m.WkCrawlerModule)
+      },
+      {
+        path: 'games/flashcards',
+        loadChildren: () => import('./components/games/flashcards/flashcards.module')
+          .then(m => m.FlashcardsModule)
       }
     ]
   }

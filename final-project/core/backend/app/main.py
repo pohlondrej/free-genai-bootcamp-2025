@@ -4,7 +4,7 @@ from sqlalchemy import text
 from database import get_db, init_db
 from models import User
 import logging
-from routers import words, kanji, groups, study_activities, plugins, review
+from routers import words, kanji, groups, study_activities, plugins, review, favorites, dashboard
 from onboarding import create_router
 from wkimporter.main import import_vocabulary
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,6 +43,8 @@ app.include_router(groups.router)
 app.include_router(study_activities.router)
 app.include_router(plugins.router)
 app.include_router(review.router)
+app.include_router(favorites.router)
+app.include_router(dashboard.router)
 
 # Create WaniKani importer class that matches the protocol
 class WanikaniImporter:

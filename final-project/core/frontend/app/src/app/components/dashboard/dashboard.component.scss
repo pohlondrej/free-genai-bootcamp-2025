@@ -1,17 +1,178 @@
-.dashboard {
-  h1 {
-    margin-bottom: 1.5rem;
+.dashboard-page {
+  padding: 2rem;
+
+  .dashboard-content {
+    max-width: 1200px;
+    margin: 0 auto;
   }
 
-  .games-link {
-    display: inline-block;
-    color: var(--text-muted);
-    text-decoration: none;
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .main-column {
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+
+      .stat-card {
+        background: var(--surface-color);
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        transition: all 0.2s;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-md);
+        }
+
+        .value {
+          font-size: 2rem;
+          font-weight: 700;
+          color: var(--text-color);
+          margin-bottom: 0.5rem;
+        }
+
+        .label {
+          font-size: 0.875rem;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .sub-label {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+          margin-top: 0.25rem;
+        }
+
+        &.total {
+          background: var(--primary-color);
+          border-color: var(--primary-color);
+          .value, .label { color: white; }
+          .sub-label { color: rgba(255, 255, 255, 0.8); }
+        }
+
+        &.wanikani {
+          background: var(--secondary-color);
+          border-color: var(--secondary-color);
+          .value, .label { color: white; }
+        }
+      }
+    }
+  }
+
+  .side-column {
+    position: sticky;
+    top: 2rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
     margin-bottom: 1rem;
-    transition: color 0.2s;
+  }
+
+  .items-section, .group-section {
+    margin-bottom: 2rem;
+  }
+
+  .items-grid {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .item-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s;
 
     &:hover {
-      color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-color);
     }
+
+    &.warning {
+      border-left: 3px solid var(--error-color);
+    }
+
+    .item-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+
+      .item-type {
+        font-weight: 500;
+        color: var(--text-color);
+      }
+
+      .item-count, .item-success, .studied-at {
+        color: var(--text-muted);
+        font-size: 0.875rem;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .group-card {
+    @extend .item-card;
+    
+    .group-name {
+      font-weight: 500;
+      color: var(--text-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .group-stats {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+  }
+
+  .games-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-color);
+    border: none;
+    color: white;
+    text-decoration: none;
+    padding: 0.875rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-sm);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      background: var(--secondary-color);
+    }
+
+    .icon {
+      font-size: 1.25rem;
+      margin-right: 0.75rem;
+    }
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
   }
 }

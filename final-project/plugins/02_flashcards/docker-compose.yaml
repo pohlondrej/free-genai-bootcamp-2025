@@ -1,0 +1,7 @@
+services:
+  flashcards-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"

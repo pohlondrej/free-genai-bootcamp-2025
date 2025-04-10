@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, case, and_
+from sqlalchemy.orm import joinedload
 from database import get_db
 from models import StudySession, ReviewItem, Word, Kanji, Group
 from schemas import (
@@ -180,4 +181,85 @@ async def create_study_session(
         completed_at=new_session.completed_at,
         review_items_count=0,
         review_items=[]
+    )
+
+@router.post("/{session_id}/end", response_model=StudySessionDetail)
+async def end_study_session(
+    session_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    """End a study session"""
+    # Find session
+    query = (
+        select(StudySession)
+        .options(joinedload(StudySession.group))
+        .filter(StudySession.id == session_id)
+    )
+    result = await db.execute(query)
+    session = result.unique().scalar()
+    
+    if not session:
+        raise HTTPException(status_code=404, detail="Study session not found")
+    
+    # Update session
+    session.completed_at = datetime.now()
+    await db.commit()
+    await db.refresh(session)
+
+    # Get review items
+    query = (
+        select(
+            ReviewItem,
+            Word,
+            Kanji
+        )
+        .outerjoin(Word, and_(Word.id == ReviewItem.item_id, ReviewItem.item_type == 'word'))
+        .outerjoin(Kanji, and_(Kanji.id == ReviewItem.item_id, ReviewItem.item_type == 'kanji'))
+        .filter(ReviewItem.study_session_id == session_id)
+    )
+    result = await db.execute(query)
+    review_items_data = result.all()
+    
+    review_items = []
+    for review_item, word, kanji in review_items_data:
+        item_data = None
+        if word:
+            item_data = WordBase(
+                id=word.id,
+                word_level=word.word_level,
+                japanese=word.japanese,
+                kana=word.kana,
+                romaji=word.romaji,
+                english=word.english
+            )
+        elif kanji:
+            item_data = KanjiBase(
+                id=kanji.id,
+                kanji_level=kanji.kanji_level,
+                symbol=kanji.symbol,
+                primary_meaning=kanji.primary_meaning,
+                primary_reading=kanji.primary_reading,
+                primary_reading_type=kanji.primary_reading_type
+            )
+        
+        if item_data:
+            review_items.append(
+                ReviewItemInSession(
+                    id=review_item.id,
+                    item_type=review_item.item_type,
+                    correct=review_item.correct,
+                    created_at=review_item.created_at,
+                    item=item_data
+                )
+            )
+    
+    return StudySessionDetail(
+        id=session.id,
+        activity_type=session.activity_type,
+        group_name=session.group.name,
+        group_id=session.group_id,
+        created_at=session.created_at,
+        completed_at=session.completed_at,
+        review_items_count=len(review_items),
+        review_items=review_items
     )

@@ -1,0 +1,7 @@
+services:
+  crawler-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"

@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface GameInfo {
+  id: string;
   name: string;
+  description: string;
   backend_endpoint: string;
   frontend_endpoint: string;
   module_name: string;
-  image: string;
 }
 
 @Injectable({

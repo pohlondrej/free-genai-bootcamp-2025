@@ -32,3 +32,8 @@ services:
     depends_on:
       - frontend
       - backend
+
+include:
+  - plugins/01_wkcrawler/docker-compose.yaml
+  - plugins/02_flashcards/docker-compose.yaml
+  
