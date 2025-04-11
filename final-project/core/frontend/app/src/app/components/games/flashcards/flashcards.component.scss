@@ -6,6 +6,7 @@
   .page-header {
     text-align: center;
     margin-bottom: 2rem;
+    padding: 0;
 
     h1 {
       font-size: 2.5rem;
@@ -55,6 +56,8 @@
   }
 
   .group-selection {
+    padding: 0;
+
     h2 {
       font-size: 1.5rem;
       color: var(--text-color);
@@ -62,7 +65,12 @@
     }
 
     .search-box {
+      display: flex;
       margin-bottom: 2rem;
+      flex-grow: 1;
+      flex-shrink: 1;
+      max-width: 300px;
+      min-width: 150px;
 
       .search-input {
         width: 100%;
@@ -73,6 +81,7 @@
         background: var(--surface-color);
         color: var(--text-color);
         transition: all 0.2s;
+        box-sizing: border-box;
 
         &:focus {
           outline: none;

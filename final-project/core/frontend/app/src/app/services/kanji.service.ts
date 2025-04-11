@@ -44,10 +44,14 @@ export class KanjiService {
 
   constructor(private http: HttpClient) {}
 
-  async getKanjiList(page: number = 1): Promise<KanjiListResponse> {
+  async getKanjiList(page: number = 1, search?: string): Promise<KanjiListResponse> {
     const params = new URLSearchParams({
       page: page.toString()
     });
+    
+    if (search) {
+      params.append('search', search);
+    }
     
     return firstValueFrom(
       this.http.get<KanjiListResponse>(`${this.apiUrl}/kanji?${params}`)

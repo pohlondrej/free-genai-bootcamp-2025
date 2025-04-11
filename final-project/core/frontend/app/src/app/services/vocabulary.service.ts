@@ -44,10 +44,14 @@ export class VocabularyService {
 
   constructor(private http: HttpClient) {}
 
-  async getWordList(page: number = 1): Promise<WordListResponse> {
+  async getWordList(page: number = 1, search?: string): Promise<WordListResponse> {
     const params = new URLSearchParams({
       page: page.toString()
     });
+    
+    if (search) {
+      params.append('search', search);
+    }
     
     return firstValueFrom(
       this.http.get<WordListResponse>(`${this.apiUrl}/words?${params}`)

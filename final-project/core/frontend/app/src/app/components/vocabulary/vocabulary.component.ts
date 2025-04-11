@@ -1,16 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { VocabularyService, Word } from '../../services/vocabulary.service';
 
 @Component({
   selector: 'app-vocabulary',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   template: `
     <div class="vocabulary-page">
       <header class="page-header">
         <h1>Vocabulary List</h1>
+        <div class="search-box">
+          <input
+            type="text"
+            [formControl]="searchControl"
+            placeholder="Search by word or meaning..."
+            class="search-input"
+          />
+        </div>
       </header>
 
       <div class="vocabulary-grid" *ngIf="!loading && !error">
@@ -58,18 +68,30 @@ export class VocabularyComponent implements OnInit {
   currentPage = 1;
   totalItems = 0;
   totalPages = 0;
+  searchControl = new FormControl('');
 
   constructor(private vocabularyService: VocabularyService) {}
 
   ngOnInit() {
     this.loadWords();
+    this.setupSearch();
   }
 
-  async loadWords() {
+  private setupSearch() {
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.currentPage = 1; // Reset to first page when searching
+      this.loadWords(term || undefined);
+    });
+  }
+
+  async loadWords(search?: string) {
     try {
       this.loading = true;
       this.error = null;
-      const result = await this.vocabularyService.getWordList(this.currentPage);
+      const result = await this.vocabularyService.getWordList(this.currentPage, search);
       this.wordList = result.items;
       this.totalItems = result.pagination.total_items;
       this.totalPages = result.pagination.total_pages;
@@ -84,6 +106,6 @@ export class VocabularyComponent implements OnInit {
 
   changePage(page: number) {
     this.currentPage = page;
-    this.loadWords();
+    this.loadWords(this.searchControl.value || undefined);
   }
 }

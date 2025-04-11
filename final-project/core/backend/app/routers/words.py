@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, case, and_
+from sqlalchemy import select, func, case, and_, or_
 from database import get_db
 from models import Word, ReviewItem, GroupItem, Group
 from schemas import (
@@ -23,14 +23,27 @@ ITEMS_PER_PAGE = 30
 @router.get("", response_model=WordListResponse)
 async def list_words(
     page: int = 1,
+    search: Optional[str] = None,
     db: AsyncSession = Depends(get_db)
 ):
     """Get paginated list of words"""
     # Calculate offset
     offset = (page - 1) * ITEMS_PER_PAGE
     
-    # Get total count
-    result = await db.execute(select(func.count()).select_from(Word))
+    # Base query for filtering
+    base_query = select(Word)
+    if search:
+        search_term = f"%{search.lower()}%"
+        base_query = base_query.filter(
+            or_(
+                func.lower(Word.english).like(search_term),
+                func.lower(Word.japanese).like(search_term),
+                func.lower(Word.kana).like(search_term)
+            )
+        )
+    
+    # Get total count with search filter
+    result = await db.execute(select(func.count()).select_from(base_query.subquery()))
     total_count = result.scalar()
     
     # Get words with their stats
@@ -41,13 +54,29 @@ async def list_words(
             func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
         )
         .outerjoin(ReviewItem, and_(ReviewItem.item_id == Word.id, ReviewItem.item_type == 'word'))
+    )
+    
+    # Apply search filter to main query
+    if search:
+        search_term = f"%{search.lower()}%"
+        query = query.filter(
+            or_(
+                func.lower(Word.english).like(search_term),
+                func.lower(Word.japanese).like(search_term),
+                func.lower(Word.kana).like(search_term)
+            )
+        )
+    
+    # Add grouping, offset and limit
+    query = (
+        query
         .group_by(Word.id)
         .offset(offset)
         .limit(ITEMS_PER_PAGE)
     )
     
     result = await db.execute(query)
-    words = result.all()
+    word_list = result.all()
     
     # Convert to response model
     items = [
@@ -64,7 +93,7 @@ async def list_words(
                 wrong_reviews=(total_reviews or 0) - (correct_reviews or 0)
             )
         )
-        for word, total_reviews, correct_reviews in words
+        for word, total_reviews, correct_reviews in word_list
     ]
     
     return WordListResponse(

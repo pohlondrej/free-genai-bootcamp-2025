@@ -4,6 +4,8 @@ import { FormControl } from '@angular/forms';
 import { GroupsService } from '../../../services/groups.service';
 import { StudySessionsService, StudySession } from '../../../services/study-sessions.service';
 import { ReviewService } from '../../../services/review.service';
+import { KanjiService } from '../../../services/kanji.service';
+import { VocabularyService } from '../../../services/vocabulary.service';
 
 interface FlashcardItem {
   id: number;
@@ -63,7 +65,9 @@ export class FlashcardGameComponent implements OnInit {
     private router: Router,
     private groupsService: GroupsService,
     private studySessionsService: StudySessionsService,
-    private reviewService: ReviewService
+    private reviewService: ReviewService,
+    private kanjiService: KanjiService,
+    private vocabularyService: VocabularyService
   ) {
     console.log('FlashcardGameComponent: Constructor called');
   }
@@ -94,21 +98,37 @@ export class FlashcardGameComponent implements OnInit {
       }
       console.log('FlashcardGameComponent: Got group items', response);
 
-      // Initialize the game session
+      // Initialize the game session with empty items array
       this.session = {
         id: this.studySession.id,
         groupId: this.groupId,
         startTime: new Date(),
-        items: response.items.map((item: any) => ({
-          id: item.id,
-          type: item.item_type,
-          question: item.name,
-          answer: item.level
-        })),
+        items: [],
         currentIndex: 0,
         correctCount: 0,
         incorrectCount: 0
       };
+
+      // Fetch details for each item
+      for (const item of response.items) {
+        let answer: string;
+        if (item.item_type === 'kanji') {
+          const kanjiDetails = await this.kanjiService.getKanjiById(item.id);
+          answer = kanjiDetails.primary_meaning;
+        } else {
+          // Assume vocabulary
+          const wordDetails = await this.vocabularyService.getWordById(item.id);
+          answer = wordDetails.english;
+        }
+        
+        this.session.items.push({
+          id: item.id,
+          type: item.item_type,
+          question: item.name,
+          answer: answer
+        });
+      }
+
       this.currentItem = this.session.items[0];
       this.showAnswer = false;
       this.isSessionComplete = false;

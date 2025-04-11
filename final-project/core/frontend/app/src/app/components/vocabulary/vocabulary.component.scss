@@ -1,106 +1,147 @@
 .vocabulary-page {
-  h1 {
-    margin-bottom: 1.5rem;
-  }
-}
-
-.page-header {
-  margin-bottom: 2rem;
-}
-
-.vocabulary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.vocabulary-card {
-  background: var(--surface-color);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  transition: all 0.2s;
-  cursor: pointer;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .word {
-    font-size: 2rem;
-    text-align: center;
-    color: var(--text-color);
-    font-family: "Noto Sans JP", sans-serif;
-  }
-
-  .details {
-    text-align: center;
-
-    .meaning {
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-    }
-
-    .reading {
-      font-size: 1rem;
-      color: var(--text-muted);
-      margin-bottom: 0.25rem;
-    }
-
-    .romaji {
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      opacity: 0.8;
-    }
-  }
-}
-
-.loading, .error {
-  text-align: center;
   padding: 2rem;
-  color: var(--text-muted);
-}
+  max-width: 1200px;
+  margin: 0 auto;
 
-.error {
-  color: #dc3545;
-}
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
 
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-
-  button {
-    padding: 0.5rem 1rem;
-    border: 2px solid var(--border-color);
-    border-radius: 6px;
-    background: var(--surface-color);
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover:not(:disabled) {
-      background: var(--primary-color);
-      border-color: var(--primary-color);
-      color: white;
+    h1 {
+      font-size: 2.5rem;
+      color: var(--text-color);
+      margin: 0;
+      flex-shrink: 0;
     }
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
+    .search-box {
+      flex-grow: 1;
+      flex-shrink: 1;
+      max-width: 300px;
+      min-width: 150px;
+
+      .search-input {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--surface-color);
+        color: var(--text-color);
+        transition: all 0.2s;
+        box-sizing: border-box;
+
+        &:focus {
+          outline: none;
+          border-color: var(--primary-color);
+          box-shadow: var(--shadow-sm);
+        }
+
+        &::placeholder {
+          color: var(--text-muted);
+        }
+      }
     }
   }
 
-  span {
+  .vocabulary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .vocabulary-card {
+    background: var(--surface-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .word {
+      font-size: 2rem;
+      text-align: center;
+      color: var(--text-color);
+      font-family: "Noto Sans JP", sans-serif;
+    }
+
+    .details {
+      text-align: center;
+
+      .meaning {
+        font-size: 1.1rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+      }
+
+      .reading {
+        font-size: 1rem;
+        color: var(--text-muted);
+        margin-bottom: 0.25rem;
+      }
+
+      .romaji {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+    }
+  }
+
+  .loading, .error {
+    text-align: center;
+    padding: 2rem;
     color: var(--text-muted);
+    font-size: 1.2rem;
+  }
+
+  .error {
+    color: var(--error-color);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 2rem;
+
+    button {
+      padding: 0.5rem 1rem;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--surface-color);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover:not(:disabled) {
+        background: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    span {
+      color: var(--text-muted);
+    }
   }
 }

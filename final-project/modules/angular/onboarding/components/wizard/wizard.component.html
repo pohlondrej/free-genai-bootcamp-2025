@@ -8,7 +8,7 @@
       <form (ngSubmit)="onSubmit()" #form="ngForm">
         <!-- Gemini API Key -->
         <div class="form-group">
-          <label for="geminiApiKey">Add Gemini API Key (Highly Recommended) *</label>
+          <label for="geminiApiKey">Add Gemini API Key (Required)</label>
           <input
             type="text"
             id="geminiApiKey"
@@ -16,10 +16,10 @@
             [(ngModel)]="geminiApiKey"
             [disabled]="isSubmitting"
             placeholder="Enter your Gemini API key"
+            required
           >
           <div class="hint">
             Get your API key <a href="https://aistudio.google.com/app/apikey" target="_blank">here</a>. 
-            This greatly enhances AI-powered features for better learning experience. If not added, local Ollama setup is assumed.
           </div>
         </div>
 
@@ -60,7 +60,7 @@
             type="button"
             class="jlpt-button"
             (click)="initializeWithJLPT()"
-            [disabled]="isSubmitting"
+            [disabled]="isSubmitting || !geminiApiKey"
           >
             Use JLPT N5
           </button>
@@ -68,7 +68,7 @@
           <button
             type="submit"
             class="submit-button"
-            [disabled]="isSubmitting || !apiKey"
+            [disabled]="isSubmitting || !apiKey || !geminiApiKey"
           >
             {{ isSubmitting ? 'Importing...' : 'Connect WaniKani' }}
           </button>
