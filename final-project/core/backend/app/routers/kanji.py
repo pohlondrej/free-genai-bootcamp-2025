@@ -21,14 +21,21 @@ ITEMS_PER_PAGE = 30
 @router.get("", response_model=KanjiListResponse)
 async def list_kanji(
     page: int = 1,
+    search: Optional[str] = None,
     db: AsyncSession = Depends(get_db)
 ):
     """Get paginated list of kanji"""
     # Calculate offset
     offset = (page - 1) * ITEMS_PER_PAGE
     
-    # Get total count
-    result = await db.execute(select(func.count()).select_from(Kanji))
+    # Base query for filtering
+    base_query = select(Kanji)
+    if search:
+        search_term = f"%{search.lower()}%"
+        base_query = base_query.filter(func.lower(Kanji.primary_meaning).like(search_term))
+    
+    # Get total count with search filter
+    result = await db.execute(select(func.count()).select_from(base_query.subquery()))
     total_count = result.scalar()
     
     # Get kanji with their stats
@@ -39,6 +46,16 @@ async def list_kanji(
             func.sum(case((ReviewItem.correct == True, 1), else_=0)).label("correct_reviews")
         )
         .outerjoin(ReviewItem, and_(ReviewItem.item_id == Kanji.id, ReviewItem.item_type == 'kanji'))
+    )
+    
+    # Apply search filter to main query
+    if search:
+        search_term = f"%{search.lower()}%"
+        query = query.filter(func.lower(Kanji.primary_meaning).like(search_term))
+    
+    # Add grouping, offset and limit
+    query = (
+        query
         .group_by(Kanji.id)
         .offset(offset)
         .limit(ITEMS_PER_PAGE)

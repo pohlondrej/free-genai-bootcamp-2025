@@ -1,16 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { KanjiService, Kanji } from '../../services/kanji.service';
 
 @Component({
   selector: 'app-kanji',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ReactiveFormsModule],
   template: `
     <div class="kanji-page">
       <header class="page-header">
         <h1>Kanji List</h1>
+        <div class="search-box">
+          <input
+            type="text"
+            [formControl]="searchControl"
+            placeholder="Search by meaning..."
+            class="search-input"
+          />
+        </div>
       </header>
 
       <div class="kanji-grid" *ngIf="!loading && !error">
@@ -59,18 +69,31 @@ export class KanjiComponent implements OnInit {
   currentPage = 1;
   totalItems = 0;
   totalPages = 0;
+  searchControl = new FormControl('');
 
   constructor(private kanjiService: KanjiService) {}
 
   ngOnInit() {
     this.loadKanji();
+    this.setupSearch();
   }
 
-  async loadKanji() {
+  private setupSearch() {
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(term => {
+      this.currentPage = 1; // Reset to first page when searching
+      this.loadKanji(term || undefined);
+    });
+  }
+
+  async loadKanji(search?: string) {
+    this.loading = true;
+    this.error = null;
+    
     try {
-      this.loading = true;
-      this.error = null;
-      const result = await this.kanjiService.getKanjiList(this.currentPage);
+      const result = await this.kanjiService.getKanjiList(this.currentPage, search);
       this.kanjiList = result.items;
       this.totalItems = result.pagination.total_items;
       this.totalPages = result.pagination.total_pages;
@@ -85,6 +108,6 @@ export class KanjiComponent implements OnInit {
 
   changePage(page: number) {
     this.currentPage = page;
-    this.loadKanji();
+    this.loadKanji(this.searchControl.value || undefined);
   }
 }

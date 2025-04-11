@@ -25,9 +25,11 @@
         <input
           type="text"
           [formControl]="answerControl"
-          placeholder="Type your answer..."
+          placeholder="Type the English meaning..."
           (keyup.enter)="submitAnswer()"
           class="answer-input"
+          required
+          autofocus
         />
         <button class="submit-button" (click)="submitAnswer()">
           Submit
