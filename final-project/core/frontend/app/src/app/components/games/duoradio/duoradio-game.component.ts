@@ -106,7 +106,7 @@ export class DuoRadioGameComponent implements OnInit {
       this.studySession = studySession;
       console.log('DuoRadioGameComponent: Study session started', this.studySession);
 
-      this.loadingMessage = 'Preparing your personalized listening exercise...';
+      this.loadingMessage = 'Preparing your personalized listening exercise. This usually takes about a minute.';
       const response = await firstValueFrom(
         this.http.post<QuizSession>(
           `http://localhost:8003/api/session/?session_id=${this.studySession.id}`,

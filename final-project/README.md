@@ -1,20 +1,53 @@
 # DuoKani - A Comprehensive Japanese Language Learning Platform
-Summary - TODO
-
-## Screenshots
+DuoKani is a WaniKani companion application that leverages AI to teach vocabulary and kanji in a more immersive and interactive way.
 
 ## Features
+- Dashboard with progress tracking.
+- Wikipedia crawler for vocabulary building and read-along.
+- DuoRadio-style game for listening comprehension.
+- Onboarding wizard for WaniKani or JLPT N5.
+- Database of vocabulary and kanji.
+- Dark mode.
+- Responsive design.
+
+## Watch demo on YouTube
+[![YouTube](http://i.ytimg.com/vi/bOj1Uxb1BcQ/hqdefault.jpg)](https://www.youtube.com/watch?v=bOj1Uxb1BcQ)
+
+## Screenshots
+### Dashboard
+<img src="docs/screenshots/dashboard.png" alt="Dashboard">
+
+### List of Activities/Games
+<img src="docs/screenshots/games_list.png" alt="List of Activities/Games">
+
+### Wikipedia Crawler
+<img src="docs/screenshots/wkcrawler.png" alt="Wikipedia Crawler">
+
+### DuoRadio
+<img src="docs/screenshots/listening_comprehension.png" alt="DuoRadio">
+
+### Onboarding Wizard
+<img src="docs/screenshots/wanikani_importer.png" alt="Onboarding Wizard">
+
+### Study Session Group Selection
+<img src="docs/screenshots/flashcards_group_selection.png" alt="Study Session Group Selection">
+
+### Study Groups
+<img src="docs/screenshots/study_groups.png" alt="Study Groups">
+
+### Item Details
+<img src="docs/screenshots/item_details.png" alt="Item Details">
 
 ## Prerequisites
-
-- Docker and Docker Compose
+- Gemini API key ([get from here for free](https://aistudio.google.com/app/apikey))
+- Docker, Docker Compose v2 and available ports 80, 8000, 8001, 8002, 8003, 4200
 - Git
 
 ## Setup and Running
 
 1. Clone the repository and navigate to the project directory:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/pohlondrej/free-genai-bootcamp-2025.git
    cd final-project
    ```
 
@@ -24,7 +57,15 @@ Summary - TODO
    ```
 
 3. Access the application:
-   - Main Application: http://localhost
-   - API Documentation: http://localhost/api/docs
-   - Direct Backend Access: http://localhost:8000
-   - Direct Frontend Dev Server: http://localhost:4200
+   - Frontend through NGINX: http://localhost or http://127.0.0.1
+   - Core API Documentation: http://localhost/api/docs
+   - Core Backend Access: http://localhost:8000
+   - Wikipedia Crawler Backend: http://localhost:8001
+   - Flashcards Backend: http://localhost:8002
+   - DuoRadio Backend: http://localhost:8003
+   - Core Frontend Server Access: http://localhost:4200
+
+4. Stop the services to free up resources and networks/ports:
+   ```bash
+   docker compose down
+   ```
