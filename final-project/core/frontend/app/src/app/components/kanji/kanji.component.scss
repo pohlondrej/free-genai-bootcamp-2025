@@ -2,6 +2,7 @@
   padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  width: 100%; // Ensure the page takes full width up to max-width
 
   h1 {
     margin-bottom: 1.5rem;
@@ -12,16 +13,22 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 2rem;
+    padding: 0; // Remove any padding that might cause overflow
+    flex-wrap: wrap;
+    gap: 1rem;
 
     h1 {
       font-size: 2.5rem;
       color: var(--text-color);
-      margin-bottom: 0;
+      margin: 0;
+      flex-shrink: 0;
     }
 
     .search-box {
-      flex: 0 1 300px;
-      margin-left: 2rem;
+      flex-grow: 1;
+      flex-shrink: 1;
+      max-width: 300px;
+      min-width: 150px;
 
       .search-input {
         width: 100%;
@@ -32,6 +39,7 @@
         background: var(--surface-color);
         color: var(--text-color);
         transition: all 0.2s;
+        box-sizing: border-box;
 
         &:focus {
           outline: none;
@@ -48,7 +56,7 @@
 
   .kanji-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
     gap: 1.5rem;
     margin-top: 2rem;
   }
@@ -62,6 +70,7 @@
     flex-direction: column;
     gap: 1rem;
     transition: all 0.2s;
+    cursor: pointer;
 
     &:hover {
       transform: translateY(-2px);
