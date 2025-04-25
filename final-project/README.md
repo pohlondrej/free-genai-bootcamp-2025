@@ -57,13 +57,8 @@ DuoKani is a WaniKani companion application that leverages AI to teach vocabular
    ```
 
 3. Access the application:
-   - Frontend through NGINX: http://localhost or http://127.0.0.1
-   - Core API Documentation: http://localhost/api/docs
-   - Core Backend Access: http://localhost:8000
-   - Wikipedia Crawler Backend: http://localhost:8001
-   - Flashcards Backend: http://localhost:8002
-   - DuoRadio Backend: http://localhost:8003
-   - Core Frontend Server Access: http://localhost:4200
+   - Frontend through NGINX: http://localhost:80 or http://127.0.0.1:80
+   - Other ports can be found in the [Project Specification](docs/Project.md)
 
 4. Stop the services to free up resources and networks/ports:
    ```bash

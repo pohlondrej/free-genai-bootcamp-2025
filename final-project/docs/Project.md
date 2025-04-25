@@ -65,3 +65,11 @@ project/
 ### AI/LLM
 - Ollama
 - Gemini API
+
+## Ports
+- 80: NGINX
+- 8000: Core API
+- 8001: Crawler API
+- 8002: Flashcards API
+- 8003: DuoRadio API
+- 4200: Core Frontend
